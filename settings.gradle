@@ -30,8 +30,10 @@ plugins {
 rootProject.name = 'module-ballerina-pdf'
 
 include ':pdf-ballerina'
-
 project(':pdf-ballerina').projectDir = file("ballerina")
+
+include ':pdf-native'
+project(':pdf-native').projectDir = file("native")
 
 gradleEnterprise {
     buildScan {
