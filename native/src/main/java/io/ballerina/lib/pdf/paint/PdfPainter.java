@@ -167,7 +167,7 @@ public class PdfPainter {
                     && (overflow.equals("hidden") || overflow.equals("scroll")
                     || overflow.equals("auto") || overflow.equals("clip"));
             if (overflowClips) {
-                float clipFontSize = clipStyle.getFontSize(layoutContext.getFontSizePt());
+                float clipFontSize = clipStyle.getFontSize(layoutContext.getFallbackFontSize());
                 float tlr = clipStyle.getBorderTopLeftRadius(borderBoxW, clipFontSize);
                 float trr = clipStyle.getBorderTopRightRadius(borderBoxW, clipFontSize);
                 float brr = clipStyle.getBorderBottomRightRadius(borderBoxW, clipFontSize);
@@ -198,7 +198,7 @@ public class PdfPainter {
         ComputedStyle style = box.getStyle();
         if (style == null) return;
 
-        float fontSize = style.getFontSize(layoutContext.getFontSizePt());
+        float fontSize = style.getFontSize(layoutContext.getFallbackFontSize());
         float tlr = style.getBorderTopLeftRadius(width, fontSize);
         float trr = style.getBorderTopRightRadius(width, fontSize);
         float brr = style.getBorderBottomRightRadius(width, fontSize);
@@ -246,7 +246,7 @@ public class PdfPainter {
         ComputedStyle style = box.getStyle();
         if (style == null) return;
 
-        float fontSize = style.getFontSize(layoutContext.getFontSizePt());
+        float fontSize = style.getFontSize(layoutContext.getFallbackFontSize());
         java.util.List<ComputedStyle.BoxShadow> shadows = style.getBoxShadows(width, fontSize);
         if (shadows.isEmpty()) return;
 
@@ -329,7 +329,7 @@ public class PdfPainter {
         float opacity = style.getOpacity();
 
         // Check for border-radius — if present, stroke the rounded rect as a whole
-        float fontSize = style.getFontSize(layoutContext.getFontSizePt());
+        float fontSize = style.getFontSize(layoutContext.getFallbackFontSize());
         float tlr = style.getBorderTopLeftRadius(width, fontSize);
         float trr = style.getBorderTopRightRadius(width, fontSize);
         float brr = style.getBorderBottomRightRadius(width, fontSize);
@@ -429,7 +429,7 @@ public class PdfPainter {
         if (font == null) {
             font = fontManager.getDefaultFont();
         }
-        if (fontSize <= 0) fontSize = layoutContext.getFontSizePt();
+        if (fontSize <= 0) fontSize = layoutContext.getFallbackFontSize();
 
         // Resolve text into segments, each using a font that can encode its characters
         List<TextSegment> segments = resolveTextSegments(text, font);

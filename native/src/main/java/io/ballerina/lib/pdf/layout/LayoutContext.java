@@ -18,7 +18,7 @@
 
 package io.ballerina.lib.pdf.layout;
 
-import io.ballerina.lib.pdf.ConverterOptions;
+import io.ballerina.lib.pdf.ConversionOptions;
 import io.ballerina.lib.pdf.paint.FontManager;
 import io.ballerina.lib.pdf.util.CssValueParser;
 
@@ -35,12 +35,12 @@ public class LayoutContext {
     private float marginLeft;
 
     private final FontManager fontManager;
-    private final float fontSizePt;
+    private final float fallbackFontSize;
 
-    public LayoutContext(FontManager fontManager, ConverterOptions options) {
+    public LayoutContext(FontManager fontManager, ConversionOptions options) {
         this.fontManager = fontManager;
-        this.fontSizePt = options.getFontSizePt();
-        // Initialize from ConverterOptions (these are defaults; configureFromPageRule may override)
+        this.fallbackFontSize = options.getFallbackFontSize();
+        // Initialize from ConversionOptions (these are defaults; configureFromPageRule may override)
         this.pageWidth = options.getPageWidth();
         this.pageHeight = options.getPageHeight();
         this.marginTop = options.getMarginTop();
@@ -56,11 +56,11 @@ public class LayoutContext {
         if (pageSize != null) {
             String lower = pageSize.trim().toLowerCase();
             if (lower.equals("a4")) {
-                pageWidth = ConverterOptions.A4_WIDTH;
-                pageHeight = ConverterOptions.A4_HEIGHT;
+                pageWidth = ConversionOptions.A4_WIDTH;
+                pageHeight = ConversionOptions.A4_HEIGHT;
             } else if (lower.equals("letter")) {
-                pageWidth = ConverterOptions.LETTER_WIDTH;
-                pageHeight = ConverterOptions.LETTER_HEIGHT;
+                pageWidth = ConversionOptions.LETTER_WIDTH;
+                pageHeight = ConversionOptions.LETTER_HEIGHT;
             }
             // Could parse explicit dimensions if needed
         }
@@ -108,5 +108,5 @@ public class LayoutContext {
     public float getMarginBottom() { return marginBottom; }
     public float getMarginLeft() { return marginLeft; }
     public FontManager getFontManager() { return fontManager; }
-    public float getFontSizePt() { return fontSizePt; }
+    public float getFallbackFontSize() { return fallbackFontSize; }
 }

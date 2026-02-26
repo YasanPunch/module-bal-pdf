@@ -18,10 +18,10 @@
 
 package io.ballerina.lib.pdf;
 
-import static io.ballerina.lib.pdf.ConverterOptions.A4_HEIGHT;
-import static io.ballerina.lib.pdf.ConverterOptions.A4_WIDTH;
-import static io.ballerina.lib.pdf.ConverterOptions.DEFAULT_FONT_SIZE_PT;
-import static io.ballerina.lib.pdf.ConverterOptions.DEFAULT_MARGIN;
+import static io.ballerina.lib.pdf.ConversionOptions.A4_HEIGHT;
+import static io.ballerina.lib.pdf.ConversionOptions.A4_WIDTH;
+import static io.ballerina.lib.pdf.ConversionOptions.DEFAULT_FALLBACK_FONT_SIZE;
+import static io.ballerina.lib.pdf.ConversionOptions.DEFAULT_MARGIN;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -42,8 +42,8 @@ public class Main {
 
         HtmlPreprocessor preprocessor = new HtmlPreprocessor();
         HtmlToPdfConverter converter = new HtmlToPdfConverter();
-        ConverterOptions options = new ConverterOptions(
-                DEFAULT_FONT_SIZE_PT, A4_WIDTH, A4_HEIGHT,
+        ConversionOptions options = new ConversionOptions(
+                DEFAULT_FALLBACK_FONT_SIZE, A4_WIDTH, A4_HEIGHT,
                 DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN,
                 null, null, null);
 
@@ -54,7 +54,7 @@ public class Main {
 
     private static void convertFile(String inputPath, HtmlPreprocessor preprocessor,
                                      HtmlToPdfConverter converter,
-                                     ConverterOptions options) throws Exception {
+                                     ConversionOptions options) throws Exception {
         Path input = Path.of(inputPath);
         if (!Files.exists(input)) {
             System.err.println("Not found: " + input.toAbsolutePath());

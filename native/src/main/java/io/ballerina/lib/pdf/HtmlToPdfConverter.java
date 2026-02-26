@@ -49,7 +49,7 @@ public class HtmlToPdfConverter {
     /**
      * Convert a preprocessed W3C DOM Document to PDF bytes with custom options.
      */
-    public byte[] convert(org.w3c.dom.Document document, ConverterOptions options) throws Exception {
+    public byte[] convert(org.w3c.dom.Document document, ConversionOptions options) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         convert(document, baos, options);
         return baos.toByteArray();
@@ -59,7 +59,7 @@ public class HtmlToPdfConverter {
      * Convert a preprocessed W3C DOM Document to PDF with custom options, writing to the given stream.
      */
     public void convert(org.w3c.dom.Document document, OutputStream outputStream,
-                              ConverterOptions options) throws Exception {
+                              ConversionOptions options) throws Exception {
         try (PDDocument pdfDoc = new PDDocument()) {
 
             // 1. Load fonts

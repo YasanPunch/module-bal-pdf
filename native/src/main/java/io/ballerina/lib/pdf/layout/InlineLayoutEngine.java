@@ -39,13 +39,13 @@ import java.util.List;
 public class InlineLayoutEngine {
 
     private final FontManager fontManager;
-    private final float fontSizePt;
+    private final float fallbackFontSize;
     private final BlockFormattingContext bfc;
 
-    public InlineLayoutEngine(FontManager fontManager, float fontSizePt,
+    public InlineLayoutEngine(FontManager fontManager, float fallbackFontSize,
                                BlockFormattingContext bfc) {
         this.fontManager = fontManager;
-        this.fontSizePt = fontSizePt;
+        this.fallbackFontSize = fallbackFontSize;
         this.bfc = bfc;
     }
 
@@ -208,7 +208,7 @@ public class InlineLayoutEngine {
                 float contentHeight = bfc.layoutChildren(bb, contentWidth);
                 // Apply explicit height + min/max clamping (matches BFC block-level handling)
                 ComputedStyle ibStyle = bb.getStyle();
-                float ibFontSize = ibStyle.getFontSize(fontSizePt);
+                float ibFontSize = ibStyle.getFontSize(fallbackFontSize);
                 float explicitHeight = ibStyle.getHeight(contentHeight, ibFontSize);
                 if (explicitHeight > 0) {
                     contentHeight = Math.max(contentHeight, explicitHeight);
@@ -223,11 +223,11 @@ public class InlineLayoutEngine {
                 items.add(new InlineItem(bb, outerWidth, outerHeight));
             } else if (box instanceof BrBox br) {
                 // Resolve line-height for the break so empty lines have correct spacing
-                float brFontSize = fontSizePt;
+                float brFontSize = fallbackFontSize;
                 float brLineHeight;
                 ComputedStyle brStyle = br.getStyle();
                 if (brStyle != null) {
-                    brFontSize = brStyle.getFontSize(fontSizePt);
+                    brFontSize = brStyle.getFontSize(fallbackFontSize);
                     float cssLH = brStyle.getLineHeight(brFontSize);
                     brLineHeight = cssLH > 0 ? cssLH
                             : fontManager.getLineHeight(fontManager.getDefaultFont(), brFontSize);
@@ -255,14 +255,14 @@ public class InlineLayoutEngine {
         ComputedStyle style = textRun.getStyle();
         if (style == null) {
             textRun.setFont(fontManager.getDefaultFont());
-            textRun.setFontSize(fontSizePt);
+            textRun.setFontSize(fallbackFontSize);
             return;
         }
 
         String[] families = CssValueParser.parseFontFamilyList(style.getFontFamily());
         boolean bold = style.isBold();
         boolean italic = style.isItalic();
-        float fontSize = style.getFontSize(fontSizePt);
+        float fontSize = style.getFontSize(fallbackFontSize);
 
         // Check for superscript / subscript
         String verticalAlign = style.get("vertical-align");
@@ -427,7 +427,7 @@ public class InlineLayoutEngine {
      */
     private float computeShrinkToFitWidth(BlockBox box, float availableWidth) {
         ComputedStyle style = box.getStyle();
-        float fontSize = style.getFontSize(fontSizePt);
+        float fontSize = style.getFontSize(fallbackFontSize);
         float explicitWidth = style.getWidth(availableWidth, fontSize);
         if (explicitWidth > 0) {
             return explicitWidth;
@@ -474,7 +474,7 @@ public class InlineLayoutEngine {
         if (style != null) {
             String[] families = CssValueParser.parseFontFamilyList(style.getFontFamily());
             font = fontManager.getFont(families, style.isBold(), style.isItalic());
-            fontSize = style.getFontSize(fontSizePt);
+            fontSize = style.getFontSize(fallbackFontSize);
 
             // Apply text-transform before measuring (must match resolveTextMetrics)
             String transform = style.getTextTransform();
@@ -483,7 +483,7 @@ public class InlineLayoutEngine {
             else if ("capitalize".equals(transform)) text = capitalize(text);
         } else {
             font = fontManager.getDefaultFont();
-            fontSize = fontSizePt;
+            fontSize = fallbackFontSize;
         }
 
         float letterSpacing = (style != null) ? style.getLetterSpacing(fontSize) : 0;
@@ -512,7 +512,7 @@ public class InlineLayoutEngine {
         if (style != null) {
             String[] families = CssValueParser.parseFontFamilyList(style.getFontFamily());
             font = fontManager.getFont(families, style.isBold(), style.isItalic());
-            fontSize = style.getFontSize(fontSizePt);
+            fontSize = style.getFontSize(fallbackFontSize);
 
             // Apply text-transform before measuring (must match resolveTextMetrics)
             String transform = style.getTextTransform();
@@ -521,7 +521,7 @@ public class InlineLayoutEngine {
             else if ("capitalize".equals(transform)) text = capitalize(text);
         } else {
             font = fontManager.getDefaultFont();
-            fontSize = fontSizePt;
+            fontSize = fallbackFontSize;
         }
 
         float letterSpacing = (style != null) ? style.getLetterSpacing(fontSize) : 0;

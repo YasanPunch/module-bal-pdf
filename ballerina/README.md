@@ -28,7 +28,7 @@ public function main() returns error? {
     string html = check io:fileReadString("report.html");
 
     byte[] pdfBytes = check pdf:parseHtml(html,
-        fontSizePt = 10.0,
+        fallbackFontSize = 10.0,
         pageSize = pdf:LETTER,
         margins = {top: 72, right: 54, bottom: 72, left: 54},
         additionalCss = "body { font-family: sans-serif; } .container { width: 100% !important; }"

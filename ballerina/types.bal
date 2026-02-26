@@ -37,9 +37,9 @@ public type PageMargins record {|
 
 # Options controlling HTML-to-PDF conversion behavior.
 #
-# + fontSizePt - Base font size in points (default: 12.0, per CSS spec "medium" keyword).
-#                Used when CSS does not specify a font-size for an element. CSS `font-size`
-#                declarations in the HTML take precedence over this value.
+# + fallbackFontSize - Fallback font size in points (default: 12.0, per CSS spec "medium" keyword).
+#                     Used when CSS does not specify a font-size for an element. CSS `font-size`
+#                     declarations in the HTML take precedence over this value.
 # + pageSize - Page size for the PDF output. Default: A4.
 # + margins - Page margins in points (top, right, bottom, left). Default: 0 (no page margin; CSS controls spacing).
 # + additionalCss - Additional CSS to inject into the document before conversion.
@@ -51,7 +51,7 @@ public type PageMargins record {|
 # + maxPages - Maximum number of pages in the output PDF. Content is scaled to fit within
 #              this page limit. Must be greater than 0 when provided.
 public type ConversionOptions record {|
-    float fontSizePt = 12.0;
+    float fallbackFontSize = 12.0;
     PageSize pageSize = A4;
     PageMargins margins = {};
     string additionalCss?;

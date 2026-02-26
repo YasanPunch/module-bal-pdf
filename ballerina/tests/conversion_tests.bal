@@ -35,7 +35,7 @@ function testBasicConversion() returns error? {
 
 @test:Config {}
 function testConversionWithCustomFontSize() returns error? {
-    byte[] pdf = check parseHtml("<p>Small text</p>", fontSizePt = 9.0);
+    byte[] pdf = check parseHtml("<p>Small text</p>", fallbackFontSize = 9.0);
     assertValidPdf(pdf, "Custom font size");
 }
 
@@ -99,7 +99,7 @@ function testFullHtmlDocument() returns error? {
 function testAllOptionsCombined() returns error? {
     byte[] pdf = check parseHtml(
         "<p>All options</p>",
-        fontSizePt = 10.0,
+        fallbackFontSize = 10.0,
         pageSize = LETTER,
         margins = {top: 72, right: 54, bottom: 72, left: 54},
         additionalCss = "p { color: darkblue; }"

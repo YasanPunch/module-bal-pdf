@@ -53,14 +53,14 @@ public final class Native {
     public static Object parseHtml(BString html, BMap<BString, Object> options) {
         try {
             // Read options from BMap
-            float fontSize = getFloat(options, ConverterOptions.KEY_FONT_SIZE_PT,
-                    ConverterOptions.DEFAULT_FONT_SIZE_PT);
-            String pageSize = getString(options, ConverterOptions.KEY_PAGE_SIZE, "A4");
-            String additionalCss = getString(options, ConverterOptions.KEY_ADDITIONAL_CSS, null);
+            float fontSize = getFloat(options, ConversionOptions.KEY_FALLBACK_FONT_SIZE,
+                    ConversionOptions.DEFAULT_FALLBACK_FONT_SIZE);
+            String pageSize = getString(options, ConversionOptions.KEY_PAGE_SIZE, "A4");
+            String additionalCss = getString(options, ConversionOptions.KEY_ADDITIONAL_CSS, null);
 
             // maxPages: absent = no limit
             Integer maxPages = null;
-            Object maxPagesObj = options.get(StringUtils.fromString(ConverterOptions.KEY_MAX_PAGES));
+            Object maxPagesObj = options.get(StringUtils.fromString(ConversionOptions.KEY_MAX_PAGES));
             if (maxPagesObj != null && TypeUtils.getType(maxPagesObj).getTag() == TypeTags.INT_TAG) {
                 maxPages = ((Long) maxPagesObj).intValue();
                 if (maxPages <= 0) {
@@ -71,7 +71,7 @@ public final class Native {
 
             // Read custom fonts from nested map
             Map<String, byte[]> customFonts = null;
-            Object customFontsObj = options.get(StringUtils.fromString(ConverterOptions.KEY_CUSTOM_FONTS));
+            Object customFontsObj = options.get(StringUtils.fromString(ConversionOptions.KEY_CUSTOM_FONTS));
             if (customFontsObj != null
                     && TypeUtils.getType(customFontsObj).getTag() == TypeTags.MAP_TAG) {
                 BMap<BString, Object> fontsMap = (BMap<BString, Object>) customFontsObj;
@@ -85,30 +85,30 @@ public final class Native {
             }
 
             // Read margins from nested PageMargins record
-            float marginTop = ConverterOptions.DEFAULT_MARGIN;
-            float marginRight = ConverterOptions.DEFAULT_MARGIN;
-            float marginBottom = ConverterOptions.DEFAULT_MARGIN;
-            float marginLeft = ConverterOptions.DEFAULT_MARGIN;
+            float marginTop = ConversionOptions.DEFAULT_MARGIN;
+            float marginRight = ConversionOptions.DEFAULT_MARGIN;
+            float marginBottom = ConversionOptions.DEFAULT_MARGIN;
+            float marginLeft = ConversionOptions.DEFAULT_MARGIN;
 
-            Object marginsObj = options.get(StringUtils.fromString(ConverterOptions.KEY_MARGINS));
+            Object marginsObj = options.get(StringUtils.fromString(ConversionOptions.KEY_MARGINS));
             if (marginsObj != null
                     && TypeUtils.getType(marginsObj).getTag() == TypeTags.RECORD_TYPE_TAG) {
                 BMap<BString, Object> margins = (BMap<BString, Object>) marginsObj;
-                marginTop = getFloat(margins, ConverterOptions.KEY_MARGIN_TOP,
-                        ConverterOptions.DEFAULT_MARGIN);
-                marginRight = getFloat(margins, ConverterOptions.KEY_MARGIN_RIGHT,
-                        ConverterOptions.DEFAULT_MARGIN);
-                marginBottom = getFloat(margins, ConverterOptions.KEY_MARGIN_BOTTOM,
-                        ConverterOptions.DEFAULT_MARGIN);
-                marginLeft = getFloat(margins, ConverterOptions.KEY_MARGIN_LEFT,
-                        ConverterOptions.DEFAULT_MARGIN);
+                marginTop = getFloat(margins, ConversionOptions.KEY_MARGIN_TOP,
+                        ConversionOptions.DEFAULT_MARGIN);
+                marginRight = getFloat(margins, ConversionOptions.KEY_MARGIN_RIGHT,
+                        ConversionOptions.DEFAULT_MARGIN);
+                marginBottom = getFloat(margins, ConversionOptions.KEY_MARGIN_BOTTOM,
+                        ConversionOptions.DEFAULT_MARGIN);
+                marginLeft = getFloat(margins, ConversionOptions.KEY_MARGIN_LEFT,
+                        ConversionOptions.DEFAULT_MARGIN);
             }
 
             // Resolve page dimensions from size name
-            float[] dims = ConverterOptions.pageDimensions(pageSize);
+            float[] dims = ConversionOptions.pageDimensions(pageSize);
 
-            // Build ConverterOptions
-            ConverterOptions opts = new ConverterOptions(
+            // Build ConversionOptions
+            ConversionOptions opts = new ConversionOptions(
                     fontSize, dims[0], dims[1],
                     marginTop, marginRight, marginBottom, marginLeft,
                     additionalCss, customFonts, maxPages);

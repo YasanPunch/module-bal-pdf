@@ -49,7 +49,7 @@ public function main() returns error? {
 .head1, .headtitle1 { width: auto !important; }`;
 
     byte[] pdfBytes = check pdf:parseHtml(html,
-        fontSizePt = 9.0,
+        fallbackFontSize = 9.0,
         margins = {
             top: 42.52,    // 15mm
             right: 28.35,  // 10mm

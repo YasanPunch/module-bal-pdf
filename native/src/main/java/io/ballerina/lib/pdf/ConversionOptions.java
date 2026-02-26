@@ -23,10 +23,10 @@ import java.util.Map;
 /**
  * Configuration options for HTML-to-PDF conversion.
  */
-public class ConverterOptions {
+public class ConversionOptions {
 
     /** CSS-spec default: medium = 16px = 12pt */
-    public static final float DEFAULT_FONT_SIZE_PT = 12f;
+    public static final float DEFAULT_FALLBACK_FONT_SIZE = 12f;
 
     // A4 dimensions in points (210mm x 297mm)
     public static final float A4_WIDTH = 595.276f;
@@ -44,7 +44,7 @@ public class ConverterOptions {
     public static final float DEFAULT_MARGIN = 0f;
 
     // BMap field keys — must match Ballerina record field names in types.bal
-    public static final String KEY_FONT_SIZE_PT = "fontSizePt";
+    public static final String KEY_FALLBACK_FONT_SIZE = "fallbackFontSize";
     public static final String KEY_PAGE_SIZE = "pageSize";
     public static final String KEY_ADDITIONAL_CSS = "additionalCss";
     public static final String KEY_MAX_PAGES = "maxPages";
@@ -57,7 +57,7 @@ public class ConverterOptions {
     public static final String KEY_MARGIN_BOTTOM = "bottom";
     public static final String KEY_MARGIN_LEFT = "left";
 
-    private final float fontSizePt;
+    private final float fallbackFontSize;
     private final float pageWidth;
     private final float pageHeight;
     private final float marginTop;
@@ -69,14 +69,14 @@ public class ConverterOptions {
     private final Integer maxPages;
 
     /** Full constructor with all options. */
-    public ConverterOptions(float fontSizePt,
+    public ConversionOptions(float fallbackFontSize,
                             float pageWidth, float pageHeight,
                             float marginTop, float marginRight,
                             float marginBottom, float marginLeft,
                             String additionalCss,
                             Map<String, byte[]> customFonts, Integer maxPages) {
-        if (fontSizePt <= 0) {
-            throw new IllegalArgumentException("fontSizePt must be positive, got: " + fontSizePt);
+        if (fallbackFontSize <= 0) {
+            throw new IllegalArgumentException("fallbackFontSize must be positive, got: " + fallbackFontSize);
         }
         if (pageWidth <= 0) {
             throw new IllegalArgumentException("pageWidth must be positive, got: " + pageWidth);
@@ -96,7 +96,7 @@ public class ConverterOptions {
         if (marginLeft < 0) {
             throw new IllegalArgumentException("marginLeft must be non-negative, got: " + marginLeft);
         }
-        this.fontSizePt = fontSizePt;
+        this.fallbackFontSize = fallbackFontSize;
         this.pageWidth = pageWidth;
         this.pageHeight = pageHeight;
         this.marginTop = marginTop;
@@ -117,7 +117,7 @@ public class ConverterOptions {
         };
     }
 
-    public float getFontSizePt() { return fontSizePt; }
+    public float getFallbackFontSize() { return fallbackFontSize; }
     public float getPageWidth() { return pageWidth; }
     public float getPageHeight() { return pageHeight; }
     public float getMarginTop() { return marginTop; }
