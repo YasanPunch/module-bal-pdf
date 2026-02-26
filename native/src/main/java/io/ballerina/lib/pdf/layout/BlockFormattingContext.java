@@ -52,7 +52,7 @@ public class BlockFormattingContext {
         root.setX(0);
         root.setY(0);
 
-        // Re-resolve box model with actual container width
+        // Re-resolve box model with actual container width (resolve css units to points).
         resolveBoxModelWithWidth(root, availableWidth);
 
         float contentWidth = availableWidth
@@ -202,7 +202,9 @@ public class BlockFormattingContext {
 
     /**
      * Lays out children of a block container. Returns total height consumed.
+     * MAIN LAYOUT ENGINE FOR BLOCK-LEVEL BOXES.
      */
+    @SuppressWarnings("null")
     public float layoutChildren(Box container, float availableWidth) {
         // Clear previous layout results so re-layout works correctly
         container.clearLayoutChildren();
@@ -240,8 +242,9 @@ public class BlockFormattingContext {
             }
         }
 
-        // Pure inline context (no block children) — delegate to inline engine
+        // 1. Pure inline context (no block children) — delegate to inline engine
         if (!hasBlockChildren && !hasFloats) {
+            // Lay out the inline content with the available width.
             float height = inlineEngine.layout(container, availableWidth);
             if (!absoluteChildren.isEmpty()) {
                 layoutAbsoluteChildren(container, absoluteChildren, availableWidth, height);
@@ -249,7 +252,7 @@ public class BlockFormattingContext {
             return height;
         }
 
-        // Block layout (may include floats): process children in document order
+        // 2. Block layout (may include floats): process children in document order (top-to-bottom).
         List<FloatBox> activeFloats = hasFloats ? new ArrayList<>() : null;
         float cursorY = 0;
 
@@ -277,6 +280,7 @@ public class BlockFormattingContext {
             }
             // Lay out remaining inline content
             if (!inlineChildren.isEmpty()) {
+                // Lay out the remaining inline content with float-aware widths.
                 cursorY = layoutInlineRunWithFloats(container, inlineChildren,
                         availableWidth, cursorY, activeFloats);
             }
@@ -292,7 +296,7 @@ public class BlockFormattingContext {
             return cursorY;
         }
 
-        // Mixed block context (blocks, tables, possibly floats).
+        // 3. Mixed block context (blocks, tables, possibly floats).
         // Track pending bottom margin for CSS 2.1 §8.3.1 adjacent sibling margin collapsing.
         float pendingMarginBottom = 0;
         boolean isFirstChild = true;
@@ -332,10 +336,13 @@ public class BlockFormattingContext {
                     && !(child instanceof BlockBox bb2 && bb2.getStyle() != null
                          && "inline-block".equals(bb2.getStyle().getDisplay()));
 
+            // Table and block children are laid out differently.
             if (child instanceof TableBox table) {
+                // Lay out a table child.
                 layoutTableChild(table, availableWidth, state,
                         collapseFirstChildTop, collapseMargins);
-            } else if (child instanceof BlockBox block) {
+            } 
+            else if (child instanceof BlockBox block) {
                 layoutBlockChild(block, availableWidth, state,
                         collapseFirstChildTop, collapseMargins);
             } else {
@@ -457,6 +464,8 @@ public class BlockFormattingContext {
 
         ComputedStyle style = block.getStyle();
         if (style == null) return;
+
+        // 1. Resolve content width (shrink-to-fit for blocks without explicit width)
         float explicitWidth = style.getWidth(availableWidth, ctx.getFontSizePt());
         float blockWidth;
         if (explicitWidth > 0) {
@@ -477,21 +486,26 @@ public class BlockFormattingContext {
         float minW = style.getMinWidth(availableWidth, fontSize);
         blockWidth = Math.max(minW, Math.min(blockWidth, maxW));
 
+        // 2. Apply margin collapsing using CSS 2.1 §8.3.1 margin collapsing rules.
         state[0] += resolveEffectiveMarginTop(block.getMarginTop(), state,
                 collapseFirstChildTop, collapseMargins);
-
         // CSS 2.1 §10.3.3: center block with margin-left: auto and margin-right: auto
         float blockXOffset = 0;
         float totalOuter = blockWidth + block.getBorderLeftWidth() + block.getPaddingLeft()
                 + block.getPaddingRight() + block.getBorderRightWidth();
+
+        // 3. Position the block (center the block with margin-left: auto and margin-right: auto). 
         if (style.isMarginLeftAuto() && style.isMarginRightAuto()
                 && totalOuter < availableWidth) {
             blockXOffset = (availableWidth - totalOuter) / 2f;
         }
+
+        // 4. Set the position of the block.
         block.setX(blockXOffset);
         block.setY(state[0] - block.getMarginTop());
         block.setWidth(blockWidth);
 
+        // 5. Recursively layout the contents of the block.
         float contentHeight = layoutChildren(block, blockWidth);
         float explicitHeight = style.getHeight(contentHeight, fontSize);
         if (explicitHeight > 0) {
@@ -503,11 +517,12 @@ public class BlockFormattingContext {
 
         block.setHeight(contentHeight);
 
+        // 6. Update the layout state and advance the cursor.
         state[0] += block.getBorderTopWidth() + block.getPaddingTop()
                 + contentHeight
                 + block.getPaddingBottom() + block.getBorderBottomWidth();
 
-        state[1] = block.getMarginBottom();
+        state[1] = block.getMarginBottom(); //pending next sibling's margin collapsing. 
         state[2] = 0f;
 
         if ("relative".equals(style.getPosition())) {
@@ -529,6 +544,7 @@ public class BlockFormattingContext {
             wrapper.addChild(child);
         }
 
+        // Delegate to the InlineLayoutEengine to layout the inline run with float-aware line widths.
         InlineLayoutEngine.LineWidthProvider provider = (float y) -> {
             float w = getAvailableWidthAtY(y, availableWidth, activeFloats);
             float xOff = getLeftOffsetAtY(y, activeFloats);

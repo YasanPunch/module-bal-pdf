@@ -47,26 +47,12 @@ import java.util.Map;
 public class HtmlToPdfConverter {
 
     /**
-     * Convert a preprocessed W3C DOM Document to PDF bytes.
-     */
-    public byte[] convert(org.w3c.dom.Document document) throws Exception {
-        return convert(document, new ConverterOptions());
-    }
-
-    /**
      * Convert a preprocessed W3C DOM Document to PDF bytes with custom options.
      */
     public byte[] convert(org.w3c.dom.Document document, ConverterOptions options) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         convert(document, baos, options);
         return baos.toByteArray();
-    }
-
-    /**
-     * Convert a preprocessed W3C DOM Document to PDF, writing to the given stream.
-     */
-    public void convert(org.w3c.dom.Document document, OutputStream outputStream) throws Exception {
-        convert(document, outputStream, new ConverterOptions());
     }
 
     /**
@@ -114,6 +100,7 @@ public class HtmlToPdfConverter {
                 float totalHeight = PageBreaker.computeVisualHeight(root);
                 float targetHeight = maxPages * layoutContext.getContentHeight();
                 scale = targetHeight / totalHeight;
+
                 // Re-slice into maxPages even pages
                 float sliceHeight = totalHeight / maxPages;
                 pages = new ArrayList<>();
@@ -131,6 +118,7 @@ public class HtmlToPdfConverter {
             PdfPageManager pageManager = new PdfPageManager(pdfDoc, layoutContext);
             PdfPainter painter = new PdfPainter(pageManager, imageDecoder, fontManager, layoutContext);
             painter.setAnchorMap(anchorMap);
+            // the scale factor is applied during painting as a CTM (Current Transformation Matrix) scale transform.
             painter.paint(root, pages, scale);
 
             // 8b. Resolve internal anchor links (requires all pages to exist)

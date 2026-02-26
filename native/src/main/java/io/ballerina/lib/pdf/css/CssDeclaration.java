@@ -26,6 +26,8 @@ public record CssDeclaration(String property, String value, boolean important) {
     public CssDeclaration(String property, String value) {
         this(property, value, false);
     }
+    // Example: CssDeclaration("color", "red", false)  // from "color: red"
+    // Example: CssDeclaration("font-size", "14px", true)  // from "font-size: 14px !important"
 
     @Override
     public String toString() {

@@ -26,7 +26,10 @@ import java.util.List;
  */
 public class CssStylesheet {
 
+    //1. List of all the rules in the stylesheet.
     private final List<CssRule> rules = new ArrayList<>();
+    
+    //2. List of all the @page declarations in the stylesheet.
     private final List<CssDeclaration> pageDeclarations = new ArrayList<>();
 
     public void addRule(CssRule rule) {
@@ -46,7 +49,7 @@ public class CssStylesheet {
     }
 
     /**
-     * Gets the @page size (returns "a4" by default).
+     * 3. Get the @page size (returns "a4" by default).
      */
     public String getPageSize() {
         for (CssDeclaration decl : pageDeclarations) {
@@ -58,7 +61,7 @@ public class CssStylesheet {
     }
 
     /**
-     * Gets the @page margin values as [top, right, bottom, left] in the raw CSS value.
+     * 4. Get the @page margin values as [top, right, bottom, left] in the raw CSS value.
      */
     public String getPageMargin() {
         for (CssDeclaration decl : pageDeclarations) {

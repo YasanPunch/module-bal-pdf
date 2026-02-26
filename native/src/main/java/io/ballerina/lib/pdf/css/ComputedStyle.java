@@ -31,6 +31,9 @@ import java.util.regex.Pattern;
 /**
  * Resolved CSS styles for a single element after cascade, specificity, and inheritance.
  * Provides typed accessors for commonly used properties.
+ * 
+ * This is a property bag with typed accessors for commonly used properties.
+ * Also, every dimension accessor calls .toPoints() to convert CSS units (px, pt, em, %, mm, etc.) to points (1/72 inch).
  */
 public class ComputedStyle {
 

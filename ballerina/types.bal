@@ -29,10 +29,10 @@ public enum PageSize {
 # + bottom - Bottom margin
 # + left - Left margin
 public type PageMargins record {|
-    float top;
-    float right;
-    float bottom;
-    float left;
+    float top = 0;
+    float right = 0;
+    float bottom = 0;
+    float left = 0;
 |};
 
 # Options controlling HTML-to-PDF conversion behavior.
@@ -53,8 +53,8 @@ public type PageMargins record {|
 public type ConversionOptions record {|
     float fontSizePt = 12.0;
     PageSize pageSize = A4;
-    PageMargins margins = {top: 0, right: 0, bottom: 0, left: 0};
-    string? additionalCss = ();
-    map<byte[]>? customFonts = ();
-    int? maxPages = ();
+    PageMargins margins = {};
+    string additionalCss?;
+    map<byte[]> customFonts?;
+    int maxPages?;
 |};

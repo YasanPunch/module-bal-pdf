@@ -37,10 +37,6 @@ public class LayoutContext {
     private final FontManager fontManager;
     private final float fontSizePt;
 
-    public LayoutContext(FontManager fontManager) {
-        this(fontManager, new ConverterOptions());
-    }
-
     public LayoutContext(FontManager fontManager, ConverterOptions options) {
         this.fontManager = fontManager;
         this.fontSizePt = options.getFontSizePt();

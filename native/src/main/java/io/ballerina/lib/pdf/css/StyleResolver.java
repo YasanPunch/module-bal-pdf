@@ -51,7 +51,7 @@ public class StyleResolver {
     // This cache is per-conversion, so there is no staleness risk.
     private final Map<Element, ComputedStyle> cache = new IdentityHashMap<>();
 
-    // Default display values for HTML elements
+    // Default display values for HTML elements (used when the element does not have a display property set).
     private static final Map<String, String> DEFAULT_DISPLAY = Map.ofEntries(
             Map.entry("div", "block"), Map.entry("p", "block"), Map.entry("h1", "block"),
             Map.entry("h2", "block"), Map.entry("h3", "block"), Map.entry("h4", "block"),
@@ -149,7 +149,7 @@ public class StyleResolver {
                 .comparing(MatchedRule::specificity)
                 .thenComparingInt(MatchedRule::sourceOrder));
 
-        // 4. Apply matched rules (lower specificity first, higher overwrites)
+        // 4. Apply non-important declarations from matched rules (lower specificity first, higher overwrites)
         for (MatchedRule matched : matchedRules) {
             for (CssDeclaration decl : matched.declarations()) {
                 if (!decl.important()) {
@@ -163,6 +163,7 @@ public class StyleResolver {
         if (inlineStyle != null && !inlineStyle.isEmpty()) {
             List<CssDeclaration> inlineDecls = parser.parseInlineStyle(inlineStyle);
             for (CssDeclaration decl : inlineDecls) {
+                // Apply non-important inline declarations.
                 if (!decl.important()) {
                     applyDeclaration(style, decl.property(), decl.value());
                 }
@@ -172,6 +173,7 @@ public class StyleResolver {
         // 6. Apply !important declarations (override everything)
         for (MatchedRule matched : matchedRules) {
             for (CssDeclaration decl : matched.declarations()) {
+                // Apply !important stylesheet declarations. 
                 if (decl.important()) {
                     applyDeclaration(style, decl.property(), decl.value());
                 }
@@ -180,16 +182,19 @@ public class StyleResolver {
         if (inlineStyle != null && !inlineStyle.isEmpty()) {
             List<CssDeclaration> inlineDecls = parser.parseInlineStyle(inlineStyle);
             for (CssDeclaration decl : inlineDecls) {
+                // Apply !important inline declarations.
                 if (decl.important()) {
                     applyDeclaration(style, decl.property(), decl.value());
                 }
             }
         }
 
-        // 7. Apply HTML presentational attributes
+        // 7. Apply HTML presentational attributes (bgcolor, align, valign, border, cellspacing, etc.)
+        // These are attributes that are not part of the CSS spec, but are used to style the HTML elements.
         applyHtmlAttributes(element, style, tagName);
 
-        // 8. Inherit from parent
+        // 8. Inherit (copy) properties from parent, only if the element does not have an explicit value for the property.
+        // This is the inheritance step in the cascade.
         Node parent = element.getParentNode();
         if (parent != null && parent.getNodeType() == Node.ELEMENT_NODE) {
             ComputedStyle parentStyle = resolve((Element) parent);
@@ -203,12 +208,13 @@ public class StyleResolver {
             }
         }
 
-        cache.put(element, style);
+        cache.put(element, style); // cache the computed style for the element to avoid recomputation. 
         return style;
     }
 
     /**
      * Applies a CSS declaration, expanding shorthand properties.
+     * CSS has shorthand properties that set multiple long-hand properties at once. 
      */
     private void applyDeclaration(ComputedStyle style, String property, String value) {
         switch (property) {
@@ -487,6 +493,8 @@ public class StyleResolver {
                 "smaller", "larger").contains(check);
     }
 
+    // Old style HTML attributes (not part of the CSS spec) are mapped to CSS and used to style the HTML elements.
+    // These attributes are only applied if CSS hasn;t already set the corresponding property. 
     private void applyHtmlAttributes(Element element, ComputedStyle style, String tagName) {
         // bgcolor attribute
         String bgcolor = DomUtils.attr(element, "bgcolor");

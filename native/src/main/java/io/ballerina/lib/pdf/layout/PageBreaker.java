@@ -54,19 +54,23 @@ public class PageBreaker {
             return pages;
         }
 
-        // Find break points
+        // Collect break points (Y positions where page breaks can occur).
         List<Float> breakPoints = new ArrayList<>();
+        // add the starting breakpoint as 0. this is the start of the first page.
         breakPoints.add(0f);
+        
+        // Collect break points by traversing the box tree. 
+        // break points are the Y positions where the page breaks can occur. they are collected by traversing the 
+        // box tree and adding the Y positions of the blocks, table rows, and table row groups.
         collectBreakPoints(root, 0, breakPoints);
 
-        // Build pages using break points
+        // Build pages using break points: fill each page up to pageContentHeight.
         float currentPageStart = 0;
-
         for (float bp : breakPoints) {
             if (bp - currentPageStart > pageContentHeight) {
-                // Need to break before this point
+                // Need to break before this point (bp is the break point).
                 pages.add(new PageSlice(currentPageStart, currentPageStart + pageContentHeight));
-                currentPageStart = currentPageStart + pageContentHeight;
+                currentPageStart += pageContentHeight;
                 // Might need to re-check if current bp is still over
                 while (bp - currentPageStart > pageContentHeight) {
                     pages.add(new PageSlice(currentPageStart, currentPageStart + pageContentHeight));
@@ -106,6 +110,7 @@ public class PageBreaker {
     /**
      * Collects potential break points (Y positions where page breaks can occur).
      * Breaks are preferred at block/row boundaries.
+     * Never breaks mid-cell or mid-text-line.
      */
     private void collectBreakPoints(Box box, float offsetY, List<Float> breakPoints) {
         float boxAbsY = offsetY + box.getY() + box.getMarginTop();

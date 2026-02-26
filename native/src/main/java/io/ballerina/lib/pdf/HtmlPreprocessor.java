@@ -46,7 +46,7 @@ public class HtmlPreprocessor {
 
     /**
      * Returns the cleaned XHTML as a string.
-     * Useful for debugging — write the output to disk for inspection.
+     * Used for debugging — write the output to disk for inspection.
      */
     public String preprocessToString(String rawHtml) {
         return parseAndClean(rawHtml).html();

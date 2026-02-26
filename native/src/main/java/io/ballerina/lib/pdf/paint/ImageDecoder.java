@@ -60,7 +60,6 @@ public class ImageDecoder {
         Matcher m = DATA_URL_PATTERN.matcher(src);
         if (!m.find()) return null;
 
-        String imageType = m.group(1);
         String base64Data = m.group(2).replaceAll("\\s+", "");
 
         try {

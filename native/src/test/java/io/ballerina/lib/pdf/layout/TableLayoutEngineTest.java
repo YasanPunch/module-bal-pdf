@@ -18,6 +18,7 @@
 
 package io.ballerina.lib.pdf.layout;
 
+import io.ballerina.lib.pdf.ConverterOptions;
 import io.ballerina.lib.pdf.box.*;
 import io.ballerina.lib.pdf.paint.FontManager;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -44,7 +45,13 @@ class TableLayoutEngineTest {
         document = new PDDocument();
         fontManager = new FontManager();
         fontManager.loadFonts(document);
-        LayoutContext ctx = new LayoutContext(fontManager);
+        ConverterOptions options = new ConverterOptions(
+                ConverterOptions.DEFAULT_FONT_SIZE_PT,
+                ConverterOptions.A4_WIDTH, ConverterOptions.A4_HEIGHT,
+                ConverterOptions.DEFAULT_MARGIN, ConverterOptions.DEFAULT_MARGIN,
+                ConverterOptions.DEFAULT_MARGIN, ConverterOptions.DEFAULT_MARGIN,
+                null, null, null);
+        LayoutContext ctx = new LayoutContext(fontManager, options);
         bfc = new BlockFormattingContext(ctx);
         engine = new TableLayoutEngine(bfc, fontManager, FONT_SIZE);
     }

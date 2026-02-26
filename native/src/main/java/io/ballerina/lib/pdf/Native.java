@@ -19,7 +19,9 @@
 package io.ballerina.lib.pdf;
 
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -51,15 +53,16 @@ public final class Native {
     public static Object parseHtml(BString html, BMap<BString, Object> options) {
         try {
             // Read options from BMap
-            float fontSize = getFloat(options, "fontSizePt", ConverterOptions.DEFAULT_FONT_SIZE_PT);
-            String pageSize = getString(options, "pageSize", "A4");
-            String additionalCss = getNullableString(options, "additionalCss");
+            float fontSize = getFloat(options, ConverterOptions.KEY_FONT_SIZE_PT,
+                    ConverterOptions.DEFAULT_FONT_SIZE_PT);
+            String pageSize = getString(options, ConverterOptions.KEY_PAGE_SIZE, "A4");
+            String additionalCss = getString(options, ConverterOptions.KEY_ADDITIONAL_CSS, null);
 
-            // maxPages is optional (nil = no limit)
+            // maxPages: absent = no limit
             Integer maxPages = null;
-            Object maxPagesObj = options.get(StringUtils.fromString("maxPages"));
-            if (maxPagesObj instanceof Number num) {
-                maxPages = num.intValue();
+            Object maxPagesObj = options.get(StringUtils.fromString(ConverterOptions.KEY_MAX_PAGES));
+            if (maxPagesObj != null && TypeUtils.getType(maxPagesObj).getTag() == TypeTags.INT_TAG) {
+                maxPages = ((Long) maxPagesObj).intValue();
                 if (maxPages <= 0) {
                     return DiagnosticLog.renderError(
                             "maxPages must be greater than 0, got: " + maxPages, null);
@@ -68,14 +71,15 @@ public final class Native {
 
             // Read custom fonts from nested map
             Map<String, byte[]> customFonts = null;
-            Object customFontsObj = options.get(StringUtils.fromString("customFonts"));
-            if (customFontsObj instanceof BMap) {
+            Object customFontsObj = options.get(StringUtils.fromString(ConverterOptions.KEY_CUSTOM_FONTS));
+            if (customFontsObj != null
+                    && TypeUtils.getType(customFontsObj).getTag() == TypeTags.MAP_TAG) {
                 BMap<BString, Object> fontsMap = (BMap<BString, Object>) customFontsObj;
                 customFonts = new HashMap<>();
                 for (BString key : fontsMap.getKeys()) {
                     Object val = fontsMap.get(key);
-                    if (val instanceof BArray bArray) {
-                        customFonts.put(key.getValue(), bArray.getBytes());
+                    if (val != null && TypeUtils.getType(val).getTag() == TypeTags.ARRAY_TAG) {
+                        customFonts.put(key.getValue(), ((BArray) val).getBytes());
                     }
                 }
             }
@@ -86,13 +90,18 @@ public final class Native {
             float marginBottom = ConverterOptions.DEFAULT_MARGIN;
             float marginLeft = ConverterOptions.DEFAULT_MARGIN;
 
-            Object marginsObj = options.get(StringUtils.fromString("margins"));
-            if (marginsObj instanceof BMap) {
+            Object marginsObj = options.get(StringUtils.fromString(ConverterOptions.KEY_MARGINS));
+            if (marginsObj != null
+                    && TypeUtils.getType(marginsObj).getTag() == TypeTags.RECORD_TYPE_TAG) {
                 BMap<BString, Object> margins = (BMap<BString, Object>) marginsObj;
-                marginTop = getFloat(margins, "top", ConverterOptions.DEFAULT_MARGIN);
-                marginRight = getFloat(margins, "right", ConverterOptions.DEFAULT_MARGIN);
-                marginBottom = getFloat(margins, "bottom", ConverterOptions.DEFAULT_MARGIN);
-                marginLeft = getFloat(margins, "left", ConverterOptions.DEFAULT_MARGIN);
+                marginTop = getFloat(margins, ConverterOptions.KEY_MARGIN_TOP,
+                        ConverterOptions.DEFAULT_MARGIN);
+                marginRight = getFloat(margins, ConverterOptions.KEY_MARGIN_RIGHT,
+                        ConverterOptions.DEFAULT_MARGIN);
+                marginBottom = getFloat(margins, ConverterOptions.KEY_MARGIN_BOTTOM,
+                        ConverterOptions.DEFAULT_MARGIN);
+                marginLeft = getFloat(margins, ConverterOptions.KEY_MARGIN_LEFT,
+                        ConverterOptions.DEFAULT_MARGIN);
             }
 
             // Resolve page dimensions from size name
@@ -197,29 +206,24 @@ public final class Native {
 
     private static float getFloat(BMap<BString, Object> map, String key, float defaultValue) {
         Object value = map.get(StringUtils.fromString(key));
-        if (value instanceof Number num) {
-            return num.floatValue();
+        if (value == null) {
+            return defaultValue;
+        }
+        int tag = TypeUtils.getType(value).getTag();
+        if (tag == TypeTags.INT_TAG) {
+            return ((Long) value).floatValue();
+        }
+        if (tag == TypeTags.FLOAT_TAG) {
+            return ((Double) value).floatValue();
         }
         return defaultValue;
     }
 
     private static String getString(BMap<BString, Object> map, String key, String defaultValue) {
         Object value = map.get(StringUtils.fromString(key));
-        if (value instanceof BString bStr) {
-            return bStr.getValue();
+        if (value != null && TypeUtils.getType(value).getTag() == TypeTags.STRING_TAG) {
+            return ((BString) value).getValue();
         }
         return defaultValue;
     }
-
-    private static String getNullableString(BMap<BString, Object> map, String key) {
-        Object value = map.get(StringUtils.fromString(key));
-        if (value == null) {
-            return null;
-        }
-        if (value instanceof BString bStr) {
-            return bStr.getValue();
-        }
-        return null;
-    }
-
 }

@@ -18,6 +18,11 @@
 
 package io.ballerina.lib.pdf;
 
+import static io.ballerina.lib.pdf.ConverterOptions.A4_HEIGHT;
+import static io.ballerina.lib.pdf.ConverterOptions.A4_WIDTH;
+import static io.ballerina.lib.pdf.ConverterOptions.DEFAULT_FONT_SIZE_PT;
+import static io.ballerina.lib.pdf.ConverterOptions.DEFAULT_MARGIN;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,7 +42,10 @@ public class Main {
 
         HtmlPreprocessor preprocessor = new HtmlPreprocessor();
         HtmlToPdfConverter converter = new HtmlToPdfConverter();
-        ConverterOptions options = new ConverterOptions();
+        ConverterOptions options = new ConverterOptions(
+                DEFAULT_FONT_SIZE_PT, A4_WIDTH, A4_HEIGHT,
+                DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN,
+                null, null, null);
 
         for (String inputPath : inputs) {
             convertFile(inputPath, preprocessor, converter, options);

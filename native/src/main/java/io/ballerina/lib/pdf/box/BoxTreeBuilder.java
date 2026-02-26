@@ -34,6 +34,9 @@ import java.util.regex.Pattern;
 /**
  * Builds a box tree from a styled W3C DOM.
  * Maps each element to the appropriate Box subclass based on its computed display value.
+ * 
+ * In CSS, every element generates a box.
+ * The box tree is a tree of these boxes that mirrors the DOM structure but with layout semantics.
  */
 public class BoxTreeBuilder {
 
@@ -80,19 +83,21 @@ public class BoxTreeBuilder {
             if (child.getNodeType() == Node.TEXT_NODE) {
                 String text = DomUtils.getCollapsedText(child);
                 if (text.isEmpty()) continue;
+                // Create a TextRun box for the text node.
                 entries.add(new ChildEntry(new TextRun(parentBox.getStyle(), text), false));
 
             } else if (child.getNodeType() == Node.ELEMENT_NODE) {
                 Element childEl = (Element) child;
                 ComputedStyle childStyle = styleResolver.resolve(childEl);
                 String display = childStyle.getDisplay();
-                if ("none".equals(display)) continue;
+                if ("none".equals(display)) continue; // skip display: none elements.
 
                 String tagName = DomUtils.tagName(childEl);
                 if (tagName.equals("colgroup") || tagName.equals("col")) continue;
 
+                // Create the appropriate box for the element.
                 Box childBox = createBox(childEl, childStyle, display, tagName);
-                if (childBox == null) continue;
+                if (childBox == null) continue; // skip elements that don't have a box type.
 
                 // Extract href for <a> tags so link annotations can be created during painting
                 if (tagName.equals("a")) {
@@ -126,12 +131,14 @@ public class BoxTreeBuilder {
             List<Box> inlineRun = new ArrayList<>();
             for (ChildEntry entry : entries) {
                 if (entry.blockLevel()) {
+                    // flush the inline run and create a new anonymous block.
                     flushInlineRun(inlineRun, parentBox);
                     parentBox.addChild(entry.box());
                 } else {
                     inlineRun.add(entry.box());
                 }
             }
+            // flush the inline run and create a new anonymous block.
             flushInlineRun(inlineRun, parentBox);
         } else {
             for (ChildEntry entry : entries) {
@@ -140,7 +147,9 @@ public class BoxTreeBuilder {
         }
     }
 
-    /** Wraps accumulated inline children in an anonymous BlockBox and adds to parent. */
+    /** Wraps accumulated inline children in an anonymous BlockBox and adds to parent. 
+     * This is a CSS 2.1 §9.2.1.1 requirement.
+    */
     private void flushInlineRun(List<Box> inlineRun, Box parentBox) {
         if (inlineRun.isEmpty()) return;
 
@@ -187,10 +196,11 @@ public class BoxTreeBuilder {
         return style;
     }
 
+    // Creates the appropriate box for the element.
     private Box createBox(Element element, ComputedStyle style, String display, String tagName) {
         return switch (display) {
             case "block", "list-item", "inline-block", "flex", "inline-flex", "grid", "inline-grid" -> {
-                BlockBox box = new BlockBox(style);
+                BlockBox box = new BlockBox(style); // flex/grid boxes are also treated as block boxes.
                 if ("list-item".equals(display)) {
                     handleListItem(element, box);
                 }
@@ -232,6 +242,7 @@ public class BoxTreeBuilder {
         };
     }
 
+    // Creates a ReplacedBox for replaced elements (img, (video, audio,) etc.).
     private ReplacedBox createReplacedBox(Element element, ComputedStyle style) {
         ReplacedBox box = new ReplacedBox(style);
 
@@ -269,11 +280,13 @@ public class BoxTreeBuilder {
         }
     }
 
+    // Handles list items (ol, ul) by prepending a text run with the list number or bullet.
     private void handleListItem(Element element, BlockBox box) {
-        // Prepend a text run with the list number
+        // Prepend a text run (as the first child)with the list number or bullet. 
         Node parent = element.getParentNode();
         if (parent != null && parent.getNodeType() == Node.ELEMENT_NODE) {
             String parentTag = DomUtils.tagName((Element) parent);
+            // Handle ordered lists (ol) by adding a text run with the list number.
             if ("ol".equals(parentTag)) {
                 int index = 0;
                 for (Element sibling : DomUtils.childElements(parent)) {
@@ -284,7 +297,9 @@ public class BoxTreeBuilder {
                 }
                 TextRun numberRun = new TextRun(box.getStyle(), index + ". ");
                 box.addChild(numberRun);
-            } else if ("ul".equals(parentTag)) {
+            } 
+            // Handle unordered lists (ul) by adding a text run with the bullet.
+            else if ("ul".equals(parentTag)) {
                 TextRun bulletRun = new TextRun(box.getStyle(), "\u2022 ");
                 box.addChild(bulletRun);
             }

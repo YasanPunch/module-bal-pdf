@@ -41,7 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Parses CSS from &lt;style&gt; blocks and inline style attributes.
+ * Parses CSS from <style> blocks and inline style attributes.
  * Uses htmlunit-cssparser (JavaCC-generated CSS3 parser) for robust handling of
  * at-rules, nested braces, and other CSS constructs.
  */
@@ -57,29 +57,35 @@ public class CssParser {
     };
 
     /**
-     * Parses all &lt;style&gt; blocks in the document into a stylesheet.
+     * Parses all <style> blocks in the document into a stylesheet.
      */
     public CssStylesheet parse(Document document) {
         return parse(document, null);
     }
 
     /**
-     * Parses all &lt;style&gt; blocks in the document, then appends rules from
-     * {@code additionalCss}. The additional rules get strictly higher source order
+     * Parses all <style> blocks in the document, then appends rules from
+     * additionalCss. The additional rules get strictly higher source order
      * indices, so they win cascade ties at equal specificity.
      */
     public CssStylesheet parse(Document document, String additionalCss) {
         CssStylesheet stylesheet = new CssStylesheet();
+        // sourceOrder is used to track the order of the rules in the stylesheet.
+        // The first rule has a sourceOrder of 0, the second rule 1, etc.
+        // This is used to resolve ties in the cascade.
         int[] sourceOrder = {0};
 
+        // 1. Find all <style> elements in the document.
         List<Element> styleElements = DomUtils.findAll(document, "style");
         for (Element styleEl : styleElements) {
             String cssText = styleEl.getTextContent();
             if (cssText == null || cssText.isBlank()) continue;
 
+            // 2. Parse the CSS text using htmlunit-cssparser.
             CSSStyleSheetImpl sheet = parseCssText(cssText);
             if (sheet == null) continue;
 
+            // 3. Extract the rules from the parsed sheet and add them to the stylesheet.
             CSSRuleListImpl rules = (CSSRuleListImpl) sheet.getCssRules();
             extractRules(rules, stylesheet, sourceOrder);
         }
@@ -90,6 +96,7 @@ public class CssParser {
         if (additionalCss != null && !additionalCss.isBlank()) {
             CSSStyleSheetImpl sheet = parseCssText(additionalCss);
             if (sheet != null) {
+                // 4. Extract the additional parsed CSS rules and add them to the stylesheet.
                 CSSRuleListImpl rules = (CSSRuleListImpl) sheet.getCssRules();
                 extractRules(rules, stylesheet, sourceOrder);
             }
@@ -100,10 +107,14 @@ public class CssParser {
 
     /**
      * Parses a CSS string into a CSSStyleSheetImpl using htmlunit-cssparser.
+     * We return a CSSStyleSheetImpl because it is a parsed CSS document that contains the rules.
      */
     private CSSStyleSheetImpl parseCssText(String cssText) {
         try {
+            // Parse the CSS text using htmlunit-cssparser.
             CSSOMParser cssParser = new CSSOMParser();
+            // Set the error handler to silently ignore errors.
+            // Real world CSS is messy and we don't want to fail the parsing. We want to render what we can. 
             cssParser.setErrorHandler(SILENT_ERROR_HANDLER);
             InputSource source = new InputSource(new StringReader(cssText));
             return cssParser.parseStyleSheet(source, null);
@@ -119,22 +130,25 @@ public class CssParser {
         for (AbstractCSSRuleImpl rule : rules.getRules()) {
 
             if (rule instanceof CSSStyleRuleImpl styleRule) {
-                addStyleRule(styleRule, stylesheet, sourceOrder);
+                addStyleRule(styleRule, stylesheet, sourceOrder); //regular style rules
             } else if (rule instanceof CSSPageRuleImpl pageRule) {
-                addPageRule(pageRule, stylesheet);
+                addPageRule(pageRule, stylesheet); //@page rules
             } else if (rule instanceof CSSMediaRuleImpl mediaRule) {
-                if (matchesPrintMedia(mediaRule)) {
+                if (matchesPrintMedia(mediaRule)) { //@media print rules. discard other media types.
                     CSSRuleListImpl innerRules = (CSSRuleListImpl) mediaRule.getCssRules();
+                    // Recurse into the inner rules to extract the rules.
                     extractRules(innerRules, stylesheet, sourceOrder);
                 }
             }
-            // @font-face, @keyframes, @supports, @import, unknown at-rules — skip
+            // @font-face, @keyframes, @supports, @import, unknown at-rules are not supported yet.
         }
     }
 
     /**
      * Converts a CSSStyleRuleImpl into one or more CssRule objects (one per comma-separated selector)
      * and adds them to the stylesheet.
+     * A Style rule is a selector/s (p, div, etc.) and the corresponding list of declarations
+     * (color: red, margin: 0, etc.) that are applied to the selector.
      */
     private void addStyleRule(CSSStyleRuleImpl styleRule, CssStylesheet stylesheet, int[] sourceOrder) {
         String selectorText = styleRule.getSelectorText();
@@ -158,6 +172,7 @@ public class CssParser {
 
     /**
      * Extracts declarations from a @page rule and adds them to the stylesheet.
+     * A Page rule applies to the entire page and is used to set the page size and margins.
      */
     private void addPageRule(CSSPageRuleImpl pageRule, CssStylesheet stylesheet) {
         CSSStyleDeclarationImpl decl = (CSSStyleDeclarationImpl) pageRule.getStyle();
@@ -168,7 +183,11 @@ public class CssParser {
     }
 
     /**
-     * Checks whether a @media rule's media list includes "print" or "all".
+     * Checks whether a @media rule's media list includes "print" or "all", i.e., applicable for PDF rendering.
+     * Media means the output medium - what device/format displays content. 
+     * print - the CSS will be applied only when the output is printed or rendered.
+     * all - the CSS will be applied to all media.
+     * other media (like screen) are not applicable for PDF rendering.
      */
     private boolean matchesPrintMedia(CSSMediaRuleImpl mediaRule) {
         String mediaText = mediaRule.getMediaList().getMediaText();
@@ -217,6 +236,8 @@ public class CssParser {
         if (block == null || block.isBlank()) return declarations;
 
         // Split by semicolons but not inside parentheses (for data URLs, rgb(), etc.)
+        // Splits "color: red; font-size: 14px"
+        // into ["color: red", "font-size: 14px"]
         String[] parts = splitDeclarations(block);
 
         for (String part : parts) {

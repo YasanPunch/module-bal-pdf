@@ -22,6 +22,7 @@ import java.util.List;
 
 /**
  * A CSS rule: selector + list of declarations.
+ * Ties a selector to its declarations and the order of the rule in the stylesheet.
  */
 public record CssRule(CssSelector selector, List<CssDeclaration> declarations, int sourceOrder) {
 }

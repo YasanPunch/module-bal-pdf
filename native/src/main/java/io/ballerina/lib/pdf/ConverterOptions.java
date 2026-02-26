@@ -43,53 +43,30 @@ public class ConverterOptions {
     // Default margin: 0pt (no page margin; CSS controls spacing)
     public static final float DEFAULT_MARGIN = 0f;
 
-    private float fontSizePt;
-    private float pageWidth;
-    private float pageHeight;
-    private float marginTop;
-    private float marginRight;
-    private float marginBottom;
-    private float marginLeft;
-    private String additionalCss;
-    private Map<String, byte[]> customFonts;
-    private Integer maxPages;
+    // BMap field keys — must match Ballerina record field names in types.bal
+    public static final String KEY_FONT_SIZE_PT = "fontSizePt";
+    public static final String KEY_PAGE_SIZE = "pageSize";
+    public static final String KEY_ADDITIONAL_CSS = "additionalCss";
+    public static final String KEY_MAX_PAGES = "maxPages";
+    public static final String KEY_CUSTOM_FONTS = "customFonts";
+    public static final String KEY_MARGINS = "margins";
 
-    /** Default options: 12pt font, A4, 0pt margins, no additional CSS. */
-    public ConverterOptions() {
-        this(DEFAULT_FONT_SIZE_PT, A4_WIDTH, A4_HEIGHT,
-                DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN,
-                null, null, null);
-    }
+    // PageMargins record field keys
+    public static final String KEY_MARGIN_TOP = "top";
+    public static final String KEY_MARGIN_RIGHT = "right";
+    public static final String KEY_MARGIN_BOTTOM = "bottom";
+    public static final String KEY_MARGIN_LEFT = "left";
 
-    /** Convenience constructor for font size only. */
-    public ConverterOptions(float fontSizePt) {
-        this(fontSizePt, A4_WIDTH, A4_HEIGHT,
-                DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN,
-                null, null, null);
-    }
-
-    /** Constructor with all options except custom fonts and maxPages. */
-    public ConverterOptions(float fontSizePt,
-                            float pageWidth, float pageHeight,
-                            float marginTop, float marginRight,
-                            float marginBottom, float marginLeft,
-                            String additionalCss) {
-        this(fontSizePt, pageWidth, pageHeight,
-                marginTop, marginRight, marginBottom, marginLeft,
-                additionalCss, null, null);
-    }
-
-    /** Constructor with all options except maxPages. */
-    public ConverterOptions(float fontSizePt,
-                            float pageWidth, float pageHeight,
-                            float marginTop, float marginRight,
-                            float marginBottom, float marginLeft,
-                            String additionalCss,
-                            Map<String, byte[]> customFonts) {
-        this(fontSizePt, pageWidth, pageHeight,
-                marginTop, marginRight, marginBottom, marginLeft,
-                additionalCss, customFonts, null);
-    }
+    private final float fontSizePt;
+    private final float pageWidth;
+    private final float pageHeight;
+    private final float marginTop;
+    private final float marginRight;
+    private final float marginBottom;
+    private final float marginLeft;
+    private final String additionalCss;
+    private final Map<String, byte[]> customFonts;
+    private final Integer maxPages;
 
     /** Full constructor with all options. */
     public ConverterOptions(float fontSizePt,
@@ -151,14 +128,4 @@ public class ConverterOptions {
     public Map<String, byte[]> getCustomFonts() { return customFonts; }
     public Integer getMaxPages() { return maxPages; }
 
-    public void setFontSizePt(float fontSizePt) { this.fontSizePt = fontSizePt; }
-    public void setPageWidth(float pageWidth) { this.pageWidth = pageWidth; }
-    public void setPageHeight(float pageHeight) { this.pageHeight = pageHeight; }
-    public void setMarginTop(float marginTop) { this.marginTop = marginTop; }
-    public void setMarginRight(float marginRight) { this.marginRight = marginRight; }
-    public void setMarginBottom(float marginBottom) { this.marginBottom = marginBottom; }
-    public void setMarginLeft(float marginLeft) { this.marginLeft = marginLeft; }
-    public void setAdditionalCss(String additionalCss) { this.additionalCss = additionalCss; }
-    public void setCustomFonts(Map<String, byte[]> customFonts) { this.customFonts = customFonts; }
-    public void setMaxPages(Integer maxPages) { this.maxPages = maxPages; }
 }

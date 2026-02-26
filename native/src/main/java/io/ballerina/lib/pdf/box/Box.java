@@ -37,21 +37,22 @@ public abstract class Box {
     protected float width;
     protected float height;
 
-    // Margin
+    // Margin, Padding, Border are the CSS box model properties.
     protected float marginTop, marginRight, marginBottom, marginLeft;
-
-    // Padding
     protected float paddingTop, paddingRight, paddingBottom, paddingLeft;
-
-    // Border widths
     protected float borderTop, borderRight, borderBottom, borderLeft;
 
+    /* Style and structure properties.*/
     protected ComputedStyle style;
+    // children list is set during box tree construction and never changes. 
     protected List<Box> children = new ArrayList<>();
-    private List<Box> layoutChildren;  // positioned children from layout (null = use children)
+    // if the layout engine reorders or wraps children, it stores the result in this list.
+    private List<Box> layoutChildren;  // positioned children from layout engine (null = use children).
+    
     protected Box parent;
     private String href;  // link target from <a> tags, propagated to leaf boxes
-    private String id;    // element id for internal anchor destinations
+    private String id;    // element id for internal anchor links (destinations)
+    /* */
 
     public Box(ComputedStyle style) {
         this.style = style;
@@ -94,10 +95,11 @@ public abstract class Box {
         return getAbsoluteY() + borderTop + paddingTop;
     }
 
-    /** Absolute X position (traversing parent chain). */
+    // Absolute X position (traversing parent chain). 
     public float getAbsoluteX() {
         float ax = x + marginLeft;
         if (parent != null) {
+            // parent's content area starts after its own border + padding.
             ax += parent.getContentX();
         }
         return ax;
