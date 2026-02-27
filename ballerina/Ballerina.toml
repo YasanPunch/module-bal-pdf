@@ -48,7 +48,7 @@ version = "1.18.3"
 
 [[platform.java21.dependency]]
 groupId = "org.slf4j"
-artifactId = "slf4j-simple"
+artifactId = "slf4j-jdk14"
 version = "2.0.16"
 
 [[platform.java21.dependency]]
