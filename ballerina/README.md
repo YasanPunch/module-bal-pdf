@@ -79,7 +79,7 @@ File and URL variants are also available: `fileToImages()` and `urlToImages()`.
 
 The `pdf` module provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerina-pdf/tree/main/examples/).
 
-1. [CIBIL credit report conversion](https://github.com/ballerina-platform/module-ballerina-pdf/tree/main/examples/cibil-report/) — Converts a complex, table-heavy CIBIL credit report HTML file to PDF with consumer-specific CSS overrides and custom page options.
+1. [HTML to PDF conversion](https://github.com/ballerina-platform/module-ballerina-pdf/tree/main/examples/html-to-pdf/) — Reads an HTML report file and converts it to PDF.
 
 ## Known limitations
 

@@ -1,5 +1,0 @@
-[package]
-distribution = "2201.13.1"
-org = "pdf_examples"
-name = "cibil_report"
-version = "0.1.0"

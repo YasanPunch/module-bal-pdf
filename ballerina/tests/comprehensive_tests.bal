@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/lang.regexp;
 import ballerina/test;
 
-const string COMPREHENSIVE_HTML_DIR = "../examples/comprehensive-html-tests/";
+const string COMPREHENSIVE_HTML_DIR = "tests/resources/html/";
 
 // Converts an HTML file, validates PDF output, and verifies expected text content.
 function convertAndVerifyFile(string filename, int minPages, string[] expectedContent,
