@@ -20,9 +20,14 @@ package io.ballerina.lib.pdf.css;
 
 /**
  * A single CSS property:value declaration, optionally with !important.
+ *
+ * @param property  the CSS property name
+ * @param value     the CSS property value
+ * @param important whether this declaration has !important
  */
 public record CssDeclaration(String property, String value, boolean important) {
 
+    /** Creates a non-important declaration. */
     public CssDeclaration(String property, String value) {
         this(property, value, false);
     }

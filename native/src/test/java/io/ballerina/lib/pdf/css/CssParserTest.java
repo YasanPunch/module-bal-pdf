@@ -24,7 +24,9 @@ import org.w3c.dom.Document;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CssParserTest {
 
@@ -52,7 +54,8 @@ class CssParserTest {
 
     @Test
     void parsesMultipleRules() {
-        Document doc = parse("<html><head><style>p { color: red; } div { margin: 0; }</style></head><body></body></html>");
+        Document doc = parse("<html><head><style>p { color: red; } "
+                + "div { margin: 0; }</style></head><body></body></html>");
         CssStylesheet stylesheet = parser.parse(doc);
         assertEquals(2, stylesheet.getRules().size());
     }
@@ -208,7 +211,9 @@ class CssParserTest {
     @Test
     void handlesNestedBracesInKeyframes() {
         Document doc = parse("<html><head><style>"
-                + "@keyframes bounce { 0% { transform: translateY(0); } 50% { transform: translateY(-20px); } 100% { transform: translateY(0); } }"
+                + "@keyframes bounce { 0% { transform: translateY(0); } "
+                + "50% { transform: translateY(-20px); } "
+                + "100% { transform: translateY(0); } }"
                 + ".result { font-weight: bold; }"
                 + "</style></head><body></body></html>");
         CssStylesheet stylesheet = parser.parse(doc);
@@ -281,7 +286,8 @@ class CssParserTest {
 
     @Test
     void additionalCssOverridesDocumentStyleAtEqualSpecificity() {
-        Document doc = parse("<html><head><style>p { color: red; }</style></head><body><p id=\"t\">test</p></body></html>");
+        Document doc = parse("<html><head><style>p { color: red; }</style>"
+                + "<body><p id=\"t\">test</p></body></html>");
         CssStylesheet stylesheet = parser.parse(doc, "p { color: blue; }");
 
         // Resolve styles to verify cascade behavior

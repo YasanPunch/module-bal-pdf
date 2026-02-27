@@ -26,6 +26,7 @@ import io.ballerina.lib.pdf.css.ComputedStyle;
  */
 public class TableRowGroupBox extends Box {
 
+    /** Creates a table row group box with the given style. */
     public TableRowGroupBox(ComputedStyle style) {
         super(style);
     }

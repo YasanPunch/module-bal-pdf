@@ -26,6 +26,7 @@ import io.ballerina.lib.pdf.css.ComputedStyle;
  */
 public class BrBox extends Box {
 
+    /** Creates a line break box with the given style. */
     public BrBox(ComputedStyle style) {
         super(style);
     }

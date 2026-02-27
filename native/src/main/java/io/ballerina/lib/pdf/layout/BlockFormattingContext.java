@@ -18,7 +18,12 @@
 
 package io.ballerina.lib.pdf.layout;
 
-import io.ballerina.lib.pdf.box.*;
+import io.ballerina.lib.pdf.box.BlockBox;
+import io.ballerina.lib.pdf.box.Box;
+import io.ballerina.lib.pdf.box.TableBox;
+import io.ballerina.lib.pdf.box.TableCellBox;
+import io.ballerina.lib.pdf.box.TableRowBox;
+import io.ballerina.lib.pdf.box.TableRowGroupBox;
 import io.ballerina.lib.pdf.css.ComputedStyle;
 
 import java.util.ArrayList;
@@ -37,6 +42,7 @@ public class BlockFormattingContext {
     private final InlineLayoutEngine inlineEngine;
     private final TableLayoutEngine tableEngine;
 
+    /** Creates a block formatting context with the given layout context. */
     public BlockFormattingContext(LayoutContext ctx) {
         this.ctx = ctx;
         this.inlineEngine = new InlineLayoutEngine(ctx.getFontManager(), ctx.getFallbackFontSize(), this);
@@ -65,8 +71,17 @@ public class BlockFormattingContext {
 
     // --- Float tracking ---
 
-    /** Tracks the position and extent of a floated box during layout. */
-    private record FloatBox(Box box, float x, float y, float width, float height, String side) {}
+    /**
+     * Tracks the position and extent of a floated box during layout.
+     *
+     * @param box    the floated box
+     * @param x      horizontal position
+     * @param y      vertical position
+     * @param width  box width
+     * @param height box height
+     * @param side   float side ("left" or "right")
+     */
+    private record FloatBox(Box box, float x, float y, float width, float height, String side) { }
 
     /** Returns the available content width at a given y, accounting for active floats. */
     private float getAvailableWidthAtY(float y, float containerWidth, List<FloatBox> floats) {
@@ -107,7 +122,9 @@ public class BlockFormattingContext {
      * Applies clear by advancing cursorY past the bottom of relevant active floats.
      */
     private float applyClear(String clear, float cursorY, List<FloatBox> activeFloats) {
-        if ("none".equals(clear)) return cursorY;
+        if ("none".equals(clear)) {
+            return cursorY;
+        }
         float clearBelow = cursorY;
         for (FloatBox f : activeFloats) {
             boolean matches = "both".equals(clear)
@@ -127,7 +144,9 @@ public class BlockFormattingContext {
                                          List<FloatBox> activeFloats) {
         resolveBoxModelWithWidth(block, containerWidth);
         ComputedStyle style = block.getStyle();
-        if (style == null) return new FloatBox(block, 0, cursorY, 0, 0, "left");
+        if (style == null) {
+            return new FloatBox(block, 0, cursorY, 0, 0, "left");
+        }
         float fontSize = style.getFontSize(ctx.getFallbackFontSize());
         String side = style.getFloat();
 
@@ -168,7 +187,9 @@ public class BlockFormattingContext {
         float placeY = cursorY;
         while (true) {
             float avail = getAvailableWidthAtY(placeY, containerWidth, activeFloats);
-            if (outerWidth <= avail + FLOAT_TOLERANCE) break;
+            if (outerWidth <= avail + FLOAT_TOLERANCE) {
+                break;
+            }
             // Drop below the lowest float that overlaps placeY
             float nextY = Float.MAX_VALUE;
             for (FloatBox f : activeFloats) {
@@ -176,7 +197,9 @@ public class BlockFormattingContext {
                     nextY = Math.min(nextY, f.y + f.height);
                 }
             }
-            if (nextY == Float.MAX_VALUE) break;
+            if (nextY == Float.MAX_VALUE) {
+                break;
+            }
             placeY = nextY;
         }
 
@@ -208,7 +231,9 @@ public class BlockFormattingContext {
     public float layoutChildren(Box container, float availableWidth) {
         // Clear previous layout results so re-layout works correctly
         container.clearLayoutChildren();
-        if (container.getChildren().isEmpty()) return 0;
+        if (container.getChildren().isEmpty()) {
+            return 0;
+        }
 
         // Partition children: absolute, floated, and flow — preserving document order
         // for flow+float (floats must be processed at their source position).
@@ -222,22 +247,25 @@ public class BlockFormattingContext {
                 absoluteChildren.add(bb);
             } else {
                 orderedChildren.add(child);
-                if (isFloated(child)) hasFloats = true;
+                if (isFloated(child)) {
+                    hasFloats = true;
+                }
             }
         }
 
-        // Determine if children contain block-level elements (excluding floats,
-        // which are removed from normal flow)
+        // Determine if children contain block-level elements (excluding floats which are removed from normal flow)
         boolean hasBlockChildren = false;
 
         for (Box child : orderedChildren) {
-            if (isFloated(child)) continue; // floats don't determine block/inline context
+            if (isFloated(child)) {
+                continue;
+            }
             if (child instanceof BlockBox bb
                     && bb.getStyle() != null
                     && "inline-block".equals(bb.getStyle().getDisplay())) {
                 // inline-block doesn't create block context
             } else if (child instanceof BlockBox || child instanceof TableBox
-                    || child instanceof TableRowGroupBox || child instanceof TableRowBox) {
+                    || child instanceof TableRowGroupBox || child instanceof TableRowBox) { //check for inversion
                 hasBlockChildren = true;
             }
         }
@@ -341,8 +369,7 @@ public class BlockFormattingContext {
                 // Lay out a table child.
                 layoutTableChild(table, availableWidth, state,
                         collapseFirstChildTop, collapseMargins);
-            } 
-            else if (child instanceof BlockBox block) {
+            } else if (child instanceof BlockBox block) {
                 layoutBlockChild(block, availableWidth, state,
                         collapseFirstChildTop, collapseMargins);
             } else {
@@ -414,7 +441,9 @@ public class BlockFormattingContext {
         resolveBoxModelWithWidth(table, availableWidth);
 
         ComputedStyle tableStyle = table.getStyle();
-        float tableFontSize = tableStyle != null ? tableStyle.getFontSize(ctx.getFallbackFontSize()) : ctx.getFallbackFontSize();
+        float tableFontSize = tableStyle != null
+                ? tableStyle.getFontSize(ctx.getFallbackFontSize())
+                : ctx.getFallbackFontSize();
         float tableContentWidth = availableWidth
                 - table.getMarginLeft() - table.getMarginRight()
                 - table.getBorderLeftWidth() - table.getBorderRightWidth()
@@ -463,7 +492,9 @@ public class BlockFormattingContext {
         resolveBoxModelWithWidth(block, availableWidth);
 
         ComputedStyle style = block.getStyle();
-        if (style == null) return;
+        if (style == null) {
+            return;
+        }
 
         // 1. Resolve content width (shrink-to-fit for blocks without explicit width)
         float explicitWidth = style.getWidth(availableWidth, ctx.getFallbackFontSize());
@@ -577,18 +608,26 @@ public class BlockFormattingContext {
      */
     private void applyRelativeOffset(Box box, float containerWidth, float containerHeight) {
         ComputedStyle style = box.getStyle();
-        if (style == null) return;
+        if (style == null) {
+            return;
+        }
         float fontSize = style.getFontSize(ctx.getFallbackFontSize());
         float top = style.getTop(containerHeight, fontSize);
         float left = style.getLeft(containerWidth, fontSize);
         float right = style.getRight(containerWidth, fontSize);
         float bottom = style.getBottom(containerHeight, fontSize);
 
-        if (!Float.isNaN(top))         box.setY(box.getY() + top);
-        else if (!Float.isNaN(bottom)) box.setY(box.getY() - bottom);
+        if (!Float.isNaN(top)) {
+            box.setY(box.getY() + top);
+        } else if (!Float.isNaN(bottom)) {
+            box.setY(box.getY() - bottom);
+        }
 
-        if (!Float.isNaN(left))        box.setX(box.getX() + left);
-        else if (!Float.isNaN(right))  box.setX(box.getX() - right);
+        if (!Float.isNaN(left)) {
+            box.setX(box.getX() + left);
+        } else if (!Float.isNaN(right)) {
+            box.setX(box.getX() - right);
+        }
     }
 
     /**
@@ -622,7 +661,9 @@ public class BlockFormattingContext {
      */
     private void layoutAbsoluteChild(BlockBox box, float containerWidth, float containerHeight) {
         ComputedStyle style = box.getStyle();
-        if (style == null) return;
+        if (style == null) {
+            return;
+        }
         float fontSize = style.getFontSize(ctx.getFallbackFontSize());
         resolveBoxModelWithWidth(box, containerWidth);
 
@@ -643,7 +684,9 @@ public class BlockFormattingContext {
         // Layout contents
         float contentHeight = layoutChildren(box, contentWidth);
         float explicitHeight = style.getHeight(containerHeight, fontSize);
-        if (explicitHeight > 0) contentHeight = explicitHeight;
+        if (explicitHeight > 0) {
+            contentHeight = explicitHeight;
+        }
         box.setHeight(contentHeight);
 
         // Position using offsets
@@ -656,7 +699,7 @@ public class BlockFormattingContext {
         if (!Float.isNaN(left)) {
             box.setX(left);
         } else if (!Float.isNaN(right)) {
-            box.setX(containerWidth - box.getOuterWidth() + box.getMarginLeft() - right);
+            box.setX(containerWidth - box.getOuterWidth() - right);
         } else {
             box.setX(0);
         }
@@ -665,7 +708,7 @@ public class BlockFormattingContext {
         if (!Float.isNaN(top)) {
             box.setY(top);
         } else if (!Float.isNaN(bottom)) {
-            box.setY(containerHeight - box.getOuterHeight() + box.getMarginTop() - bottom);
+            box.setY(containerHeight - box.getOuterHeight() - bottom);
         } else {
             box.setY(0);
         }
@@ -677,7 +720,9 @@ public class BlockFormattingContext {
      */
     void resolveBoxModelWithWidth(Box box, float containerWidth) {
         ComputedStyle style = box.getStyle();
-        if (style == null) return;
+        if (style == null) {
+            return;
+        }
 
         float fontSize = style.getFontSize(ctx.getFallbackFontSize());
 

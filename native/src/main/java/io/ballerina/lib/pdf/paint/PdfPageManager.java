@@ -40,6 +40,7 @@ public class PdfPageManager {
     private PDPageContentStream currentStream;
     private int currentPageIndex = -1;
 
+    /** Creates a page manager for the given document and layout context. */
     public PdfPageManager(PDDocument document, LayoutContext layoutContext) {
         this.document = document;
         this.layoutContext = layoutContext;
@@ -88,21 +89,42 @@ public class PdfPageManager {
         closeCurrentStream();
     }
 
-    public PDDocument getDocument() { return document; }
-    public int getPageCount() { return pages.size(); }
+    /** Returns the PDF document. */
+    public PDDocument getDocument() {
+        return document;
+    }
+
+    /** Returns the total number of pages. */
+    public int getPageCount() {
+        return pages.size();
+    }
+    /** Returns the current page, or null if none. */
     public PDPage getCurrentPage() {
         return (currentPageIndex >= 0) ? pages.get(currentPageIndex) : null;
     }
 
+    /** Returns the page at the given index, or null if out of range. */
     public PDPage getPage(int index) {
         return (index >= 0 && index < pages.size()) ? pages.get(index) : null;
     }
 
+    /** Returns the current page index. */
     public int getCurrentPageIndex() {
         return currentPageIndex;
     }
 
-    public float getPageHeight() { return layoutContext.getPageHeight(); }
-    public float getMarginTop() { return layoutContext.getMarginTop(); }
-    public float getMarginLeft() { return layoutContext.getMarginLeft(); }
+    /** Returns the page height in points. */
+    public float getPageHeight() {
+        return layoutContext.getPageHeight();
+    }
+
+    /** Returns the top margin in points. */
+    public float getMarginTop() {
+        return layoutContext.getMarginTop();
+    }
+
+    /** Returns the left margin in points. */
+    public float getMarginLeft() {
+        return layoutContext.getMarginLeft();
+    }
 }

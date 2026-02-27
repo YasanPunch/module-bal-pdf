@@ -27,7 +27,10 @@ import org.w3c.dom.Document;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class BoxTreeBuilderTest {
 
@@ -236,10 +239,14 @@ class BoxTreeBuilderTest {
 
     @SuppressWarnings("unchecked")
     private <T extends Box> T findFirstOfType(Box root, Class<T> type) {
-        if (type.isInstance(root)) return (T) root;
+        if (type.isInstance(root)) {
+            return (T) root;
+        }
         for (Box child : root.getChildren()) {
             T found = findFirstOfType(child, type);
-            if (found != null) return found;
+            if (found != null) {
+                return found;
+            }
         }
         return null;
     }

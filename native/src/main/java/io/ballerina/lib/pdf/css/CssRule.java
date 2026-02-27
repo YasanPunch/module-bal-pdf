@@ -23,6 +23,10 @@ import java.util.List;
 /**
  * A CSS rule: selector + list of declarations.
  * Ties a selector to its declarations and the order of the rule in the stylesheet.
+ *
+ * @param selector     the CSS selector
+ * @param declarations the list of declarations in this rule
+ * @param sourceOrder  the position of this rule in the stylesheet
  */
 public record CssRule(CssSelector selector, List<CssDeclaration> declarations, int sourceOrder) {
 }

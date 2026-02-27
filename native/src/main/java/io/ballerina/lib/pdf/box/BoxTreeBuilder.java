@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
  */
 public class BoxTreeBuilder {
 
+    // Void elements are elements that do not generate a box.
     private static final Set<String> VOID_ELEMENTS = Set.of(
             "br", "hr", "img", "input", "meta", "link", "col"
     );
@@ -48,6 +49,7 @@ public class BoxTreeBuilder {
 
     private final StyleResolver styleResolver;
 
+    /** Creates a box tree builder with the given style resolver. */
     public BoxTreeBuilder(StyleResolver styleResolver) {
         this.styleResolver = styleResolver;
     }
@@ -75,14 +77,16 @@ public class BoxTreeBuilder {
         List<Node> childNodes = DomUtils.childNodes(parentElement);
 
         // Pass 1: Build all child boxes and recurse into their subtrees
-        record ChildEntry(Box box, boolean blockLevel) {}
+        record ChildEntry(Box box, boolean blockLevel) { }
         List<ChildEntry> entries = new ArrayList<>();
         boolean hasBlockChild = false;
 
         for (Node child : childNodes) {
             if (child.getNodeType() == Node.TEXT_NODE) {
                 String text = DomUtils.getCollapsedText(child);
-                if (text.isEmpty()) continue;
+                if (text.isEmpty()) {
+                    continue;
+                }
                 // Create a TextRun box for the text node.
                 entries.add(new ChildEntry(new TextRun(parentBox.getStyle(), text), false));
 
@@ -90,14 +94,20 @@ public class BoxTreeBuilder {
                 Element childEl = (Element) child;
                 ComputedStyle childStyle = styleResolver.resolve(childEl);
                 String display = childStyle.getDisplay();
-                if ("none".equals(display)) continue; // skip display: none elements.
+                if ("none".equals(display)) {
+                    continue;
+                }
 
                 String tagName = DomUtils.tagName(childEl);
-                if (tagName.equals("colgroup") || tagName.equals("col")) continue;
+                if (tagName.equals("colgroup") || tagName.equals("col")) {
+                    continue;
+                }
 
                 // Create the appropriate box for the element.
                 Box childBox = createBox(childEl, childStyle, display, tagName);
-                if (childBox == null) continue; // skip elements that don't have a box type.
+                if (childBox == null) {
+                    continue;
+                }
 
                 // Extract href for <a> tags so link annotations can be created during painting
                 if (tagName.equals("a")) {
@@ -114,7 +124,9 @@ public class BoxTreeBuilder {
                 }
 
                 boolean blockLevel = isBlockLevel(display);
-                if (blockLevel) hasBlockChild = true;
+                if (blockLevel) {
+                    hasBlockChild = true;
+                }
 
                 // Recurse into subtree before wrapping
                 if (!tagName.equals("br") && !VOID_ELEMENTS.contains(tagName)) {
@@ -151,7 +163,9 @@ public class BoxTreeBuilder {
      * This is a CSS 2.1 §9.2.1.1 requirement.
     */
     private void flushInlineRun(List<Box> inlineRun, Box parentBox) {
-        if (inlineRun.isEmpty()) return;
+        if (inlineRun.isEmpty()) {
+            return;
+        }
 
         // CSS 2.1 §9.2.1.1: whitespace-only text between block-level boxes
         // does not generate any boxes
@@ -233,7 +247,7 @@ public class BoxTreeBuilder {
                 if (cs != null) {
                     try {
                         box.setColspan(Math.max(1, Integer.parseInt(cs.trim())));
-                    } catch (NumberFormatException ignored) {}
+                    } catch (NumberFormatException ignored) { }
                 }
                 applyCellpadding(element, box);
                 yield box;
@@ -292,14 +306,15 @@ public class BoxTreeBuilder {
                 for (Element sibling : DomUtils.childElements(parent)) {
                     if (DomUtils.tagName(sibling).equals("li")) {
                         index++;
-                        if (sibling == element) break;
+                        if (sibling == element) {
+                            break;
+                        }
                     }
                 }
                 TextRun numberRun = new TextRun(box.getStyle(), index + ". ");
                 box.addChild(numberRun);
-            } 
-            // Handle unordered lists (ul) by adding a text run with the bullet.
-            else if ("ul".equals(parentTag)) {
+            } else if ("ul".equals(parentTag)) {
+                // Handle unordered lists (ul) by adding a text run with the bullet.
                 TextRun bulletRun = new TextRun(box.getStyle(), "\u2022 ");
                 box.addChild(bulletRun);
             }
@@ -319,10 +334,18 @@ public class BoxTreeBuilder {
                         // Only apply if CSS doesn't already specify explicit padding.
                         String padValue = cellpadding + "px";
                         ComputedStyle style = cellBox.getStyle();
-                        if (style.get("padding-top") == null) style.set("padding-top", padValue);
-                        if (style.get("padding-right") == null) style.set("padding-right", padValue);
-                        if (style.get("padding-bottom") == null) style.set("padding-bottom", padValue);
-                        if (style.get("padding-left") == null) style.set("padding-left", padValue);
+                        if (style.get("padding-top") == null) {
+                            style.set("padding-top", padValue);
+                        }
+                        if (style.get("padding-right") == null) {
+                            style.set("padding-right", padValue);
+                        }
+                        if (style.get("padding-bottom") == null) {
+                            style.set("padding-bottom", padValue);
+                        }
+                        if (style.get("padding-left") == null) {
+                            style.set("padding-left", padValue);
+                        }
                     }
                     break;
                 }

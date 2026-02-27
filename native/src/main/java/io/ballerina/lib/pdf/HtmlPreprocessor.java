@@ -54,9 +54,10 @@ public class HtmlPreprocessor {
 
     /**
      * Shared setup: lenient parse, XHTML output settings, table width stripping.
+     * Expand the reasoning. 
      */
     private Document parseAndClean(String rawHtml) {
-        Document doc = Jsoup.parse(rawHtml);
+        Document doc = Jsoup.parse(rawHtml); //check for java semantics
         doc.outputSettings()
                 .syntax(OutputSettings.Syntax.xml)
                 .escapeMode(Entities.EscapeMode.xhtml)

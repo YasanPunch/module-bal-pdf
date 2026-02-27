@@ -79,11 +79,15 @@ public class CssParser {
         List<Element> styleElements = DomUtils.findAll(document, "style");
         for (Element styleEl : styleElements) {
             String cssText = styleEl.getTextContent();
-            if (cssText == null || cssText.isBlank()) continue;
+            if (cssText == null || cssText.isBlank()) {
+                continue;
+            }
 
             // 2. Parse the CSS text using htmlunit-cssparser.
             CSSStyleSheetImpl sheet = parseCssText(cssText);
-            if (sheet == null) continue;
+            if (sheet == null) {
+                continue;
+            }
 
             // 3. Extract the rules from the parsed sheet and add them to the stylesheet.
             CSSRuleListImpl rules = (CSSRuleListImpl) sheet.getCssRules();
@@ -129,6 +133,7 @@ public class CssParser {
     private void extractRules(CSSRuleListImpl rules, CssStylesheet stylesheet, int[] sourceOrder) {
         for (AbstractCSSRuleImpl rule : rules.getRules()) {
 
+            //use a switch statement instead of if-else if-else
             if (rule instanceof CSSStyleRuleImpl styleRule) {
                 addStyleRule(styleRule, stylesheet, sourceOrder); //regular style rules
             } else if (rule instanceof CSSPageRuleImpl pageRule) {
@@ -154,7 +159,9 @@ public class CssParser {
         String selectorText = styleRule.getSelectorText();
         CSSStyleDeclarationImpl decl = (CSSStyleDeclarationImpl) styleRule.getStyle();
         List<CssDeclaration> declarations = convertDeclarations(decl);
-        if (declarations.isEmpty()) return;
+        if (declarations.isEmpty()) {
+            return;
+        }
 
         // Handle comma-separated selectors
         String[] selectors = selectorText.split(",");
@@ -164,7 +171,9 @@ public class CssParser {
             if (sel.startsWith("*.") || sel.startsWith("*#")) {
                 sel = sel.substring(1);
             }
-            if (sel.isEmpty()) continue;
+            if (sel.isEmpty()) {
+                continue;
+            }
             CssSelector selector = new CssSelector(sel);
             stylesheet.addRule(new CssRule(selector, declarations, sourceOrder[0]++));
         }
@@ -191,12 +200,14 @@ public class CssParser {
      */
     private boolean matchesPrintMedia(CSSMediaRuleImpl mediaRule) {
         String mediaText = mediaRule.getMediaList().getMediaText();
-        if (mediaText == null || mediaText.isBlank()) return false;
+        if (mediaText == null || mediaText.isBlank()) {
+            return false;
+        }
         String lower = mediaText.toLowerCase();
         // Accept "print", "all", or lists containing either (e.g., "screen, print")
         for (String medium : lower.split(",")) {
             String trimmed = medium.trim();
-            if (trimmed.equals("print") || trimmed.equals("all")) {
+            if (trimmed.equals("print") || trimmed.equals("all")) { // avoid magic strings
                 return true;
             }
         }
@@ -223,7 +234,9 @@ public class CssParser {
      * Parses an inline style attribute into a list of declarations.
      */
     public List<CssDeclaration> parseInlineStyle(String style) {
-        if (style == null || style.isBlank()) return List.of();
+        if (style == null || style.isBlank()) {
+            return List.of();
+        }
         return parseDeclarations(style);
     }
 
@@ -233,7 +246,9 @@ public class CssParser {
      */
     public static List<CssDeclaration> parseDeclarations(String block) {
         List<CssDeclaration> declarations = new ArrayList<>();
-        if (block == null || block.isBlank()) return declarations;
+        if (block == null || block.isBlank()) {
+            return declarations;
+        }
 
         // Split by semicolons but not inside parentheses (for data URLs, rgb(), etc.)
         // Splits "color: red; font-size: 14px"
@@ -242,10 +257,14 @@ public class CssParser {
 
         for (String part : parts) {
             part = part.trim();
-            if (part.isEmpty()) continue;
+            if (part.isEmpty()) {
+                continue;
+            }
 
             int colonIdx = part.indexOf(':');
-            if (colonIdx < 0) continue;
+            if (colonIdx < 0) {
+                continue;
+            }
 
             String property = part.substring(0, colonIdx).trim().toLowerCase();
             String value = part.substring(colonIdx + 1).trim();
@@ -283,9 +302,11 @@ public class CssParser {
             } else if (ch == '"' && !inSingleQuote) {
                 inDoubleQuote = !inDoubleQuote;
             } else if (!inSingleQuote && !inDoubleQuote) {
-                if (ch == '(') parenDepth++;
-                else if (ch == ')') parenDepth = Math.max(0, parenDepth - 1);
-                else if (ch == ';' && parenDepth == 0) {
+                if (ch == '(') {
+                    parenDepth++;
+                } else if (ch == ')') {
+                    parenDepth = Math.max(0, parenDepth - 1);
+                } else if (ch == ';' && parenDepth == 0) {
                     parts.add(current.toString());
                     current = new StringBuilder();
                     continue;

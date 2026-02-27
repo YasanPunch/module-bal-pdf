@@ -18,6 +18,7 @@
 
 plugins {
     id 'java-library'
+    id 'checkstyle'
 }
 
 group = 'io.ballerina.lib'
@@ -63,14 +64,31 @@ dependencies {
     implementation 'org.htmlunit:htmlunit-cssparser:4.5.0'
 
     // Logging
-    implementation 'org.slf4j:slf4j-simple:2.0.16'
+    implementation 'org.slf4j:slf4j-jdk14:2.0.16'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+
+    checkstyle project(':checkstyle')
+    checkstyle "com.puppycrawl.tools:checkstyle:${checkstylePluginVersion}"
 }
 
 jar {
     archiveBaseName = 'pdf-native'
 }
+
+checkstyle {
+    toolVersion '10.12.0'
+    configFile rootProject.file("build-config/checkstyle/build/checkstyle.xml")
+    configProperties = ["suppressionFile" : file("${rootDir}/build-config/checkstyle/build/suppressions.xml")]
+}
+
+def excludePattern = '**/module-info.java'
+tasks.withType(Checkstyle) {
+    exclude excludePattern
+}
+
+checkstyleMain.dependsOn(":checkstyle:downloadCheckstyleRuleFiles")
+checkstyleTest.dependsOn(":checkstyle:downloadCheckstyleRuleFiles")
 
 test {
     useJUnitPlatform()

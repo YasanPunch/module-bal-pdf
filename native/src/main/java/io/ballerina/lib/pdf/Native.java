@@ -55,18 +55,15 @@ public final class Native {
             // Read options from BMap
             float fontSize = getFloat(options, ConversionOptions.KEY_FALLBACK_FONT_SIZE,
                     ConversionOptions.DEFAULT_FALLBACK_FONT_SIZE);
-            String pageSize = getString(options, ConversionOptions.KEY_PAGE_SIZE, "A4");
+            String pageSize = getString(options, ConversionOptions.KEY_PAGE_SIZE, "A4"); // need to wrap enum in object
             String additionalCss = getString(options, ConversionOptions.KEY_ADDITIONAL_CSS, null);
 
             // maxPages: absent = no limit
             Integer maxPages = null;
             Object maxPagesObj = options.get(StringUtils.fromString(ConversionOptions.KEY_MAX_PAGES));
-            if (maxPagesObj != null && TypeUtils.getType(maxPagesObj).getTag() == TypeTags.INT_TAG) {
+            if (maxPagesObj != null
+                    && TypeUtils.getType(maxPagesObj).getTag() == TypeTags.INT_TAG) {
                 maxPages = ((Long) maxPagesObj).intValue();
-                if (maxPages <= 0) {
-                    return DiagnosticLog.renderError(
-                            "maxPages must be greater than 0, got: " + maxPages, null);
-                }
             }
 
             // Read custom fonts from nested map
@@ -215,7 +212,8 @@ public final class Native {
         }
         if (tag == TypeTags.FLOAT_TAG) {
             return ((Double) value).floatValue();
-        }
+        } //no need for default, no type check
+
         return defaultValue;
     }
 

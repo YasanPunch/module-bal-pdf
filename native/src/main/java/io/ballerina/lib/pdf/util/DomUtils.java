@@ -62,7 +62,9 @@ public class DomUtils {
      */
     public static String getCollapsedText(Node textNode) {
         String raw = textNode.getTextContent();
-        if (raw == null) return "";
+        if (raw == null) {
+            return "";
+        }
         // Collapse runs of whitespace to single space (CSS default white-space: normal)
         return raw.replaceAll("\\s+", " ");
     }
@@ -80,9 +82,13 @@ public class DomUtils {
      */
     public static boolean hasClass(Element el, String className) {
         String classes = el.getAttribute("class");
-        if (classes == null || classes.isEmpty()) return false;
+        if (classes == null || classes.isEmpty()) {
+            return false;
+        }
         for (String cls : classes.split("\\s+")) {
-            if (cls.equals(className)) return true;
+            if (cls.equals(className)) {
+                return true;
+            }
         }
         return false;
     }
@@ -91,7 +97,9 @@ public class DomUtils {
      * Returns the tag name of a node in lowercase.
      */
     public static String tagName(Node node) {
-        if (node.getNodeType() != Node.ELEMENT_NODE) return "";
+        if (node.getNodeType() != Node.ELEMENT_NODE) {
+            return "";
+        }
         return node.getLocalName() != null ? node.getLocalName().toLowerCase() : node.getNodeName().toLowerCase();
     }
 
@@ -100,7 +108,9 @@ public class DomUtils {
      */
     public static Element findChild(Element parent, String tagName) {
         for (Element child : childElements(parent)) {
-            if (tagName(child).equals(tagName)) return child;
+            if (tagName(child).equals(tagName)) {
+                return child;
+            }
         }
         return null;
     }
@@ -130,12 +140,16 @@ public class DomUtils {
     public static int getNthOfType(Element el) {
         String tag = tagName(el);
         Node parent = el.getParentNode();
-        if (parent == null) return 1;
+        if (parent == null) {
+            return 1;
+        }
         int count = 0;
         for (Element sibling : childElements(parent)) {
             if (tagName(sibling).equals(tag)) {
                 count++;
-                if (sibling == el) return count;
+                if (sibling == el) {
+                    return count;
+                }
             }
         }
         return 1;

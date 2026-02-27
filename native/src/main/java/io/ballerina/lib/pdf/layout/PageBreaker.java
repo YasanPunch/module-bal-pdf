@@ -36,9 +36,15 @@ public class PageBreaker {
 
     /**
      * A page slice defines a vertical range [startY, endY) of content.
+     *
+     * @param startY the top Y coordinate of this slice
+     * @param endY   the bottom Y coordinate of this slice
      */
     public record PageSlice(float startY, float endY) {
-        public float height() { return endY - startY; }
+        /** Returns the height of this page slice. */
+        public float height() {
+            return endY - startY;
+        }
     }
 
     /**
@@ -64,28 +70,34 @@ public class PageBreaker {
         // box tree and adding the Y positions of the blocks, table rows, and table row groups.
         collectBreakPoints(root, 0, breakPoints);
 
-        // Build pages using break points: fill each page up to pageContentHeight.
+        // Build pages by snapping to breakpoints rather than fixed offsets.
+        // For each page, find the largest breakpoint that fits within pageContentHeight.
         float currentPageStart = 0;
-        for (float bp : breakPoints) {
-            if (bp - currentPageStart > pageContentHeight) {
-                // Need to break before this point (bp is the break point).
-                pages.add(new PageSlice(currentPageStart, currentPageStart + pageContentHeight));
-                currentPageStart += pageContentHeight;
-                // Might need to re-check if current bp is still over
-                while (bp - currentPageStart > pageContentHeight) {
-                    pages.add(new PageSlice(currentPageStart, currentPageStart + pageContentHeight));
-                    currentPageStart += pageContentHeight;
+        while (currentPageStart < totalHeight) {
+            float pageEnd = currentPageStart + pageContentHeight;
+
+            if (pageEnd >= totalHeight) {
+                // Remaining content fits on this page
+                pages.add(new PageSlice(currentPageStart, totalHeight));
+                break;
+            }
+
+            // Find the largest breakpoint <= pageEnd that is > currentPageStart
+            float bestBreak = -1;
+            for (float bp : breakPoints) {
+                if (bp > currentPageStart && bp <= pageEnd) {
+                    bestBreak = bp;
                 }
             }
-        }
 
-        // Final page
-        if (currentPageStart < totalHeight) {
-            pages.add(new PageSlice(currentPageStart, totalHeight));
-        }
-
-        if (pages.isEmpty()) {
-            pages.add(new PageSlice(0, totalHeight));
+            if (bestBreak > 0) {
+                pages.add(new PageSlice(currentPageStart, bestBreak));
+                currentPageStart = bestBreak;
+            } else {
+                // No breakpoint fits — forced break at fixed offset (element taller than page)
+                pages.add(new PageSlice(currentPageStart, pageEnd));
+                currentPageStart = pageEnd;
+            }
         }
 
         return pages;

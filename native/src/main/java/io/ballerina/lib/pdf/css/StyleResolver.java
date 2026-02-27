@@ -52,6 +52,8 @@ public class StyleResolver {
     private final Map<Element, ComputedStyle> cache = new IdentityHashMap<>();
 
     // Default display values for HTML elements (used when the element does not have a display property set).
+    // Maps HTML elements to their default CSS display value, i.e., layout modes.
+    // These tell the layout engine how to position and size the element's box.
     private static final Map<String, String> DEFAULT_DISPLAY = Map.ofEntries(
             Map.entry("div", "block"), Map.entry("p", "block"), Map.entry("h1", "block"),
             Map.entry("h2", "block"), Map.entry("h3", "block"), Map.entry("h4", "block"),
@@ -81,12 +83,18 @@ public class StyleResolver {
                     "margin-top", "0", "margin-right", "0", "margin-bottom", "0", "margin-left", "0",
                     "padding-top", "0", "padding-right", "0", "padding-bottom", "0", "padding-left", "0")),
             Map.entry("table", Map.of("width", "100%", "table-layout", "fixed")),
-            Map.entry("h1", Map.of("font-size", "24px", "font-weight", "bold", "margin-top", "16px", "margin-bottom", "16px")),
-            Map.entry("h2", Map.of("font-size", "20px", "font-weight", "bold", "margin-top", "14px", "margin-bottom", "14px")),
-            Map.entry("h3", Map.of("font-size", "16px", "font-weight", "bold", "margin-top", "12px", "margin-bottom", "12px")),
-            Map.entry("h4", Map.of("font-size", "14px", "font-weight", "bold", "margin-top", "10px", "margin-bottom", "10px")),
-            Map.entry("h5", Map.of("font-size", "12px", "font-weight", "bold", "margin-top", "10px", "margin-bottom", "10px")),
-            Map.entry("h6", Map.of("font-size", "10px", "font-weight", "bold", "margin-top", "10px", "margin-bottom", "10px")),
+            Map.entry("h1", Map.of("font-size", "24px", "font-weight", "bold",
+                    "margin-top", "16px", "margin-bottom", "16px")),
+            Map.entry("h2", Map.of("font-size", "20px", "font-weight", "bold",
+                    "margin-top", "14px", "margin-bottom", "14px")),
+            Map.entry("h3", Map.of("font-size", "16px", "font-weight", "bold",
+                    "margin-top", "12px", "margin-bottom", "12px")),
+            Map.entry("h4", Map.of("font-size", "14px", "font-weight", "bold",
+                    "margin-top", "10px", "margin-bottom", "10px")),
+            Map.entry("h5", Map.of("font-size", "12px", "font-weight", "bold",
+                    "margin-top", "10px", "margin-bottom", "10px")),
+            Map.entry("h6", Map.of("font-size", "10px", "font-weight", "bold",
+                    "margin-top", "10px", "margin-bottom", "10px")),
             Map.entry("p", Map.of("margin-top", "8px", "margin-bottom", "8px")),
             Map.entry("hr", Map.of("border-top-width", "1px", "border-top-style", "solid",
                     "border-top-color", "#808080", "margin-top", "8px", "margin-bottom", "8px")),
@@ -110,6 +118,7 @@ public class StyleResolver {
             Map.entry("small", Map.of("font-size", "smaller"))
     );
 
+    /** Creates a style resolver for the given stylesheet. */
     public StyleResolver(CssStylesheet stylesheet) {
         this.stylesheet = stylesheet;
     }
@@ -119,7 +128,9 @@ public class StyleResolver {
      */
     public ComputedStyle resolve(Element element) {
         ComputedStyle cached = cache.get(element);
-        if (cached != null) return cached;
+        if (cached != null) {
+            return cached;
+        }
 
         ComputedStyle style = new ComputedStyle();
         String tagName = DomUtils.tagName(element);
@@ -140,7 +151,9 @@ public class StyleResolver {
         List<MatchedRule> matchedRules = new ArrayList<>();
         for (CssRule rule : stylesheet.getRules()) {
             if (rule.selector().matches(element)) {
-                matchedRules.add(new MatchedRule(rule.selector().getSpecificity(), rule.sourceOrder(), rule.declarations()));
+                matchedRules.add(new MatchedRule(
+                        rule.selector().getSpecificity(),
+                        rule.sourceOrder(), rule.declarations()));
             }
         }
 
@@ -193,7 +206,8 @@ public class StyleResolver {
         // These are attributes that are not part of the CSS spec, but are used to style the HTML elements.
         applyHtmlAttributes(element, style, tagName);
 
-        // 8. Inherit (copy) properties from parent, only if the element does not have an explicit value for the property.
+        // 8. Inherit (copy) properties from parent, only if the element
+        // does not have an explicit value for the property.
         // This is the inheritance step in the cascade.
         Node parent = element.getParentNode();
         if (parent != null && parent.getNodeType() == Node.ELEMENT_NODE) {
@@ -250,10 +264,24 @@ public class StyleResolver {
         String[] parts = value.trim().split("\\s+");
         String top, right, bottom, left;
         switch (parts.length) {
-            case 1 -> { top = right = bottom = left = parts[0]; }
-            case 2 -> { top = bottom = parts[0]; right = left = parts[1]; }
-            case 3 -> { top = parts[0]; right = left = parts[1]; bottom = parts[2]; }
-            default -> { top = parts[0]; right = parts[1]; bottom = parts[2]; left = parts[3]; }
+            case 1 -> {
+                top = right = bottom = left = parts[0];
+            }
+            case 2 -> {
+                top = bottom = parts[0];
+                right = left = parts[1];
+            }
+            case 3 -> {
+                top = parts[0];
+                right = left = parts[1];
+                bottom = parts[2];
+            }
+            default -> {
+                top = parts[0];
+                right = parts[1];
+                bottom = parts[2];
+                left = parts[3];
+            }
         }
         style.set(topProp, top);
         style.set(rightProp, right);
@@ -285,7 +313,9 @@ public class StyleResolver {
 
         String[] parts = v.split("\\s+");
         for (String part : parts) {
-            if (part.isEmpty()) continue;
+            if (part.isEmpty()) {
+                continue;
+            }
             if (isBorderWidth(part)) {
                 style.set("border-" + side + "-width", part);
             } else if (isBorderStyle(part)) {
@@ -315,10 +345,24 @@ public class StyleResolver {
         List<String> colors = splitColorValues(value.trim());
         String top, right, bottom, left;
         switch (colors.size()) {
-            case 1 -> { top = right = bottom = left = colors.get(0); }
-            case 2 -> { top = bottom = colors.get(0); right = left = colors.get(1); }
-            case 3 -> { top = colors.get(0); right = left = colors.get(1); bottom = colors.get(2); }
-            default -> { top = colors.get(0); right = colors.get(1); bottom = colors.get(2); left = colors.get(3); }
+            case 1 -> {
+                top = right = bottom = left = colors.get(0);
+            }
+            case 2 -> {
+                top = bottom = colors.get(0);
+                right = left = colors.get(1);
+            }
+            case 3 -> {
+                top = colors.get(0);
+                right = left = colors.get(1);
+                bottom = colors.get(2);
+            }
+            default -> {
+                top = colors.get(0);
+                right = colors.get(1);
+                bottom = colors.get(2);
+                left = colors.get(3);
+            }
         }
         style.set("border-top-color", top);
         style.set("border-right-color", right);
@@ -363,10 +407,24 @@ public class StyleResolver {
         String[] parts = value.trim().split("\\s+");
         String tl, tr, br, bl;
         switch (parts.length) {
-            case 1 -> { tl = tr = br = bl = parts[0]; }
-            case 2 -> { tl = br = parts[0]; tr = bl = parts[1]; }
-            case 3 -> { tl = parts[0]; tr = bl = parts[1]; br = parts[2]; }
-            default -> { tl = parts[0]; tr = parts[1]; br = parts[2]; bl = parts[3]; }
+            case 1 -> {
+                tl = tr = br = bl = parts[0];
+            }
+            case 2 -> {
+                tl = br = parts[0];
+                tr = bl = parts[1];
+            }
+            case 3 -> {
+                tl = parts[0];
+                tr = bl = parts[1];
+                br = parts[2];
+            }
+            default -> {
+                tl = parts[0];
+                tr = parts[1];
+                br = parts[2];
+                bl = parts[3];
+            }
         }
         style.set("border-top-left-radius", tl);
         style.set("border-top-right-radius", tr);
@@ -389,7 +447,9 @@ public class StyleResolver {
         // CSS font shorthand: [style] [weight] size[/line-height] family[, family...]
         // Grammar-aware parser: find font-size token first, then classify before/after.
         List<String> tokens = tokenizeFont(value.trim());
-        if (tokens.isEmpty()) return;
+        if (tokens.isEmpty()) {
+            return;
+        }
 
         // Find the font-size token: first token that looks like a CSS length or size keyword
         int sizeIdx = -1;
@@ -439,7 +499,9 @@ public class StyleResolver {
         if (familyStart < tokens.size()) {
             StringBuilder family = new StringBuilder();
             for (int i = familyStart; i < tokens.size(); i++) {
-                if (family.length() > 0) family.append(' ');
+                if (family.length() > 0) {
+                    family.append(' ');
+                }
                 family.append(tokens.get(i));
             }
             style.set("font-family", family.toString());
@@ -487,14 +549,16 @@ public class StyleResolver {
         // Remove /line-height suffix for checking
         String check = token.contains("/") ? token.substring(0, token.indexOf('/')) : token;
         // CSS length units
-        if (check.matches("-?[\\d.]+(?:px|pt|em|rem|%|mm|cm|in|ex|ch|vw|vh)")) return true;
+        if (check.matches("-?[\\d.]+(?:px|pt|em|rem|%|mm|cm|in|ex|ch|vw|vh)")) {
+            return true;
+        }
         // Absolute size keywords
         return Set.of("xx-small", "x-small", "small", "medium", "large", "x-large", "xx-large",
                 "smaller", "larger").contains(check);
     }
 
     // Old style HTML attributes (not part of the CSS spec) are mapped to CSS and used to style the HTML elements.
-    // These attributes are only applied if CSS hasn;t already set the corresponding property. 
+    // These attributes are only applied if CSS hasn't already set the corresponding property. 
     private void applyHtmlAttributes(Element element, ComputedStyle style, String tagName) {
         // bgcolor attribute
         String bgcolor = DomUtils.attr(element, "bgcolor");
@@ -508,8 +572,12 @@ public class StyleResolver {
         String align = DomUtils.attr(element, "align");
         if (align != null) {
             if ("center".equalsIgnoreCase(align) && tagName.equals("table")) {
-                if (style.get("margin-left") == null) style.set("margin-left", "auto");
-                if (style.get("margin-right") == null) style.set("margin-right", "auto");
+                if (style.get("margin-left") == null) {
+                    style.set("margin-left", "auto");
+                }
+                if (style.get("margin-right") == null) {
+                    style.set("margin-right", "auto");
+                }
             } else if (!tagName.equals("table") && !tagName.equals("img")
                     && style.get("text-align") == null) {
                 style.set("text-align", align.toLowerCase());
@@ -527,18 +595,36 @@ public class StyleResolver {
         String border = DomUtils.attr(element, "border");
         if (border != null && tagName.equals("table")) {
             float borderWidth = 0;
-            try { borderWidth = Float.parseFloat(border.trim()); } catch (NumberFormatException ignored) {}
+            try {
+                borderWidth = Float.parseFloat(border.trim());
+            } catch (NumberFormatException ignored) { }
             String bw = borderWidth + "px";
             // Only set if CSS hasn't already specified borders
-            if (style.get("border-top-width") == null) style.set("border-top-width", bw);
-            if (style.get("border-right-width") == null) style.set("border-right-width", bw);
-            if (style.get("border-bottom-width") == null) style.set("border-bottom-width", bw);
-            if (style.get("border-left-width") == null) style.set("border-left-width", bw);
+            if (style.get("border-top-width") == null) {
+                style.set("border-top-width", bw);
+            }
+            if (style.get("border-right-width") == null) {
+                style.set("border-right-width", bw);
+            }
+            if (style.get("border-bottom-width") == null) {
+                style.set("border-bottom-width", bw);
+            }
+            if (style.get("border-left-width") == null) {
+                style.set("border-left-width", bw);
+            }
             if (borderWidth > 0) {
-                if (style.get("border-top-style") == null) style.set("border-top-style", "solid");
-                if (style.get("border-right-style") == null) style.set("border-right-style", "solid");
-                if (style.get("border-bottom-style") == null) style.set("border-bottom-style", "solid");
-                if (style.get("border-left-style") == null) style.set("border-left-style", "solid");
+                if (style.get("border-top-style") == null) {
+                    style.set("border-top-style", "solid");
+                }
+                if (style.get("border-right-style") == null) {
+                    style.set("border-right-style", "solid");
+                }
+                if (style.get("border-bottom-style") == null) {
+                    style.set("border-bottom-style", "solid");
+                }
+                if (style.get("border-left-style") == null) {
+                    style.set("border-left-style", "solid");
+                }
             }
         }
 
@@ -566,7 +652,9 @@ public class StyleResolver {
             String widthAttr = DomUtils.attr(element, "width");
             if (widthAttr != null) {
                 // Normalize bare numbers to px (e.g., width="150" → "150px")
-                if (widthAttr.matches("\\d+(\\.\\d+)?")) widthAttr = widthAttr + "px";
+                if (widthAttr.matches("\\d+(\\.\\d+)?")) {
+                    widthAttr = widthAttr + "px";
+                }
                 style.set("width", widthAttr);
             }
         }
@@ -588,5 +676,5 @@ public class StyleResolver {
                 .contains(value.toLowerCase());
     }
 
-    private record MatchedRule(CssSpecificity specificity, int sourceOrder, List<CssDeclaration> declarations) {}
+    private record MatchedRule(CssSpecificity specificity, int sourceOrder, List<CssDeclaration> declarations) { }
 }

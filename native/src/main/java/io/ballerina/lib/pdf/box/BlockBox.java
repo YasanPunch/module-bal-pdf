@@ -26,6 +26,7 @@ import io.ballerina.lib.pdf.css.ComputedStyle;
  */
 public class BlockBox extends Box {
 
+    /** Creates a block box with the given style. */
     public BlockBox(ComputedStyle style) {
         super(style);
     }

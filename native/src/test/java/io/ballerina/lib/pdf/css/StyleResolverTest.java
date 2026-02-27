@@ -24,7 +24,10 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class StyleResolverTest {
 
@@ -48,10 +51,14 @@ class StyleResolverTest {
     }
 
     private Element findByIdRecursive(Element el, String id) {
-        if (id.equals(el.getAttribute("id"))) return el;
+        if (id.equals(el.getAttribute("id"))) {
+            return el;
+        }
         for (Element child : DomUtils.childElements(el)) {
             Element found = findByIdRecursive(child, id);
-            if (found != null) return found;
+            if (found != null) {
+                return found;
+            }
         }
         return null;
     }

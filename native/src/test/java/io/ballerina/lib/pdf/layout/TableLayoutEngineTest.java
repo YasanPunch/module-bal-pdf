@@ -19,7 +19,11 @@
 package io.ballerina.lib.pdf.layout;
 
 import io.ballerina.lib.pdf.ConversionOptions;
-import io.ballerina.lib.pdf.box.*;
+import io.ballerina.lib.pdf.box.TableBox;
+import io.ballerina.lib.pdf.box.TableCellBox;
+import io.ballerina.lib.pdf.box.TableRowBox;
+import io.ballerina.lib.pdf.box.TableRowGroupBox;
+import io.ballerina.lib.pdf.box.TextRun;
 import io.ballerina.lib.pdf.paint.FontManager;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.junit.jupiter.api.AfterAll;
@@ -28,7 +32,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TableLayoutEngineTest {
 

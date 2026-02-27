@@ -25,7 +25,7 @@ import java.util.Map;
  */
 public class ConversionOptions {
 
-    /** CSS-spec default: medium = 16px = 12pt */
+    /** CSS-spec default: medium = 16px = 12pt. */
     public static final float DEFAULT_FALLBACK_FONT_SIZE = 12f;
 
     // A4 dimensions in points (210mm x 297mm)
@@ -96,6 +96,9 @@ public class ConversionOptions {
         if (marginLeft < 0) {
             throw new IllegalArgumentException("marginLeft must be non-negative, got: " + marginLeft);
         }
+        if (maxPages != null && maxPages <= 0) {
+            throw new IllegalArgumentException("maxPages must be greater than 0, got: " + maxPages);
+        }
         this.fallbackFontSize = fallbackFontSize;
         this.pageWidth = pageWidth;
         this.pageHeight = pageHeight;
@@ -117,15 +120,54 @@ public class ConversionOptions {
         };
     }
 
-    public float getFallbackFontSize() { return fallbackFontSize; }
-    public float getPageWidth() { return pageWidth; }
-    public float getPageHeight() { return pageHeight; }
-    public float getMarginTop() { return marginTop; }
-    public float getMarginRight() { return marginRight; }
-    public float getMarginBottom() { return marginBottom; }
-    public float getMarginLeft() { return marginLeft; }
-    public String getAdditionalCss() { return additionalCss; }
-    public Map<String, byte[]> getCustomFonts() { return customFonts; }
-    public Integer getMaxPages() { return maxPages; }
+    /** Returns the fallback font size in points. */
+    public float getFallbackFontSize() {
+        return fallbackFontSize;
+    }
+
+    /** Returns the page width in points. */
+    public float getPageWidth() {
+        return pageWidth;
+    }
+
+    /** Returns the page height in points. */
+    public float getPageHeight() {
+        return pageHeight;
+    }
+
+    /** Returns the top margin in points. */
+    public float getMarginTop() {
+        return marginTop;
+    }
+
+    /** Returns the right margin in points. */
+    public float getMarginRight() {
+        return marginRight;
+    }
+
+    /** Returns the bottom margin in points. */
+    public float getMarginBottom() {
+        return marginBottom;
+    }
+
+    /** Returns the left margin in points. */
+    public float getMarginLeft() {
+        return marginLeft;
+    }
+
+    /** Returns the additional CSS to inject. */
+    public String getAdditionalCss() {
+        return additionalCss;
+    }
+
+    /** Returns the custom font map (name to TTF bytes). */
+    public Map<String, byte[]> getCustomFonts() {
+        return customFonts;
+    }
+
+    /** Returns the maximum number of pages, or null for no limit. */
+    public Integer getMaxPages() {
+        return maxPages;
+    }
 
 }

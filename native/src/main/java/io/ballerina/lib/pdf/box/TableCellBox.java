@@ -29,15 +29,30 @@ public class TableCellBox extends Box {
     private int colspan = 1;
     private int startColumn = 0; // 0-based column index
 
+    /** Creates a table cell box with the given style. */
     public TableCellBox(ComputedStyle style) {
         super(style);
     }
 
-    public int getColspan() { return colspan; }
-    public void setColspan(int colspan) { this.colspan = colspan; }
+    /** Returns the column span. */
+    public int getColspan() {
+        return colspan;
+    }
 
-    public int getStartColumn() { return startColumn; }
-    public void setStartColumn(int startColumn) { this.startColumn = startColumn; }
+    /** Sets the column span. */
+    public void setColspan(int colspan) {
+        this.colspan = colspan;
+    }
+
+    /** Returns the zero-based start column index. */
+    public int getStartColumn() {
+        return startColumn;
+    }
+
+    /** Sets the zero-based start column index. */
+    public void setStartColumn(int startColumn) {
+        this.startColumn = startColumn;
+    }
 
     @Override
     public String getBoxType() {

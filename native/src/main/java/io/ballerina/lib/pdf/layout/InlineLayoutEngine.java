@@ -42,6 +42,7 @@ public class InlineLayoutEngine {
     private final float fallbackFontSize;
     private final BlockFormattingContext bfc;
 
+    /** Creates an inline layout engine. */
     public InlineLayoutEngine(FontManager fontManager, float fallbackFontSize,
                                BlockFormattingContext bfc) {
         this.fontManager = fontManager;
@@ -74,12 +75,16 @@ public class InlineLayoutEngine {
      */
     public float layout(Box container, float availableWidth, LineWidthProvider provider, float startY) {
         List<Box> inlineChildren = container.getChildren();
-        if (inlineChildren.isEmpty()) return 0;
+        if (inlineChildren.isEmpty()) {
+            return 0;
+        }
 
         // Collect all leaf inline items (text runs, replaced boxes, inline-blocks)
         List<InlineItem> items = new ArrayList<>();
         collectInlineItems(inlineChildren, items, availableWidth);
-        if (items.isEmpty()) return 0;
+        if (items.isEmpty()) {
+            return 0;
+        }
 
         // Break into lines (float-aware if provider is given)
         List<Line> lines = (provider != null)
@@ -154,7 +159,9 @@ public class InlineLayoutEngine {
                 resolveTextMetrics(textRun);
                 // Split text into words for line breaking
                 String text = textRun.getText();
-                if (text == null || text.isEmpty()) continue;
+                if (text == null || text.isEmpty()) {
+                    continue;
+                }
 
                 // Resolve letter-spacing and word-spacing for width calculations
                 float letterSpacing = 0;
@@ -168,13 +175,17 @@ public class InlineLayoutEngine {
 
                 String[] words = text.split("(?<= )"); // split keeping trailing spaces
                 for (String word : words) {
-                    if (word.isEmpty()) continue;
+                    if (word.isEmpty()) {
+                        continue;
+                    }
                     TextRun wordRun = new TextRun(textRun.getStyle(), word);
                     wordRun.setFont(textRun.getFont());
                     wordRun.setFontSize(textRun.getFontSize());
                     wordRun.setSuperscript(textRun.isSuperscript());
                     wordRun.setSubscript(textRun.isSubscript());
-                    if (textRun.getHref() != null) wordRun.setHref(textRun.getHref());
+                    if (textRun.getHref() != null) {
+                        wordRun.setHref(textRun.getHref());
+                    }
                     float wordWidth = fontManager.measureText(word, textRun.getFont(), textRun.getFontSize());
                     // Add letter-spacing between characters
                     if (letterSpacing != 0 && word.length() > 1) {
@@ -183,7 +194,9 @@ public class InlineLayoutEngine {
                     // Add word-spacing for each space character in this word chunk
                     if (wordSpacing != 0) {
                         for (int ci = 0; ci < word.length(); ci++) {
-                            if (word.charAt(ci) == ' ') wordWidth += wordSpacing;
+                            if (word.charAt(ci) == ' ') {
+                        wordWidth += wordSpacing;
+                    }
                         }
                     }
                     wordRun.setTextWidth(wordWidth);
@@ -319,7 +332,9 @@ public class InlineLayoutEngine {
                 // Strip leading whitespace from the first word on the new line
                 if (item.box instanceof TextRun tr && tr.getText().startsWith(" ")) {
                     String trimmed = tr.getText().stripLeading();
-                    if (trimmed.isEmpty()) continue;
+                    if (trimmed.isEmpty()) {
+                        continue;
+                    }
                     tr.setText(trimmed);
                     float newWidth = fontManager.measureText(trimmed, tr.getFont(), tr.getFontSize());
                     tr.setTextWidth(newWidth);
@@ -384,7 +399,9 @@ public class InlineLayoutEngine {
                 // Strip leading whitespace from the first word on the new line
                 if (item.box instanceof TextRun tr && tr.getText().startsWith(" ")) {
                     String trimmed = tr.getText().stripLeading();
-                    if (trimmed.isEmpty()) continue;
+                    if (trimmed.isEmpty()) {
+                        continue;
+                    }
                     tr.setText(trimmed);
                     float newWidth = fontManager.measureText(trimmed, tr.getFont(), tr.getFontSize());
                     tr.setTextWidth(newWidth);
@@ -466,7 +483,9 @@ public class InlineLayoutEngine {
 
     private float measureTextRunWidth(TextRun textRun) {
         String text = textRun.getText();
-        if (text == null || text.isEmpty()) return 0;
+        if (text == null || text.isEmpty()) {
+            return 0;
+        }
 
         ComputedStyle style = textRun.getStyle();
         PDFont font;
@@ -478,9 +497,13 @@ public class InlineLayoutEngine {
 
             // Apply text-transform before measuring (must match resolveTextMetrics)
             String transform = style.getTextTransform();
-            if ("uppercase".equals(transform)) text = text.toUpperCase();
-            else if ("lowercase".equals(transform)) text = text.toLowerCase();
-            else if ("capitalize".equals(transform)) text = capitalize(text);
+            if ("uppercase".equals(transform)) {
+                text = text.toUpperCase();
+            } else if ("lowercase".equals(transform)) {
+                text = text.toLowerCase();
+            } else if ("capitalize".equals(transform)) {
+                text = capitalize(text);
+            }
         } else {
             font = fontManager.getDefaultFont();
             fontSize = fallbackFontSize;
@@ -504,7 +527,9 @@ public class InlineLayoutEngine {
 
     private float measureWidestWord(TextRun textRun) {
         String text = textRun.getText();
-        if (text == null || text.isEmpty()) return 0;
+        if (text == null || text.isEmpty()) {
+            return 0;
+        }
 
         ComputedStyle style = textRun.getStyle();
         PDFont font;
@@ -516,9 +541,13 @@ public class InlineLayoutEngine {
 
             // Apply text-transform before measuring (must match resolveTextMetrics)
             String transform = style.getTextTransform();
-            if ("uppercase".equals(transform)) text = text.toUpperCase();
-            else if ("lowercase".equals(transform)) text = text.toLowerCase();
-            else if ("capitalize".equals(transform)) text = capitalize(text);
+            if ("uppercase".equals(transform)) {
+                text = text.toUpperCase();
+            } else if ("lowercase".equals(transform)) {
+                text = text.toLowerCase();
+            } else if ("capitalize".equals(transform)) {
+                text = capitalize(text);
+            }
         } else {
             font = fontManager.getDefaultFont();
             fontSize = fallbackFontSize;
@@ -544,5 +573,5 @@ public class InlineLayoutEngine {
             this(box, width, height, false);
         }
     }
-    record Line(List<InlineItem> items, float width, float height) {}
+    record Line(List<InlineItem> items, float width, float height) { }
 }

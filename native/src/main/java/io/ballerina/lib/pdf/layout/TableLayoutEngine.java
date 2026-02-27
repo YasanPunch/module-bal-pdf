@@ -18,6 +18,7 @@
 
 package io.ballerina.lib.pdf.layout;
 
+import io.ballerina.lib.pdf.box.BlockBox;
 import io.ballerina.lib.pdf.box.Box;
 import io.ballerina.lib.pdf.box.TableBox;
 import io.ballerina.lib.pdf.box.TableCellBox;
@@ -46,6 +47,7 @@ public class TableLayoutEngine {
     private final FontManager fontManager;
     private final float fallbackFontSize;
 
+    /** Creates a table layout engine. */
     public TableLayoutEngine(BlockFormattingContext bfc, FontManager fontManager, float fallbackFontSize) {
         this.bfc = bfc;
         this.fontManager = fontManager;
@@ -58,7 +60,9 @@ public class TableLayoutEngine {
      */
     public float layout(TableBox table, float availableWidth) {
         int numCols = determineColumnCount(table);
-        if (numCols == 0) numCols = 1;
+        if (numCols == 0) {
+            numCols = 1;
+        }
 
         float[] colWidths = computeColumnWidths(table, numCols, availableWidth);
         table.setWidth(availableWidth);
@@ -119,7 +123,7 @@ public class TableLayoutEngine {
     private float[] computeColumnWidths(TableBox table, int numCols, float availableWidth) {
         float[] minW = new float[numCols];
         float[] maxW = new float[numCols];
-        measureColumnWidths(table, numCols, minW, maxW);
+        measureColumnWidths(table, numCols, minW, maxW, availableWidth);
 
         float[] preferred = new float[numCols];
         // returns the list that was populated when BoxTreeBuilder processed the colgroup element
@@ -152,7 +156,9 @@ public class TableLayoutEngine {
         } else {
             // No colgroup — empty list, or mismatched count - use max-content proportions
             float totalMaxContent = 0;
-            for (float w : maxW) totalMaxContent += w;
+            for (float w : maxW) {
+                totalMaxContent += w;
+            }
 
             if (totalMaxContent > 0) {
                 for (int i = 0; i < numCols; i++) {
@@ -200,7 +206,9 @@ public class TableLayoutEngine {
 
         // Normalize to fill exactly availableWidth
         float totalAllocated = 0;
-        for (float w : colWidths) totalAllocated += w;
+        for (float w : colWidths) {
+            totalAllocated += w;
+        }
 
         if (totalAllocated > 0 && Math.abs(totalAllocated - availableWidth) > 0.01f) {
             float scale = availableWidth / totalAllocated;
@@ -215,21 +223,23 @@ public class TableLayoutEngine {
     /**
      * Measures min-content and max-content widths per column across all rows.
      */
-    private void measureColumnWidths(TableBox table, int numCols, float[] minW, float[] maxW) {
+    private void measureColumnWidths(TableBox table, int numCols, float[] minW, float[] maxW,
+                                     float availableWidth) {
         for (Box child : table.getChildren()) {
             if (child instanceof TableRowBox row) {
-                measureRowWidths(row, numCols, minW, maxW);
+                measureRowWidths(row, numCols, minW, maxW, availableWidth);
             } else if (child instanceof TableRowGroupBox group) {
                 for (Box gc : group.getChildren()) {
                     if (gc instanceof TableRowBox row) {
-                        measureRowWidths(row, numCols, minW, maxW);
+                        measureRowWidths(row, numCols, minW, maxW, availableWidth);
                     }
                 }
             }
         }
     }
 
-    private void measureRowWidths(TableRowBox row, int numCols, float[] minW, float[] maxW) {
+    private void measureRowWidths(TableRowBox row, int numCols, float[] minW, float[] maxW,
+                                  float availableWidth) {
         int colIdx = 0;
         for (Box child : row.getChildren()) {
             if (child instanceof TableCellBox cell) {
@@ -241,7 +251,9 @@ public class TableLayoutEngine {
                 // max-content width for that column. This is what browsers and iText/Flying Saucer do.
                 String cssWidthStr = cell.getStyle() != null ? cell.getStyle().get("width") : null;
                 if (cssWidthStr != null && !cssWidthStr.equals("auto")) {
-                    float cssW = CssValueParser.toPoints(cssWidthStr);
+                    float cssW = cssWidthStr.endsWith("%")
+                            ? CssValueParser.toPoints(cssWidthStr, availableWidth)
+                            : CssValueParser.toPoints(cssWidthStr);
                     if (cssW > 0) {
                         cellMax = Math.max(cellMax, cssW);
                     }
@@ -301,7 +313,9 @@ public class TableLayoutEngine {
      */
     private float measureWidestWord(TextRun textRun) {
         String text = textRun.getText();
-        if (text == null || text.isEmpty()) return 0;
+        if (text == null || text.isEmpty()) {
+            return 0;
+        }
 
         ComputedStyle style = textRun.getStyle();
         PDFont font;
@@ -512,12 +526,29 @@ public class TableLayoutEngine {
     }
 
     /**
-     * Recursively measures the total inline text width of a box subtree.
-     * Returns the max-content width (single-line width with no breaks).
+     * Recursively measures the max-content width of a box subtree.
+     * For block-level children (stacked vertically), takes the maximum width.
+     * For inline children (flowing horizontally), sums the widths.
      */
     private float measureBoxContentWidth(Box box) {
         if (box instanceof TextRun textRun) {
             return measureTextRunWidth(textRun);
+        }
+
+        boolean hasBlockChild = false;
+        for (Box child : box.getChildren()) {
+            if (child instanceof BlockBox) {
+                hasBlockChild = true;
+                break;
+            }
+        }
+
+        if (hasBlockChild) {
+            float maxWidth = 0;
+            for (Box child : box.getChildren()) {
+                maxWidth = Math.max(maxWidth, measureBoxContentWidth(child));
+            }
+            return maxWidth;
         }
 
         float totalWidth = 0;
@@ -529,7 +560,9 @@ public class TableLayoutEngine {
 
     private float measureTextRunWidth(TextRun textRun) {
         String text = textRun.getText();
-        if (text == null || text.isEmpty()) return 0;
+        if (text == null || text.isEmpty()) {
+            return 0;
+        }
 
         ComputedStyle style = textRun.getStyle();
         PDFont font;

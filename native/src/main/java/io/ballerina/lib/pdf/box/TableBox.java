@@ -32,18 +32,30 @@ public class TableBox extends Box {
     private final List<Float> columnWidths = new ArrayList<>(); // percentages
     private boolean borderCollapse;
 
+    /** Creates a table box with the given style. */
     public TableBox(ComputedStyle style) {
         super(style);
     }
 
-    public List<Float> getColumnWidths() { return columnWidths; }
+    /** Returns the column width percentages from colgroup. */
+    public List<Float> getColumnWidths() {
+        return columnWidths;
+    }
 
+    /** Adds a column width percentage. */
     public void addColumnWidth(float pct) {
         columnWidths.add(pct);
     }
 
-    public boolean isBorderCollapse() { return borderCollapse; }
-    public void setBorderCollapse(boolean val) { this.borderCollapse = val; }
+    /** Returns whether border-collapse is enabled. */
+    public boolean isBorderCollapse() {
+        return borderCollapse;
+    }
+
+    /** Sets whether border-collapse is enabled. */
+    public void setBorderCollapse(boolean val) {
+        this.borderCollapse = val;
+    }
 
     @Override
     public String getBoxType() {

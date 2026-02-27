@@ -32,18 +32,22 @@ public class CssStylesheet {
     //2. List of all the @page declarations in the stylesheet.
     private final List<CssDeclaration> pageDeclarations = new ArrayList<>();
 
+    /** Adds a CSS rule to the stylesheet. */
     public void addRule(CssRule rule) {
         rules.add(rule);
     }
 
+    /** Adds a @page declaration. */
     public void addPageDeclaration(CssDeclaration decl) {
         pageDeclarations.add(decl);
     }
 
+    /** Returns all CSS rules. */
     public List<CssRule> getRules() {
         return rules;
     }
 
+    /** Returns the @page declarations. */
     public List<CssDeclaration> getPageDeclarations() {
         return pageDeclarations;
     }

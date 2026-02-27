@@ -30,18 +30,40 @@ public class ReplacedBox extends Box {
     private float intrinsicWidth;
     private float intrinsicHeight;
 
+    /** Creates a replaced box with the given style. */
     public ReplacedBox(ComputedStyle style) {
         super(style);
     }
 
-    public String getSrc() { return src; }
-    public void setSrc(String src) { this.src = src; }
+    /** Returns the image data URL source. */
+    public String getSrc() {
+        return src;
+    }
 
-    public float getIntrinsicWidth() { return intrinsicWidth; }
-    public void setIntrinsicWidth(float w) { this.intrinsicWidth = w; }
+    /** Sets the image data URL source. */
+    public void setSrc(String src) {
+        this.src = src;
+    }
 
-    public float getIntrinsicHeight() { return intrinsicHeight; }
-    public void setIntrinsicHeight(float h) { this.intrinsicHeight = h; }
+    /** Returns the intrinsic image width in points. */
+    public float getIntrinsicWidth() {
+        return intrinsicWidth;
+    }
+
+    /** Sets the intrinsic image width in points. */
+    public void setIntrinsicWidth(float w) {
+        this.intrinsicWidth = w;
+    }
+
+    /** Returns the intrinsic image height in points. */
+    public float getIntrinsicHeight() {
+        return intrinsicHeight;
+    }
+
+    /** Sets the intrinsic image height in points. */
+    public void setIntrinsicHeight(float h) {
+        this.intrinsicHeight = h;
+    }
 
     @Override
     public String getBoxType() {

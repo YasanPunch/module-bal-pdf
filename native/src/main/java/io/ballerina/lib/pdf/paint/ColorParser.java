@@ -31,7 +31,8 @@ public class ColorParser {
     private static final Pattern HEX3 = Pattern.compile("#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])");
     private static final Pattern HEX6 = Pattern.compile("#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})");
     private static final Pattern RGB = Pattern.compile("rgb\\s*\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*\\)");
-    private static final Pattern RGBA = Pattern.compile("rgba\\s*\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*([\\d.]+)\\s*\\)");
+    private static final Pattern RGBA = Pattern.compile(
+            "rgba\\s*\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*([\\d.]+)\\s*\\)");
 
     private static final Map<String, Color> NAMED_COLORS = Map.ofEntries(
             Map.entry("black", Color.BLACK),
@@ -59,12 +60,16 @@ public class ColorParser {
      * Parses a CSS color string. Returns null if unparseable.
      */
     public static Color parse(String value) {
-        if (value == null || value.isBlank()) return null;
+        if (value == null || value.isBlank()) {
+            return null;
+        }
         value = value.trim().toLowerCase();
 
         // Named color
         Color named = NAMED_COLORS.get(value);
-        if (named != null) return named;
+        if (named != null) {
+            return named;
+        }
 
         // #RRGGBB
         Matcher m6 = HEX6.matcher(value);

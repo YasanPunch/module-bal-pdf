@@ -18,19 +18,24 @@
 
 package io.ballerina.lib.pdf;
 
-import static io.ballerina.lib.pdf.ConversionOptions.A4_HEIGHT;
-import static io.ballerina.lib.pdf.ConversionOptions.A4_WIDTH;
-import static io.ballerina.lib.pdf.ConversionOptions.DEFAULT_FALLBACK_FONT_SIZE;
-import static io.ballerina.lib.pdf.ConversionOptions.DEFAULT_MARGIN;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static io.ballerina.lib.pdf.ConversionOptions.A4_HEIGHT;
+import static io.ballerina.lib.pdf.ConversionOptions.A4_WIDTH;
+import static io.ballerina.lib.pdf.ConversionOptions.DEFAULT_FALLBACK_FONT_SIZE;
+import static io.ballerina.lib.pdf.ConversionOptions.DEFAULT_MARGIN;
+
 /**
  * Dev/test entry point for manual HTML-to-PDF conversion.
  */
 public class Main {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
     private static final String[] DEFAULT_INPUTS = {
             "src/test/resources/smoke-test.html",
@@ -57,7 +62,7 @@ public class Main {
                                      ConversionOptions options) throws Exception {
         Path input = Path.of(inputPath);
         if (!Files.exists(input)) {
-            System.err.println("Not found: " + input.toAbsolutePath());
+            LOG.info("Not found: {}", input.toAbsolutePath());
             return;
         }
 
@@ -66,7 +71,7 @@ public class Main {
         String pdfName = inputName.replaceFirst("\\.[^.]+$", "") + ".pdf";
         Path outputPath = Path.of("output", pdfName);
 
-        System.out.println("Converting: " + inputPath);
+        LOG.info("Converting: {}", inputPath);
 
         // Read and parse HTML
         String rawHtml = Files.readString(input, StandardCharsets.UTF_8);
@@ -85,6 +90,6 @@ public class Main {
         Files.createDirectories(outputPath.getParent());
         Files.write(outputPath, pdfBytes);
 
-        System.out.printf("  → %s (%,d bytes)%n", outputPath, pdfBytes.length);
+        LOG.info("  -> {} ({} bytes)", outputPath, pdfBytes.length);
     }
 }

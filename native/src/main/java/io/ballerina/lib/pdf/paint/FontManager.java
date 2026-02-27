@@ -21,6 +21,8 @@ package io.ballerina.lib.pdf.paint;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -37,6 +39,8 @@ import java.util.Set;
  * Maps CSS font-family + weight + style to the correct PDType0Font.
  */
 public class FontManager {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FontManager.class);
 
     private static final String[] FONT_FILES = {
             "fonts/LiberationSans-Regular.ttf",
@@ -58,11 +62,12 @@ public class FontManager {
     private final List<PDFont> fallbackFonts = new ArrayList<>();
     private PDFont defaultFont;
 
+    /** Loads bundled and custom fonts into the PDF document. */
     public void loadFonts(PDDocument document) throws IOException {
         for (String fontFile : FONT_FILES) {
             try (InputStream is = getClass().getClassLoader().getResourceAsStream(fontFile)) {
                 if (is == null) {
-                    System.err.println("WARNING: Font not found on classpath: " + fontFile);
+                    LOG.warn("Font not found on classpath: {}", fontFile);
                     continue;
                 }
                 PDType0Font font = PDType0Font.load(document, is, true);
@@ -74,6 +79,9 @@ public class FontManager {
         defaultFont = fontMap.get("liberation sans|false|false");
         if (defaultFont == null && !fontMap.isEmpty()) {
             defaultFont = fontMap.values().iterator().next();
+        }
+        if (defaultFont == null) {
+            throw new IOException("No fonts could be loaded. At least one bundled font must be available.");
         }
 
         // Load symbol font for glyph fallback (Dingbats, Math, Arrows, etc.)
@@ -171,7 +179,9 @@ public class FontManager {
      * family in the chain rather than falling back to a default.
      */
     private String tryResolveFamily(String family) {
-        if (family == null) return null;
+        if (family == null) {
+            return null;
+        }
         String lower = family.toLowerCase().trim();
         lower = lower.replace("'", "").replace("\"", "");
 
@@ -205,17 +215,23 @@ public class FontManager {
     private PDFont lookupFont(String resolvedFamily, boolean bold, boolean italic) {
         String key = resolvedFamily + "|" + bold + "|" + italic;
         PDFont font = fontMap.get(key);
-        if (font != null) return font;
+        if (font != null) {
+            return font;
+        }
 
         // Try without italic
         if (italic) {
             font = fontMap.get(resolvedFamily + "|" + bold + "|false");
-            if (font != null) return font;
+            if (font != null) {
+                return font;
+            }
         }
         // Try without bold
         if (bold) {
             font = fontMap.get(resolvedFamily + "|false|" + italic);
-            if (font != null) return font;
+            if (font != null) {
+                return font;
+            }
         }
         // Try regular variant of the family
         font = fontMap.get(resolvedFamily + "|false|false");
@@ -230,7 +246,9 @@ public class FontManager {
      * Measures the width of a string in points at the given font size.
      */
     public float measureText(String text, PDFont font, float fontSize) {
-        if (text == null || text.isEmpty()) return 0;
+        if (text == null || text.isEmpty()) {
+            return 0;
+        }
         try {
             return font.getStringWidth(text) / 1000f * fontSize;
         } catch (Exception e) {
@@ -251,6 +269,11 @@ public class FontManager {
         return fontSize * 1.2f;
     }
 
+    /**
+     * Returns the ascent of a font at a given size.
+     * Ascent is the distance from the baseline to the top of the font.
+     * Baseline is the line used to align the text.
+     */
     public float getAscent(PDFont font, float fontSize) {
         var desc = font.getFontDescriptor();
         if (desc != null) {
@@ -259,6 +282,10 @@ public class FontManager {
         return fontSize * 0.8f;
     }
 
+    /**
+     * Returns the descent of a font at a given size.
+     * Descent is the distance from the baseline to the bottom of the font.
+     */
     public float getDescent(PDFont font, float fontSize) {
         var desc = font.getFontDescriptor();
         if (desc != null) {

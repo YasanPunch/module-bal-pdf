@@ -19,7 +19,10 @@
 package io.ballerina.lib.pdf.layout;
 
 import io.ballerina.lib.pdf.ConversionOptions;
-import io.ballerina.lib.pdf.box.*;
+import io.ballerina.lib.pdf.box.BlockBox;
+import io.ballerina.lib.pdf.box.Box;
+import io.ballerina.lib.pdf.box.InlineBox;
+import io.ballerina.lib.pdf.box.TextRun;
 import io.ballerina.lib.pdf.css.ComputedStyle;
 import io.ballerina.lib.pdf.paint.FontManager;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -29,7 +32,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FloatLayoutTest {
 

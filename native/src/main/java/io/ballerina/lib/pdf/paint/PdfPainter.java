@@ -50,7 +50,7 @@ import java.util.Map;
  */
 public class PdfPainter {
 
-    private record PendingInternalLink(int sourcePageIndex, PDRectangle rect, String targetId) {}
+    private record PendingInternalLink(int sourcePageIndex, PDRectangle rect, String targetId) { }
 
     private final PdfPageManager pageManager;
     private final ImageDecoder imageDecoder;
@@ -59,6 +59,7 @@ public class PdfPainter {
     private final List<PendingInternalLink> pendingInternalLinks = new ArrayList<>();
     private Map<String, float[]> anchorMap = Collections.emptyMap();
 
+    /** Creates a PDF painter with the given dependencies. */
     public PdfPainter(PdfPageManager pageManager, ImageDecoder imageDecoder,
                       FontManager fontManager, LayoutContext layoutContext) {
         this.pageManager = pageManager;
@@ -172,14 +173,17 @@ public class PdfPainter {
                 float trr = clipStyle.getBorderTopRightRadius(borderBoxW, clipFontSize);
                 float brr = clipStyle.getBorderBottomRightRadius(borderBoxW, clipFontSize);
                 float blr = clipStyle.getBorderBottomLeftRadius(borderBoxW, clipFontSize);
-                hasClip = tlr > 0 || trr > 0 || brr > 0 || blr > 0;
-                if (hasClip) {
-                    float clipPdfY = toPdfY(absY - clipTop, borderBoxH);
-                    stream.saveGraphicsState();
+                hasClip = true;
+                boolean hasRadius = tlr > 0 || trr > 0 || brr > 0 || blr > 0;
+                float clipPdfY = toPdfY(absY - clipTop, borderBoxH);
+                stream.saveGraphicsState();
+                if (hasRadius) {
                     addRoundedRectPath(stream, pdfX, clipPdfY, borderBoxW, borderBoxH,
                             tlr, trr, brr, blr);
-                    stream.clip();
+                } else {
+                    stream.addRect(pdfX, clipPdfY, borderBoxW, borderBoxH);
                 }
+                stream.clip();
             }
         }
 
@@ -196,7 +200,9 @@ public class PdfPainter {
     private void paintBackground(Box box, PDPageContentStream stream,
                                   float pdfX, float layoutY, float width, float height) throws IOException {
         ComputedStyle style = box.getStyle();
-        if (style == null) return;
+        if (style == null) {
+            return;
+        }
 
         float fontSize = style.getFontSize(layoutContext.getFallbackFontSize());
         float tlr = style.getBorderTopLeftRadius(width, fontSize);
@@ -214,7 +220,9 @@ public class PdfPainter {
                 stream.saveGraphicsState();
                 applyAlpha(stream, alpha, false);
             }
-            stream.setNonStrokingColor(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f);
+            stream.setNonStrokingColor(
+                    color.getRed() / 255f, color.getGreen() / 255f,
+                    color.getBlue() / 255f);
             if (hasRadius) {
                 addRoundedRectPath(stream, pdfX, pdfY, width, height, tlr, trr, brr, blr);
             } else {
@@ -244,11 +252,15 @@ public class PdfPainter {
     private void paintBoxShadow(Box box, PDPageContentStream stream,
                                  float pdfX, float layoutY, float width, float height) throws IOException {
         ComputedStyle style = box.getStyle();
-        if (style == null) return;
+        if (style == null) {
+            return;
+        }
 
         float fontSize = style.getFontSize(layoutContext.getFallbackFontSize());
         java.util.List<ComputedStyle.BoxShadow> shadows = style.getBoxShadows(width, fontSize);
-        if (shadows.isEmpty()) return;
+        if (shadows.isEmpty()) {
+            return;
+        }
 
         float pdfY = toPdfY(layoutY, height);
 
@@ -263,7 +275,9 @@ public class PdfPainter {
         for (int si = shadows.size() - 1; si >= 0; si--) {
             ComputedStyle.BoxShadow shadow = shadows.get(si);
             Color shadowColor = ColorParser.parse(shadow.color());
-            if (shadowColor == null) shadowColor = new Color(0, 0, 0, 128);
+            if (shadowColor == null) {
+                shadowColor = new Color(0, 0, 0, 128);
+            }
 
             float baseAlpha = (shadowColor.getAlpha() / 255f) * style.getOpacity();
 
@@ -323,7 +337,9 @@ public class PdfPainter {
     private void paintBorders(Box box, PDPageContentStream stream,
                                float pdfX, float layoutY, float width, float height) throws IOException {
         ComputedStyle style = box.getStyle();
-        if (style == null) return;
+        if (style == null) {
+            return;
+        }
 
         float pdfY = toPdfY(layoutY, height);
         float opacity = style.getOpacity();
@@ -340,28 +356,46 @@ public class PdfPainter {
             // Use average border width for the stroked rounded rect path
             float avgBorderWidth = (box.getBorderTopWidth() + box.getBorderRightWidth()
                     + box.getBorderBottomWidth() + box.getBorderLeftWidth()) / 4f;
-            if (avgBorderWidth <= 0) return;
+            if (avgBorderWidth <= 0) {
+                return;
+            }
 
             // Determine border color (use top border color as primary)
             boolean hasBorder = !isNoneBorderStyle(style.getBorderTopStyle())
                     || !isNoneBorderStyle(style.getBorderRightStyle())
                     || !isNoneBorderStyle(style.getBorderBottomStyle())
                     || !isNoneBorderStyle(style.getBorderLeftStyle());
-            if (!hasBorder) return;
+            if (!hasBorder) {
+                return;
+            }
 
             Color color = ColorParser.parse(style.getBorderTopColor());
-            if (color == null) color = ColorParser.parse(style.getBorderRightColor());
-            if (color == null) color = ColorParser.parse(style.getBorderBottomColor());
-            if (color == null) color = ColorParser.parse(style.getBorderLeftColor());
-            if (color == null) color = Color.BLACK;
+            if (color == null) {
+                color = ColorParser.parse(style.getBorderRightColor());
+            }
+            if (color == null) {
+                color = ColorParser.parse(style.getBorderBottomColor());
+            }
+            if (color == null) {
+                color = ColorParser.parse(style.getBorderLeftColor());
+            }
+            if (color == null) {
+                color = Color.BLACK;
+            }
 
             float alpha = (color.getAlpha() / 255f) * opacity;
-            if (alpha < 1.0f) { stream.saveGraphicsState(); applyAlpha(stream, alpha, true); }
-            stream.setStrokingColor(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f);
+            if (alpha < 1.0f) {
+                stream.saveGraphicsState();
+                applyAlpha(stream, alpha, true);
+            }
+            stream.setStrokingColor(
+                    color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f);
             stream.setLineWidth(avgBorderWidth);
             addRoundedRectPath(stream, pdfX, pdfY, width, height, tlr, trr, brr, blr);
             stream.stroke();
-            if (alpha < 1.0f) stream.restoreGraphicsState();
+            if (alpha < 1.0f) {
+                stream.restoreGraphicsState();
+            }
             return;
         }
 
@@ -370,77 +404,118 @@ public class PdfPainter {
         // Top border — inset by half width so stroke stays within border box
         if (box.getBorderTopWidth() > 0 && !isNoneBorderStyle(style.getBorderTopStyle())) {
             Color color = ColorParser.parse(style.getBorderTopColor());
-            if (color == null) color = Color.BLACK;
+            if (color == null) {
+                color = Color.BLACK;
+            }
             float alpha = (color.getAlpha() / 255f) * opacity;
-            if (alpha < 1.0f) { stream.saveGraphicsState(); applyAlpha(stream, alpha, true); }
+            if (alpha < 1.0f) {
+                stream.saveGraphicsState();
+                applyAlpha(stream, alpha, true);
+            }
             float topY = pdfY + height - (box.getBorderTopWidth() / 2f);
             drawLine(stream, pdfX, topY, pdfX + width, topY,
                     box.getBorderTopWidth(), color);
-            if (alpha < 1.0f) stream.restoreGraphicsState();
+            if (alpha < 1.0f) {
+                stream.restoreGraphicsState();
+            }
         }
 
         // Bottom border — inset by half width
         if (box.getBorderBottomWidth() > 0 && !isNoneBorderStyle(style.getBorderBottomStyle())) {
             Color color = ColorParser.parse(style.getBorderBottomColor());
-            if (color == null) color = Color.BLACK;
+            if (color == null) {
+                color = Color.BLACK;
+            }
             float alpha = (color.getAlpha() / 255f) * opacity;
-            if (alpha < 1.0f) { stream.saveGraphicsState(); applyAlpha(stream, alpha, true); }
+            if (alpha < 1.0f) {
+                stream.saveGraphicsState();
+                applyAlpha(stream, alpha, true);
+            }
             float bottomY = pdfY + (box.getBorderBottomWidth() / 2f);
             drawLine(stream, pdfX, bottomY, pdfX + width, bottomY,
                     box.getBorderBottomWidth(), color);
-            if (alpha < 1.0f) stream.restoreGraphicsState();
+            if (alpha < 1.0f) {
+                stream.restoreGraphicsState();
+            }
         }
 
         // Left border — inset by half width
         if (box.getBorderLeftWidth() > 0 && !isNoneBorderStyle(style.getBorderLeftStyle())) {
             Color color = ColorParser.parse(style.getBorderLeftColor());
-            if (color == null) color = Color.BLACK;
+            if (color == null) {
+                color = Color.BLACK;
+            }
             float alpha = (color.getAlpha() / 255f) * opacity;
-            if (alpha < 1.0f) { stream.saveGraphicsState(); applyAlpha(stream, alpha, true); }
+            if (alpha < 1.0f) {
+                stream.saveGraphicsState();
+                applyAlpha(stream, alpha, true);
+            }
             float leftX = pdfX + (box.getBorderLeftWidth() / 2f);
             drawLine(stream, leftX, pdfY, leftX, pdfY + height,
                     box.getBorderLeftWidth(), color);
-            if (alpha < 1.0f) stream.restoreGraphicsState();
+            if (alpha < 1.0f) {
+                stream.restoreGraphicsState();
+            }
         }
 
         // Right border — inset by half width
         if (box.getBorderRightWidth() > 0 && !isNoneBorderStyle(style.getBorderRightStyle())) {
             Color color = ColorParser.parse(style.getBorderRightColor());
-            if (color == null) color = Color.BLACK;
+            if (color == null) {
+                color = Color.BLACK;
+            }
             float alpha = (color.getAlpha() / 255f) * opacity;
-            if (alpha < 1.0f) { stream.saveGraphicsState(); applyAlpha(stream, alpha, true); }
+            if (alpha < 1.0f) {
+                stream.saveGraphicsState();
+                applyAlpha(stream, alpha, true);
+            }
             float rightX = pdfX + width - (box.getBorderRightWidth() / 2f);
             drawLine(stream, rightX, pdfY, rightX, pdfY + height,
                     box.getBorderRightWidth(), color);
-            if (alpha < 1.0f) stream.restoreGraphicsState();
+            if (alpha < 1.0f) {
+                stream.restoreGraphicsState();
+            }
         }
     }
 
-    /** A contiguous run of text that can be rendered with a single font. */
-    private record TextSegment(String text, PDFont font) {}
+    /**
+     * A contiguous run of text that can be rendered with a single font.
+     *
+     * @param text the text content
+     * @param font the PDF font to render with
+     */
+    private record TextSegment(String text, PDFont font) { }
 
     private void paintText(TextRun textRun, PDPageContentStream stream,
                             float pdfX, float layoutY) throws IOException {
         String text = textRun.getText();
-        if (text == null || text.isEmpty()) return;
+        if (text == null || text.isEmpty()) {
+            return;
+        }
 
         PDFont font = textRun.getFont();
         float fontSize = textRun.getFontSize();
         if (font == null) {
             font = fontManager.getDefaultFont();
         }
-        if (fontSize <= 0) fontSize = layoutContext.getFallbackFontSize();
+        if (fontSize <= 0) {
+            fontSize = layoutContext.getFallbackFontSize();
+        }
 
         // Resolve text into segments, each using a font that can encode its characters
         List<TextSegment> segments = resolveTextSegments(text, font);
-        if (segments.isEmpty()) return;
+        if (segments.isEmpty()) {
+            return;
+        }
 
         // Text color
         ComputedStyle style = textRun.getStyle();
         Color textColor = Color.BLACK;
         if (style != null && style.getColor() != null) {
             Color parsed = ColorParser.parse(style.getColor());
-            if (parsed != null) textColor = parsed;
+            if (parsed != null) {
+                textColor = parsed;
+            }
         }
 
         // Calculate baseline position
@@ -478,15 +553,36 @@ public class PdfPainter {
         for (TextSegment segment : segments) {
             stream.beginText();
             stream.setFont(segment.font(), fontSize);
-            stream.setNonStrokingColor(textColor.getRed() / 255f, textColor.getGreen() / 255f, textColor.getBlue() / 255f);
-            if (letterSpacing != 0) stream.setCharacterSpacing(letterSpacing);
-            if (wordSpacing != 0) stream.setWordSpacing(wordSpacing);
+            stream.setNonStrokingColor(
+                    textColor.getRed() / 255f, textColor.getGreen() / 255f,
+                    textColor.getBlue() / 255f);
+            if (letterSpacing != 0) {
+                stream.setCharacterSpacing(letterSpacing);
+            }
+            if (wordSpacing != 0) {
+                stream.setWordSpacing(wordSpacing);
+            }
             stream.newLineAtOffset(cursorX, pdfY);
             stream.showText(segment.text());
-            if (letterSpacing != 0) stream.setCharacterSpacing(0);
-            if (wordSpacing != 0) stream.setWordSpacing(0);
+            if (letterSpacing != 0) {
+                stream.setCharacterSpacing(0);
+            }
+            if (wordSpacing != 0) {
+                stream.setWordSpacing(0);
+            }
             stream.endText();
-            cursorX += fontManager.measureText(segment.text(), segment.font(), fontSize);
+            float segmentWidth = fontManager.measureText(segment.text(), segment.font(), fontSize);
+            if (letterSpacing != 0) {
+                segmentWidth += letterSpacing * segment.text().length();
+            }
+            if (wordSpacing != 0) {
+                for (int i = 0; i < segment.text().length(); i++) {
+                    if (segment.text().charAt(i) == ' ') {
+                        segmentWidth += wordSpacing;
+                    }
+                }
+            }
+            cursorX += segmentWidth;
         }
 
         if (textAlpha < 1.0f) {
@@ -516,10 +612,14 @@ public class PdfPainter {
     private void paintImage(ReplacedBox replaced, PDPageContentStream stream,
                              float pdfX, float layoutY) throws IOException {
         String src = replaced.getSrc();
-        if (src == null) return;
+        if (src == null) {
+            return;
+        }
 
         PDImageXObject image = imageDecoder.decode(src);
-        if (image == null) return;
+        if (image == null) {
+            return;
+        }
 
         float width = replaced.getIntrinsicWidth();
         float height = replaced.getIntrinsicHeight();
@@ -536,13 +636,17 @@ public class PdfPainter {
     private void createLinkAnnotation(Box box, float pdfX, float layoutY,
                                        float width, float height) throws IOException {
         String href = box.getHref();
-        if ("#".equals(href)) return; // bare fragment placeholder
+        if ("#".equals(href)) {
+            return;
+        }
 
         if (href.startsWith("#")) {
             // Internal anchor — defer until all pages exist so we can use PDPage references
             String targetId = href.substring(1);
             float[] target = anchorMap.get(targetId);
-            if (target == null) return; // unresolved anchor
+            if (target == null) {
+                return;
+            }
             int sourcePageIdx = pageManager.getCurrentPageIndex();
             float pdfY = toPdfY(layoutY, height);
             pendingInternalLinks.add(new PendingInternalLink(
@@ -552,7 +656,9 @@ public class PdfPainter {
 
         // External URL → PDActionURI
         PDPage page = pageManager.getCurrentPage();
-        if (page == null) return;
+        if (page == null) {
+            return;
+        }
 
         float pdfY = toPdfY(layoutY, height);
 
@@ -580,11 +686,15 @@ public class PdfPainter {
     public void resolveInternalLinks(PdfPageManager pageManager) throws IOException {
         for (PendingInternalLink link : pendingInternalLinks) {
             float[] target = anchorMap.get(link.targetId());
-            if (target == null) continue;
+            if (target == null) {
+                continue;
+            }
 
             PDPage targetPage = pageManager.getPage((int) target[0]);
             PDPage sourcePage = pageManager.getPage(link.sourcePageIndex());
-            if (targetPage == null || sourcePage == null) continue;
+            if (targetPage == null || sourcePage == null) {
+                continue;
+            }
 
             PDPageXYZDestination dest = new PDPageXYZDestination();
             dest.setPage(targetPage);
@@ -622,7 +732,9 @@ public class PdfPainter {
 
     private void drawLine(PDPageContentStream stream, float x1, float y1, float x2, float y2,
                            float lineWidth, Color color) throws IOException {
-        stream.setStrokingColor(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f);
+        stream.setStrokingColor(
+                color.getRed() / 255f, color.getGreen() / 255f,
+                color.getBlue() / 255f);
         stream.setLineWidth(lineWidth);
         stream.moveTo(x1, y1);
         stream.lineTo(x2, y2);

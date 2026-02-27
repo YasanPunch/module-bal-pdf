@@ -37,6 +37,7 @@ public class LayoutContext {
     private final FontManager fontManager;
     private final float fallbackFontSize;
 
+    /** Creates a layout context from font manager and conversion options. */
     public LayoutContext(FontManager fontManager, ConversionOptions options) {
         this.fontManager = fontManager;
         this.fallbackFontSize = options.getFallbackFontSize();
@@ -61,6 +62,9 @@ public class LayoutContext {
             } else if (lower.equals("letter")) {
                 pageWidth = ConversionOptions.LETTER_WIDTH;
                 pageHeight = ConversionOptions.LETTER_HEIGHT;
+            } else if (lower.equals("legal")) {
+                pageWidth = ConversionOptions.LEGAL_WIDTH;
+                pageHeight = ConversionOptions.LEGAL_HEIGHT;
             }
             // Could parse explicit dimensions if needed
         }
@@ -101,12 +105,43 @@ public class LayoutContext {
         return pageHeight - marginTop - marginBottom;
     }
 
-    public float getPageWidth() { return pageWidth; }
-    public float getPageHeight() { return pageHeight; }
-    public float getMarginTop() { return marginTop; }
-    public float getMarginRight() { return marginRight; }
-    public float getMarginBottom() { return marginBottom; }
-    public float getMarginLeft() { return marginLeft; }
-    public FontManager getFontManager() { return fontManager; }
-    public float getFallbackFontSize() { return fallbackFontSize; }
+    /** Returns the page width in points. */
+    public float getPageWidth() {
+        return pageWidth;
+    }
+
+    /** Returns the page height in points. */
+    public float getPageHeight() {
+        return pageHeight;
+    }
+
+    /** Returns the top margin in points. */
+    public float getMarginTop() {
+        return marginTop;
+    }
+
+    /** Returns the right margin in points. */
+    public float getMarginRight() {
+        return marginRight;
+    }
+
+    /** Returns the bottom margin in points. */
+    public float getMarginBottom() {
+        return marginBottom;
+    }
+
+    /** Returns the left margin in points. */
+    public float getMarginLeft() {
+        return marginLeft;
+    }
+
+    /** Returns the font manager. */
+    public FontManager getFontManager() {
+        return fontManager;
+    }
+
+    /** Returns the fallback font size in points. */
+    public float getFallbackFontSize() {
+        return fallbackFontSize;
+    }
 }

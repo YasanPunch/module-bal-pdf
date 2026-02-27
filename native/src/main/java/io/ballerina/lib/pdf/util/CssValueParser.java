@@ -46,14 +46,20 @@ public class CssValueParser {
      * @return the length in points, or defaultValue if parsing fails
      */
     public static float toPoints(String value, float containerSize, float fontSize) {
-        if (value == null || value.isBlank()) return 0;
+        if (value == null || value.isBlank()) {
+            return 0;
+        }
         value = value.trim().toLowerCase();
 
         // Handle "auto" or "none"
-        if (value.equals("auto") || value.equals("none") || value.equals("inherit")) return 0;
+        if (value.equals("auto") || value.equals("none") || value.equals("inherit")) {
+            return 0;
+        }
 
         Matcher m = LENGTH_PATTERN.matcher(value);
-        if (!m.find()) return 0;
+        if (!m.find()) {
+            return 0;
+        }
 
         float number = Float.parseFloat(m.group(1));
         String unit = m.group(2);
@@ -91,7 +97,9 @@ public class CssValueParser {
      * Handles keywords like "small", "medium", "large", etc.
      */
     public static float parseFontSize(String value, float parentFontSize) {
-        if (value == null || value.isBlank()) return parentFontSize;
+        if (value == null || value.isBlank()) {
+            return parentFontSize;
+        }
         value = value.trim().toLowerCase();
         // CSS spec absolute-size keywords (based on medium = 16px)
         return switch (value) {
@@ -112,7 +120,9 @@ public class CssValueParser {
      * Parses a font-weight value to determine if it's bold.
      */
     public static boolean isBold(String fontWeight) {
-        if (fontWeight == null) return false;
+        if (fontWeight == null) {
+            return false;
+        }
         fontWeight = fontWeight.trim().toLowerCase();
         return fontWeight.equals("bold") || fontWeight.equals("bolder")
                 || fontWeight.equals("700") || fontWeight.equals("800") || fontWeight.equals("900");
@@ -122,7 +132,9 @@ public class CssValueParser {
      * Parses a font-style value to determine if it's italic.
      */
     public static boolean isItalic(String fontStyle) {
-        if (fontStyle == null) return false;
+        if (fontStyle == null) {
+            return false;
+        }
         fontStyle = fontStyle.trim().toLowerCase();
         return fontStyle.equals("italic") || fontStyle.equals("oblique");
     }
@@ -132,7 +144,9 @@ public class CssValueParser {
      * E.g. "'Liberation Sans', Arial, sans-serif" → "Liberation Sans"
      */
     public static String parsePrimaryFontFamily(String fontFamily) {
-        if (fontFamily == null || fontFamily.isBlank()) return null;
+        if (fontFamily == null || fontFamily.isBlank()) {
+            return null;
+        }
         String[] parts = fontFamily.split(",");
         String first = parts[0].trim();
         // Strip quotes
@@ -149,7 +163,9 @@ public class CssValueParser {
      * @return array of family names in fallback order; empty array for null/blank input
      */
     public static String[] parseFontFamilyList(String fontFamily) {
-        if (fontFamily == null || fontFamily.isBlank()) return new String[0];
+        if (fontFamily == null || fontFamily.isBlank()) {
+            return new String[0];
+        }
         String[] parts = fontFamily.split(",");
         String[] result = new String[parts.length];
         int count = 0;

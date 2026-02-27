@@ -43,15 +43,18 @@ public class CssSelector {
     private final String raw;
     private final CssSpecificity specificity;
 
+    /** Creates a selector from a raw CSS selector string. */
     public CssSelector(String raw) {
         this.raw = raw.trim();
         this.specificity = computeSpecificity(this.raw);
     }
 
+    /** Returns the raw selector string. */
     public String getRaw() {
         return raw;
     }
 
+    /** Returns the computed specificity. */
     public CssSpecificity getSpecificity() {
         return specificity;
     }
@@ -61,7 +64,9 @@ public class CssSelector {
      */
     public boolean matches(Element element) {
         List<Object> tokens = tokenize(raw);
-        if (tokens.isEmpty()) return false;
+        if (tokens.isEmpty()) {
+            return false;
+        }
         int lastSelIdx = tokens.size() - 1;
         return matchFromRight(element, tokens, lastSelIdx);
     }
@@ -86,7 +91,9 @@ public class CssSelector {
             if (bracketDepth > 0) {
                 if (inQuote) {
                     current.append(c);
-                    if (c == quoteChar) inQuote = false;
+                    if (c == quoteChar) {
+                        inQuote = false;
+                    }
                     continue;
                 }
                 if (c == '\'' || c == '"') { // quote inside attribute selector
@@ -95,7 +102,9 @@ public class CssSelector {
                     current.append(c);
                     continue;
                 }
-                if (c == ']') bracketDepth--; // closing bracket of attribute selector
+                if (c == ']') {
+                    bracketDepth--;
+                }
                 current.append(c);
                 continue;
             }
@@ -120,12 +129,15 @@ public class CssSelector {
             // Whitespace: could be descendant combinator or padding around operator
             if (Character.isWhitespace(c)) {
                 // Skip whitespace after a combinator operator (only if no new selector content has accumulated)
-                if (current.toString().trim().isEmpty() && !tokens.isEmpty() && tokens.get(tokens.size() - 1) instanceof Character) {
+                if (current.toString().trim().isEmpty() && !tokens.isEmpty()
+                        && tokens.get(tokens.size() - 1) instanceof Character) {
                     continue;
                 }
                 // Peek ahead: if next non-whitespace is a combinator operator, skip
                 int j = i + 1;
-                while (j < s.length() && Character.isWhitespace(s.charAt(j))) j++;
+                while (j < s.length() && Character.isWhitespace(s.charAt(j))) {
+                    j++;
+                }
                 if (j < s.length() && (s.charAt(j) == '>' || s.charAt(j) == '+' || s.charAt(j) == '~')) {
                     i = j - 1; // skip to just before the operator
                     continue;
@@ -159,12 +171,18 @@ public class CssSelector {
      * @param selIndex index of the current simple selector in tokens
      */
     private boolean matchFromRight(Element element, List<Object> tokens, int selIndex) {
-        if (selIndex < 0) return true;
+        if (selIndex < 0) {
+            return true;
+        }
 
         String selector = (String) tokens.get(selIndex);
-        if (!matchSimple(element, selector)) return false; // quick fail for invalid selectors.
+        if (!matchSimple(element, selector)) {
+            return false;
+        }
 
-        if (selIndex == 0) return true; // base case: reached the leftmost, so no more matching to do.
+        if (selIndex == 0) {
+            return true;
+        }
 
         // combinator is at selIndex - 1
         char combinator = (char) tokens.get(selIndex - 1);
@@ -175,7 +193,9 @@ public class CssSelector {
                 Node parent = element.getParentNode();
                 while (parent != null && parent.getNodeType() == Node.ELEMENT_NODE) {
                     // recursively check if the parent matches the selector.
-                    if (matchFromRight((Element) parent, tokens, nextSelIndex)) return true;
+                    if (matchFromRight((Element) parent, tokens, nextSelIndex)) {
+                        return true;
+                    }
                     parent = parent.getParentNode();
                 }
                 return false;
@@ -197,7 +217,9 @@ public class CssSelector {
             case '~': // general sibling - check all previous element siblings.
                 Element sib = getPreviousElementSibling(element);
                 while (sib != null) {
-                    if (matchFromRight(sib, tokens, nextSelIndex)) return true;
+                    if (matchFromRight(sib, tokens, nextSelIndex)) {
+                        return true;
+                    }
                     sib = getPreviousElementSibling(sib);
                 }
                 return false;
@@ -210,7 +232,9 @@ public class CssSelector {
     private static Element getPreviousElementSibling(Element el) {
         Node prev = el.getPreviousSibling();
         while (prev != null) {
-            if (prev.getNodeType() == Node.ELEMENT_NODE) return (Element) prev;
+            if (prev.getNodeType() == Node.ELEMENT_NODE) {
+                return (Element) prev;
+            }
             prev = prev.getPreviousSibling();
         }
         return null;
@@ -226,22 +250,30 @@ public class CssSelector {
         // 1. Extract and check pseudo-classes first
         Matcher nthMatcher = NTH_PATTERN.matcher(sel);
         while (nthMatcher.find()) {
-            String arg = nthMatcher.group(1).trim(); // extract the argument of the :nth-of-type or :nth-child pseudo-class.
+            String arg = nthMatcher.group(1).trim();
             boolean isNthOfType = sel.substring(nthMatcher.start()).startsWith(":nth-of-type");
             // get the index of the element among its siblings of the same type.
             int index = isNthOfType ? DomUtils.getNthOfType(element) : getNthChild(element);
-            if (!matchesAnPlusB(arg, index)) return false; // check if the index matches the argument.
+            if (!matchesAnPlusB(arg, index)) {
+                return false;
+            }
         }
 
         // Remove all :not() pseudo-classes.
         String selWithoutNot = NOT_PATTERN.matcher(sel).replaceAll("");
-        if (selWithoutNot.contains(":first-child") && getNthChild(element) != 1) return false;
-        if (selWithoutNot.contains(":last-child") && !isLastChild(element)) return false;
+        if (selWithoutNot.contains(":first-child") && getNthChild(element) != 1) {
+            return false;
+        }
+        if (selWithoutNot.contains(":last-child") && !isLastChild(element)) {
+            return false;
+        }
 
         Matcher notMatcher = NOT_PATTERN.matcher(sel);
         while (notMatcher.find()) {
             String inner = notMatcher.group(1).trim();
-            if (new CssSelector(inner).matches(element)) return false;
+            if (new CssSelector(inner).matches(element)) {
+                return false;
+            }
         }
 
         // Remove all pseudo-classes
@@ -251,13 +283,17 @@ public class CssSelector {
         Matcher attrMatcher = ATTR_PATTERN.matcher(sel);
         while (attrMatcher.find()) {
             String attrExpr = attrMatcher.group(1);
-            if (!matchAttribute(element, attrExpr)) return false;
+            if (!matchAttribute(element, attrExpr)) {
+                return false;
+            }
         }
 
         // Remove attribute selectors for remaining parsing
         sel = ATTR_PATTERN.matcher(sel).replaceAll("");
 
-        if (sel.isEmpty()) return true;
+        if (sel.isEmpty()) {
+            return true;
+        }
 
         String tagName = DomUtils.tagName(element);
         String elId = element.getAttribute("id");
@@ -351,7 +387,9 @@ public class CssSelector {
             expected = expected.substring(1, expected.length() - 1);
         }
 
-        if (!element.hasAttribute(attrName)) return false;
+        if (!element.hasAttribute(attrName)) {
+            return false;
+        }
         String actual = element.getAttribute(attrName);
 
         return switch (operator) {
@@ -374,18 +412,24 @@ public class CssSelector {
 
     private int getNthChild(Element el) {
         Node parent = el.getParentNode();
-        if (parent == null) return 1;
+        if (parent == null) {
+            return 1;
+        }
         int count = 0;
         for (Element sibling : DomUtils.childElements(parent)) {
             count++;
-            if (sibling == el) return count;
+            if (sibling == el) {
+                return count;
+            }
         }
         return 1;
     }
 
     private boolean isLastChild(Element el) {
         Node parent = el.getParentNode();
-        if (parent == null) return true;
+        if (parent == null) {
+            return true;
+        }
         List<Element> siblings = DomUtils.childElements(parent);
         return !siblings.isEmpty() && siblings.get(siblings.size() - 1) == el;
     }
@@ -401,8 +445,12 @@ public class CssSelector {
      */
     static boolean matchesAnPlusB(String arg, int index) {
         arg = arg.trim().toLowerCase();
-        if (arg.equals("even")) return index % 2 == 0;
-        if (arg.equals("odd")) return index % 2 == 1;
+        if (arg.equals("even")) {
+            return index % 2 == 0;
+        }
+        if (arg.equals("odd")) {
+            return index % 2 == 1;
+        }
 
         // Try plain integer
         if (!arg.contains("n")) {
@@ -451,7 +499,9 @@ public class CssSelector {
             return index == b;
         }
         int diff = index - b;
-        if (diff % a != 0) return false;
+        if (diff % a != 0) {
+            return false;
+        }
         return diff / a >= 0;
     }
 
@@ -482,7 +532,9 @@ public class CssSelector {
 
         // Count attribute selectors (each counts as class-level specificity)
         Matcher attrMatcher = ATTR_PATTERN.matcher(sel);
-        while (attrMatcher.find()) classes++;
+        while (attrMatcher.find()) {
+            classes++;
+        }
         sel = ATTR_PATTERN.matcher(sel).replaceAll("");
 
         // Remove combinator characters for specificity counting
@@ -490,14 +542,18 @@ public class CssSelector {
 
         // 1. Count #id selectors in the selector -> ids+=1 for each #id.
         for (int i = 0; i < sel.length(); i++) {
-            if (sel.charAt(i) == '#') ids++;
+            if (sel.charAt(i) == '#') {
+                ids++;
+            }
         }
 
         // 2. Count .classes and pseudo-classes in the selector -> classes+=1 for each .class and pseudo-class.
         String[] parts = sel.trim().split("\\s+");
         for (String part : parts) {
             for (int i = 0; i < part.length(); i++) {
-                if (part.charAt(i) == '.') classes++;
+                if (part.charAt(i) == '.') {
+                    classes++;
+                }
             }
             // Count pseudo-classes
             int pseudoCount = part.split(":").length - 1;
@@ -505,7 +561,9 @@ public class CssSelector {
 
             // 3. Count tag names (non-* and non-empty) -> tags+=1 for each tag name.
             String tagPart = part.replaceAll("[.#:].*", "");
-            if (!tagPart.isEmpty() && !tagPart.equals("*")) tags++;
+            if (!tagPart.isEmpty() && !tagPart.equals("*")) {
+                tags++;
+            }
         }
 
         return new CssSpecificity(0, ids, classes, tags);

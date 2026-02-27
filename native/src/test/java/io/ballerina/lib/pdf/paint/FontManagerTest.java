@@ -31,7 +31,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FontManagerTest {
 
@@ -195,7 +199,8 @@ class FontManagerTest {
             customFm = new FontManager();
             customFm.loadFonts(customDoc);
             byte[] fontBytes;
-            try (InputStream is = getClass().getClassLoader().getResourceAsStream("fonts/LiberationSerif-Regular.ttf")) {
+            try (InputStream is = getClass().getClassLoader()
+                    .getResourceAsStream("fonts/LiberationSerif-Regular.ttf")) {
                 assertNotNull(is, "LiberationSerif-Regular.ttf must be on classpath");
                 fontBytes = is.readAllBytes();
             }

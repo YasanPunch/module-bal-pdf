@@ -26,6 +26,7 @@ import io.ballerina.lib.pdf.css.ComputedStyle;
  */
 public class InlineBox extends Box {
 
+    /** Creates an inline box with the given style. */
     public InlineBox(ComputedStyle style) {
         super(style);
     }

@@ -26,6 +26,7 @@ import io.ballerina.lib.pdf.css.ComputedStyle;
  */
 public class TableRowBox extends Box {
 
+    /** Creates a table row box with the given style. */
     public TableRowBox(ComputedStyle style) {
         super(style);
     }

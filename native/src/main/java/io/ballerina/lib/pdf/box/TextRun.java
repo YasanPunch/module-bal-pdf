@@ -34,28 +34,71 @@ public class TextRun extends Box {
     private boolean isSuperscript;
     private boolean isSubscript;
 
+    /** Creates a text run with the given style and text content. */
     public TextRun(ComputedStyle style, String text) {
         super(style);
         this.text = text;
     }
 
-    public String getText() { return text; }
-    public void setText(String text) { this.text = text; }
+    /** Returns the text content. */
+    public String getText() {
+        return text;
+    }
 
-    public PDFont getFont() { return font; }
-    public void setFont(PDFont font) { this.font = font; }
+    /** Sets the text content. */
+    public void setText(String text) {
+        this.text = text;
+    }
 
-    public float getFontSize() { return fontSize; }
-    public void setFontSize(float fontSize) { this.fontSize = fontSize; }
+    /** Returns the resolved PDF font. */
+    public PDFont getFont() {
+        return font;
+    }
 
-    public float getTextWidth() { return textWidth; }
-    public void setTextWidth(float textWidth) { this.textWidth = textWidth; }
+    /** Sets the resolved PDF font. */
+    public void setFont(PDFont font) {
+        this.font = font;
+    }
 
-    public boolean isSuperscript() { return isSuperscript; }
-    public void setSuperscript(boolean superscript) { isSuperscript = superscript; }
+    /** Returns the font size in points. */
+    public float getFontSize() {
+        return fontSize;
+    }
 
-    public boolean isSubscript() { return isSubscript; }
-    public void setSubscript(boolean subscript) { isSubscript = subscript; }
+    /** Sets the font size in points. */
+    public void setFontSize(float fontSize) {
+        this.fontSize = fontSize;
+    }
+
+    /** Returns the measured text width in points. */
+    public float getTextWidth() {
+        return textWidth;
+    }
+
+    /** Sets the measured text width in points. */
+    public void setTextWidth(float textWidth) {
+        this.textWidth = textWidth;
+    }
+
+    /** Returns whether this is superscript text. */
+    public boolean isSuperscript() {
+        return isSuperscript;
+    }
+
+    /** Sets whether this is superscript text. */
+    public void setSuperscript(boolean superscript) {
+        isSuperscript = superscript;
+    }
+
+    /** Returns whether this is subscript text. */
+    public boolean isSubscript() {
+        return isSubscript;
+    }
+
+    /** Sets whether this is subscript text. */
+    public void setSubscript(boolean subscript) {
+        isSubscript = subscript;
+    }
 
     @Override
     public String getBoxType() {

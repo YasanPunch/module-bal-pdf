@@ -54,10 +54,12 @@ public abstract class Box {
     private String id;    // element id for internal anchor links (destinations)
     /* */
 
+    /** Creates a box with the given computed style. */
     public Box(ComputedStyle style) {
         this.style = style;
     }
 
+    /** Adds a child box and sets its parent reference. */
     public void addChild(Box child) {
         children.add(child);
         child.parent = this;
@@ -95,7 +97,7 @@ public abstract class Box {
         return getAbsoluteY() + borderTop + paddingTop;
     }
 
-    // Absolute X position (traversing parent chain). 
+    /** Absolute X position (traversing parent chain). */
     public float getAbsoluteX() {
         float ax = x + marginLeft;
         if (parent != null) {
@@ -116,58 +118,221 @@ public abstract class Box {
 
     // --- Getters/Setters ---
 
-    public float getX() { return x; }
-    public void setX(float x) { this.x = x; }
-    public float getY() { return y; }
-    public void setY(float y) { this.y = y; }
-    public float getWidth() { return width; }
-    public void setWidth(float width) { this.width = width; }
-    public float getHeight() { return height; }
-    public void setHeight(float height) { this.height = height; }
+    /** Returns the x position relative to parent. */
+    public float getX() {
+        return x;
+    }
 
-    public float getMarginTop() { return marginTop; }
-    public void setMarginTop(float v) { this.marginTop = v; }
-    public float getMarginRight() { return marginRight; }
-    public void setMarginRight(float v) { this.marginRight = v; }
-    public float getMarginBottom() { return marginBottom; }
-    public void setMarginBottom(float v) { this.marginBottom = v; }
-    public float getMarginLeft() { return marginLeft; }
-    public void setMarginLeft(float v) { this.marginLeft = v; }
+    /** Sets the x position relative to parent. */
+    public void setX(float x) {
+        this.x = x;
+    }
 
-    public float getPaddingTop() { return paddingTop; }
-    public void setPaddingTop(float v) { this.paddingTop = v; }
-    public float getPaddingRight() { return paddingRight; }
-    public void setPaddingRight(float v) { this.paddingRight = v; }
-    public float getPaddingBottom() { return paddingBottom; }
-    public void setPaddingBottom(float v) { this.paddingBottom = v; }
-    public float getPaddingLeft() { return paddingLeft; }
-    public void setPaddingLeft(float v) { this.paddingLeft = v; }
+    /** Returns the y position relative to parent. */
+    public float getY() {
+        return y;
+    }
 
-    public float getBorderTopWidth() { return borderTop; }
-    public void setBorderTopWidth(float v) { this.borderTop = v; }
-    public float getBorderRightWidth() { return borderRight; }
-    public void setBorderRightWidth(float v) { this.borderRight = v; }
-    public float getBorderBottomWidth() { return borderBottom; }
-    public void setBorderBottomWidth(float v) { this.borderBottom = v; }
-    public float getBorderLeftWidth() { return borderLeft; }
-    public void setBorderLeftWidth(float v) { this.borderLeft = v; }
+    /** Sets the y position relative to parent. */
+    public void setY(float y) {
+        this.y = y;
+    }
 
-    public ComputedStyle getStyle() { return style; }
-    public List<Box> getChildren() { return children; }
-    public Box getParent() { return parent; }
+    /** Returns the content width in points. */
+    public float getWidth() {
+        return width;
+    }
 
-    public List<Box> getLayoutChildren() { return layoutChildren; }
-    public void setLayoutChildren(List<Box> lc) { this.layoutChildren = lc; }
+    /** Sets the content width in points. */
+    public void setWidth(float width) {
+        this.width = width;
+    }
+
+    /** Returns the content height in points. */
+    public float getHeight() {
+        return height;
+    }
+
+    /** Sets the content height in points. */
+    public void setHeight(float height) {
+        this.height = height;
+    }
+
+    /** Returns the top margin. */
+    public float getMarginTop() {
+        return marginTop;
+    }
+
+    /** Sets the top margin. */
+    public void setMarginTop(float v) {
+        this.marginTop = v;
+    }
+
+    /** Returns the right margin. */
+    public float getMarginRight() {
+        return marginRight;
+    }
+
+    /** Sets the right margin. */
+    public void setMarginRight(float v) {
+        this.marginRight = v;
+    }
+
+    /** Returns the bottom margin. */
+    public float getMarginBottom() {
+        return marginBottom;
+    }
+
+    /** Sets the bottom margin. */
+    public void setMarginBottom(float v) {
+        this.marginBottom = v;
+    }
+
+    /** Returns the left margin. */
+    public float getMarginLeft() {
+        return marginLeft;
+    }
+
+    /** Sets the left margin. */
+    public void setMarginLeft(float v) {
+        this.marginLeft = v;
+    }
+
+    /** Returns the top padding. */
+    public float getPaddingTop() {
+        return paddingTop;
+    }
+
+    /** Sets the top padding. */
+    public void setPaddingTop(float v) {
+        this.paddingTop = v;
+    }
+
+    /** Returns the right padding. */
+    public float getPaddingRight() {
+        return paddingRight;
+    }
+
+    /** Sets the right padding. */
+    public void setPaddingRight(float v) {
+        this.paddingRight = v;
+    }
+
+    /** Returns the bottom padding. */
+    public float getPaddingBottom() {
+        return paddingBottom;
+    }
+
+    /** Sets the bottom padding. */
+    public void setPaddingBottom(float v) {
+        this.paddingBottom = v;
+    }
+
+    /** Returns the left padding. */
+    public float getPaddingLeft() {
+        return paddingLeft;
+    }
+
+    /** Sets the left padding. */
+    public void setPaddingLeft(float v) {
+        this.paddingLeft = v;
+    }
+
+    /** Returns the top border width. */
+    public float getBorderTopWidth() {
+        return borderTop;
+    }
+
+    /** Sets the top border width. */
+    public void setBorderTopWidth(float v) {
+        this.borderTop = v;
+    }
+
+    /** Returns the right border width. */
+    public float getBorderRightWidth() {
+        return borderRight;
+    }
+
+    /** Sets the right border width. */
+    public void setBorderRightWidth(float v) {
+        this.borderRight = v;
+    }
+
+    /** Returns the bottom border width. */
+    public float getBorderBottomWidth() {
+        return borderBottom;
+    }
+
+    /** Sets the bottom border width. */
+    public void setBorderBottomWidth(float v) {
+        this.borderBottom = v;
+    }
+
+    /** Returns the left border width. */
+    public float getBorderLeftWidth() {
+        return borderLeft;
+    }
+
+    /** Sets the left border width. */
+    public void setBorderLeftWidth(float v) {
+        this.borderLeft = v;
+    }
+
+    /** Returns the computed style. */
+    public ComputedStyle getStyle() {
+        return style;
+    }
+
+    /** Returns the child boxes. */
+    public List<Box> getChildren() {
+        return children;
+    }
+
+    /** Returns the parent box. */
+    public Box getParent() {
+        return parent;
+    }
+
+    /** Returns the layout-ordered children, or null if not set. */
+    public List<Box> getLayoutChildren() {
+        return layoutChildren;
+    }
+
+    /** Sets the layout-ordered children. */
+    public void setLayoutChildren(List<Box> lc) {
+        this.layoutChildren = lc;
+    }
+
+    /** Returns layout children if set, otherwise structural children. */
     public List<Box> getEffectiveChildren() {
         return layoutChildren != null ? layoutChildren : children;
     }
-    public void clearLayoutChildren() { this.layoutChildren = null; }
 
-    public String getHref() { return href; }
-    public void setHref(String href) { this.href = href; }
+    /** Clears the layout children. */
+    public void clearLayoutChildren() {
+        this.layoutChildren = null;
+    }
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    /** Returns the link target URL. */
+    public String getHref() {
+        return href;
+    }
 
+    /** Sets the link target URL. */
+    public void setHref(String href) {
+        this.href = href;
+    }
+
+    /** Returns the element id. */
+    public String getId() {
+        return id;
+    }
+
+    /** Sets the element id. */
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /** Returns the box type identifier. */
     public abstract String getBoxType();
 }
