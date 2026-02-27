@@ -67,8 +67,8 @@ class ColorParserTest {
 
     @Test
     void parsesNamedColors() {
-        assertEquals(Color.BLACK, ColorParser.parse("black"));
-        assertEquals(Color.WHITE, ColorParser.parse("white"));
+        assertEquals(new Color(0, 0, 0), ColorParser.parse("black"));
+        assertEquals(new Color(255, 255, 255), ColorParser.parse("white"));
 
         Color navy = ColorParser.parse("navy");
         assertNotNull(navy);
@@ -79,6 +79,54 @@ class ColorParserTest {
         Color transparent = ColorParser.parse("transparent");
         assertNotNull(transparent);
         assertEquals(0, transparent.getAlpha());
+    }
+
+    @Test
+    void parsesExtendedNamedColors() {
+        Color coral = ColorParser.parse("coral");
+        assertNotNull(coral);
+        assertEquals(255, coral.getRed());
+        assertEquals(127, coral.getGreen());
+        assertEquals(80, coral.getBlue());
+
+        Color crimson = ColorParser.parse("crimson");
+        assertNotNull(crimson);
+        assertEquals(220, crimson.getRed());
+        assertEquals(20, crimson.getGreen());
+        assertEquals(60, crimson.getBlue());
+
+        Color rebeccapurple = ColorParser.parse("rebeccapurple");
+        assertNotNull(rebeccapurple);
+        assertEquals(102, rebeccapurple.getRed());
+        assertEquals(51, rebeccapurple.getGreen());
+        assertEquals(153, rebeccapurple.getBlue());
+
+        // cyan and aqua are aliases (both 0, 255, 255)
+        Color cyan = ColorParser.parse("cyan");
+        Color aqua = ColorParser.parse("aqua");
+        assertNotNull(cyan);
+        assertNotNull(aqua);
+        assertEquals(cyan, aqua);
+
+        // magenta and fuchsia are aliases (both 255, 0, 255)
+        Color magenta = ColorParser.parse("magenta");
+        Color fuchsia = ColorParser.parse("fuchsia");
+        assertNotNull(magenta);
+        assertNotNull(fuchsia);
+        assertEquals(magenta, fuchsia);
+
+        // grey/gray variants
+        Color darkgray = ColorParser.parse("darkgray");
+        Color darkgrey = ColorParser.parse("darkgrey");
+        assertNotNull(darkgray);
+        assertEquals(darkgray, darkgrey);
+        assertEquals(169, darkgray.getRed());
+
+        Color tomato = ColorParser.parse("tomato");
+        assertNotNull(tomato);
+        assertEquals(255, tomato.getRed());
+        assertEquals(99, tomato.getGreen());
+        assertEquals(71, tomato.getBlue());
     }
 
     @Test
