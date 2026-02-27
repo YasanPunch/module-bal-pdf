@@ -352,59 +352,61 @@ public class TableLayoutEngine {
         Map<TableCellBox, Float> contentHeights = new HashMap<>();
 
         for (Box child : row.getChildren()) {
-            if (child instanceof TableCellBox cell) {
-                cell.setStartColumn(colIdx);
-
-                // Calculate cell width from colspan
-                int colspan = cell.getColspan();
-                float cellWidth = 0;
-                for (int i = 0; i < colspan && (colIdx + i) < colWidths.length; i++) {
-                    cellWidth += colWidths[colIdx + i];
-                }
-
-                // If no column widths match, use equal distribution
-                if (cellWidth <= 0 && colWidths.length > 0) {
-                    cellWidth = tableWidth / colWidths.length * colspan;
-                }
-
-                // Resolve cell box model before reading padding/border
-                bfc.resolveBoxModelWithWidth(cell, cellWidth);
-
-                // Subtract cell's own border+padding from available content width
-                float contentWidth = cellWidth
-                        - cell.getPaddingLeft() - cell.getPaddingRight()
-                        - cell.getBorderLeftWidth() - cell.getBorderRightWidth();
-                contentWidth = Math.max(0, contentWidth);
-
-                // Position cell
-                float cellX = 0;
-                for (int i = 0; i < colIdx && i < colWidths.length; i++) {
-                    cellX += colWidths[i];
-                }
-                cell.setX(cellX);
-                cell.setWidth(contentWidth);
-
-                // Layout cell contents (cells act as block formatting contexts)
-                float cellContentHeight = bfc.layoutChildren(cell, contentWidth);
-                cell.setHeight(cellContentHeight);
-                contentHeights.put(cell, cellContentHeight);
-
-                float totalCellHeight = cellContentHeight
-                        + cell.getPaddingTop() + cell.getPaddingBottom()
-                        + cell.getBorderTopWidth() + cell.getBorderBottomWidth();
-                maxCellHeight = Math.max(maxCellHeight, totalCellHeight);
-
-                colIdx += colspan;
+            if (!(child instanceof TableCellBox cell)) {
+                continue;
             }
+            cell.setStartColumn(colIdx);
+
+            // Calculate cell width from colspan
+            int colspan = cell.getColspan();
+            float cellWidth = 0;
+            for (int i = 0; i < colspan && (colIdx + i) < colWidths.length; i++) {
+                cellWidth += colWidths[colIdx + i];
+            }
+
+            // If no column widths match, use equal distribution
+            if (cellWidth <= 0 && colWidths.length > 0) {
+                cellWidth = tableWidth / colWidths.length * colspan;
+            }
+
+            // Resolve cell box model before reading padding/border
+            bfc.resolveBoxModelWithWidth(cell, cellWidth);
+
+            // Subtract cell's own border+padding from available content width
+            float contentWidth = cellWidth
+                    - cell.getPaddingLeft() - cell.getPaddingRight()
+                    - cell.getBorderLeftWidth() - cell.getBorderRightWidth();
+            contentWidth = Math.max(0, contentWidth);
+
+            // Position cell
+            float cellX = 0;
+            for (int i = 0; i < colIdx && i < colWidths.length; i++) {
+                cellX += colWidths[i];
+            }
+            cell.setX(cellX);
+            cell.setWidth(contentWidth);
+
+            // Layout cell contents (cells act as block formatting contexts)
+            float cellContentHeight = bfc.layoutChildren(cell, contentWidth);
+            cell.setHeight(cellContentHeight);
+            contentHeights.put(cell, cellContentHeight);
+
+            float totalCellHeight = cellContentHeight
+                    + cell.getPaddingTop() + cell.getPaddingBottom()
+                    + cell.getBorderTopWidth() + cell.getBorderBottomWidth();
+            maxCellHeight = Math.max(maxCellHeight, totalCellHeight);
+
+            colIdx += colspan;
         }
 
         // Enforce explicit cell heights as minimum row height
         for (Box child : row.getChildren()) {
-            if (child instanceof TableCellBox cell && cell.getStyle() != null) {
-                float explicitHeight = cell.getStyle().getHeight(-1, fallbackFontSize);
-                if (explicitHeight > 0) {
-                    maxCellHeight = Math.max(maxCellHeight, explicitHeight);
-                }
+            if (!(child instanceof TableCellBox cell) || cell.getStyle() == null) {
+                continue;
+            }
+            float explicitHeight = cell.getStyle().getHeight(-1, fallbackFontSize);
+            if (explicitHeight > 0) {
+                maxCellHeight = Math.max(maxCellHeight, explicitHeight);
             }
         }
 
@@ -418,35 +420,37 @@ public class TableLayoutEngine {
 
         // Equalize cell heights to row height
         for (Box child : row.getChildren()) {
-            if (child instanceof TableCellBox cell) {
-                float innerHeight = maxCellHeight
-                        - cell.getPaddingTop() - cell.getPaddingBottom()
-                        - cell.getBorderTopWidth() - cell.getBorderBottomWidth();
-                cell.setHeight(Math.max(cell.getHeight(), innerHeight));
+            if (!(child instanceof TableCellBox cell)) {
+                continue;
             }
+            float innerHeight = maxCellHeight
+                    - cell.getPaddingTop() - cell.getPaddingBottom()
+                    - cell.getBorderTopWidth() - cell.getBorderBottomWidth();
+            cell.setHeight(Math.max(cell.getHeight(), innerHeight));
         }
 
         // Apply vertical-align offset within cells
         for (Box child : row.getChildren()) {
-            if (child instanceof TableCellBox cell) {
-                float contentHeight = contentHeights.getOrDefault(cell, cell.getHeight());
-                float innerHeight = cell.getHeight();
-                float offset = 0;
+            if (!(child instanceof TableCellBox cell)) {
+                continue;
+            }
+            float contentHeight = contentHeights.getOrDefault(cell, cell.getHeight());
+            float innerHeight = cell.getHeight();
+            float offset = 0;
 
-                String valign = cell.getStyle() != null
-                        ? cell.getStyle().getVerticalAlign() : "baseline";
+            String valign = cell.getStyle() != null
+                    ? cell.getStyle().getVerticalAlign() : "baseline";
 
-                if ("middle".equals(valign)) {
-                    offset = (innerHeight - contentHeight) / 2;
-                } else if ("bottom".equals(valign)) {
-                    offset = innerHeight - contentHeight;
-                }
-                // "top" and "baseline" → no offset (content stays at top)
+            if ("middle".equals(valign)) {
+                offset = (innerHeight - contentHeight) / 2;
+            } else if ("bottom".equals(valign)) {
+                offset = innerHeight - contentHeight;
+            }
+            // "top" and "baseline" → no offset (content stays at top)
 
-                if (offset > 0) {
-                    for (Box cellChild : cell.getEffectiveChildren()) {
-                        cellChild.setY(cellChild.getY() + offset);
-                    }
+            if (offset > 0) {
+                for (Box cellChild : cell.getEffectiveChildren()) {
+                    cellChild.setY(cellChild.getY() + offset);
                 }
             }
         }

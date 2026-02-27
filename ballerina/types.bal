@@ -15,7 +15,7 @@
 // under the License.
 
 # Supported page sizes for PDF output.
-public enum PageSize {
+public enum PageSize { 
     A4,
     LETTER,
     LEGAL
@@ -37,6 +37,13 @@ public type PageMargins record {|
 
 # Options controlling HTML-to-PDF conversion behavior.
 #
+# public type Font record {|
+#  string name;
+#  string filePath;
+#}
+# 
+# 
+# 
 # + fallbackFontSize - Fallback font size in points (default: 12.0, per CSS spec "medium" keyword).
 #                     Used when CSS does not specify a font-size for an element. CSS `font-size`
 #                     declarations in the HTML take precedence over this value.
@@ -55,6 +62,6 @@ public type ConversionOptions record {|
     PageSize pageSize = A4;
     PageMargins margins = {};
     string additionalCss?;
-    map<byte[]> customFonts?;
+    map<byte[]> customFonts?; // change byte [] to file path, an aray of records
     int maxPages?;
 |};

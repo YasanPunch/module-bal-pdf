@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.w3c.dom.Document;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -112,7 +113,7 @@ public final class Native {
 
             // Phase 1: Parse HTML
             HtmlPreprocessor preprocessor = new HtmlPreprocessor();
-            org.w3c.dom.Document doc;
+            Document doc;
             try {
                 doc = preprocessor.preprocess(html.getValue());
             } catch (Exception e) {

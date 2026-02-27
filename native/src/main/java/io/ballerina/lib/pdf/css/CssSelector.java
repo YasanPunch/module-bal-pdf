@@ -163,13 +163,6 @@ public class CssSelector {
         return tokens;
     }
 
-    /**
-     * Matches the token list from right to left against the element and its context.
-     *
-     * @param element  the element to test
-     * @param tokens   alternating simple selectors and combinators
-     * @param selIndex index of the current simple selector in tokens
-     */
     private boolean matchFromRight(Element element, List<Object> tokens, int selIndex) {
         if (selIndex < 0) {
             return true;
@@ -240,10 +233,6 @@ public class CssSelector {
         return null;
     }
 
-    /**
-     * Matches a simple selector (no combinators) against an element.
-     * Handles: tag, .class, #id, [attr], [attr=val], :nth-of-type(n), :nth-child(n)
-     */
     private boolean matchSimple(Element element, String selector) {
         String sel = selector; // copy the selector string to a local variable.
 
@@ -299,11 +288,31 @@ public class CssSelector {
         String elId = element.getAttribute("id");
 
         // 3. Parse the selector into tag, id, classes
+        SimpleSelectorParts parts = parseSimpleParts(sel);
+
+        // 4. Match the selector against the element.
+        if (parts.tag() != null && !parts.tag().equals("*") && !parts.tag().equals(tagName)) {
+            return false;
+        }
+        if (parts.id() != null && !parts.id().equals(elId)) {
+            return false;
+        }
+        for (String cls : parts.classes()) {
+            if (!DomUtils.hasClass(element, cls)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private record SimpleSelectorParts(String tag, String id, List<String> classes) { }
+
+    private static SimpleSelectorParts parseSimpleParts(String sel) {
         String selTag = null;
         String selId = null;
-        java.util.List<String> selClasses = new java.util.ArrayList<>();
+        List<String> selClasses = new ArrayList<>();
 
-        // Split by # and . while preserving what comes before
         StringBuilder current = new StringBuilder();
         char type = 't'; // t=tag, i=id, c=class
         for (int i = 0; i < sel.length(); i++) {
@@ -332,29 +341,9 @@ public class CssSelector {
             }
         }
 
-        // 4. Match the selector against the element.
-        // Match tag
-        if (selTag != null && !selTag.equals("*") && !selTag.equals(tagName)) {
-            return false;
-        }
-        // Match id
-        if (selId != null && !selId.equals(elId)) {
-            return false;
-        }
-        // Match all classes
-        for (String cls : selClasses) {
-            if (!DomUtils.hasClass(element, cls)) {
-                return false;
-            }
-        }
-
-        return true;
+        return new SimpleSelectorParts(selTag, selId, selClasses);
     }
 
-    /**
-     * Matches a single attribute selector expression (content between brackets).
-     * Supports: attr, attr=val, attr^=val, attr$=val, attr*=val, attr~=val, attr|=val
-     */
     private boolean matchAttribute(Element element, String expr) {
         // Find the operator
         int opIdx = -1;
@@ -505,11 +494,6 @@ public class CssSelector {
         return diff / a >= 0;
     }
 
-    /**
-     * Computes the specificity of a selector.
-     * @param selector the selector to compute the specificity of.
-     * @return the specificity of the selector.
-     */
     private static CssSpecificity computeSpecificity(String selector) {
         // Extract :not() arguments and compute their specificity separately.
         // :not() itself has zero specificity; only its argument contributes.

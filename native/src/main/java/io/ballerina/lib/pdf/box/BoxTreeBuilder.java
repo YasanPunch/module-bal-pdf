@@ -22,6 +22,7 @@ import io.ballerina.lib.pdf.css.ComputedStyle;
 import io.ballerina.lib.pdf.css.StyleResolver;
 import io.ballerina.lib.pdf.util.CssValueParser;
 import io.ballerina.lib.pdf.util.DomUtils;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -58,7 +59,7 @@ public class BoxTreeBuilder {
      * Builds the box tree from the document body.
      * Returns a root BlockBox representing the body element.
      */
-    public BlockBox build(org.w3c.dom.Document document) {
+    public BlockBox build(Document document) {
         Element body = findBody(document);
         if (body == null) {
             // Create a minimal body
@@ -364,7 +365,7 @@ public class BoxTreeBuilder {
                 || display.startsWith("table-");
     }
 
-    private Element findBody(org.w3c.dom.Document document) {
+    private Element findBody(Document document) {
         List<Element> bodies = DomUtils.findAll(document, "body");
         return bodies.isEmpty() ? null : bodies.get(0);
     }

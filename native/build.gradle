@@ -55,16 +55,16 @@ dependencies {
     implementation group: 'org.ballerinalang', name: 'ballerina-runtime', version: "${ballerinaLangVersion}"
 
     // PDF engine
-    implementation 'org.apache.pdfbox:pdfbox:3.0.4'
+    implementation "org.apache.pdfbox:pdfbox:${pdfboxVersion}"
 
     // HTML sanitization
-    implementation 'org.jsoup:jsoup:1.18.3'
+    implementation "org.jsoup:jsoup:${jsoupVersion}"
 
     // CSS parsing
-    implementation 'org.htmlunit:htmlunit-cssparser:4.5.0'
+    implementation "org.htmlunit:htmlunit-cssparser:${htmlunitCssparserVersion}"
 
     // Logging
-    implementation 'org.slf4j:slf4j-jdk14:2.0.16'
+    implementation "org.slf4j:slf4j-jdk14:${slf4jVersion}"
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
 
