@@ -63,7 +63,12 @@ public final class Native {
             Object maxPagesObj = options.get(StringUtils.fromString(ConversionOptions.KEY_MAX_PAGES));
             if (maxPagesObj != null
                     && TypeUtils.getType(maxPagesObj).getTag() == TypeTags.INT_TAG) {
-                maxPages = ((Long) maxPagesObj).intValue();
+                long maxPagesLong = (Long) maxPagesObj;
+                if (maxPagesLong > Integer.MAX_VALUE) {
+                    maxPages = Integer.MAX_VALUE;
+                } else {
+                    maxPages = (int) maxPagesLong;
+                }
             }
 
             // Read custom fonts from Font[] array

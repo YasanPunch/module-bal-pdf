@@ -2,9 +2,9 @@
 
 The `ballerina/pdf` module provides practical examples illustrating usage in various scenarios.
 
-1. [CIBIL Credit Report](./cibil-report/) - Convert a CIBIL credit report HTML file to PDF with custom CSS overrides, font size, and margins.
+1. [HTML to PDF](./html-to-pdf/) - Read an HTML report and convert it to PDF.
 
-   Produces `resources/cibil_output.pdf`. Open the input HTML (`resources/49511893_Cons_CIR_NAMRATA.html`) in a browser and compare side-by-side with the PDF to verify layout fidelity.
+   Produces `resources/output.pdf`. Open the input HTML (`resources/report.html`) in a browser and compare side-by-side with the PDF to verify layout fidelity.
 
 ## Prerequisites
 
@@ -31,6 +31,6 @@ From the `examples/` directory:
 Once `ballerina/pdf` is available on Ballerina Central, you can run any example directly:
 
 ```bash
-cd examples/cibil-report
+cd examples/html-to-pdf
 bal run
 ```

@@ -102,14 +102,16 @@ public class HtmlToPdfConverter {
             Integer maxPages = options.getMaxPages();
             if (maxPages != null && pages.size() > maxPages) {
                 float totalHeight = PageBreaker.computeVisualHeight(root);
-                float targetHeight = maxPages * layoutContext.getContentHeight();
-                scale = targetHeight / totalHeight;
+                if (totalHeight > 0) {
+                    float targetHeight = maxPages * layoutContext.getContentHeight();
+                    scale = targetHeight / totalHeight;
 
-                // Re-slice into maxPages even pages
-                float sliceHeight = totalHeight / maxPages;
-                pages = new ArrayList<>();
-                for (int i = 0; i < maxPages; i++) {
-                    pages.add(new PageBreaker.PageSlice(i * sliceHeight, (i + 1) * sliceHeight));
+                    // Re-slice into maxPages even pages
+                    float sliceHeight = totalHeight / maxPages;
+                    pages = new ArrayList<>();
+                    for (int i = 0; i < maxPages; i++) {
+                        pages.add(new PageBreaker.PageSlice(i * sliceHeight, (i + 1) * sliceHeight));
+                    }
                 }
             }
 

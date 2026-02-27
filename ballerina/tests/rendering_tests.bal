@@ -225,7 +225,7 @@ function testRendersCssSpecificity() returns error? {
 
 @test:Config {}
 function testRendersWithCustomFont() returns error? {
-    byte[] fontBytes = check io:fileReadBytes("../native/src/main/resources/fonts/LiberationSans-Regular.ttf");
+    byte[] fontBytes = check io:fileReadBytes("tests/resources/LiberationSans-Regular.ttf");
     Font[] fonts = [{family: "TestFont", content: fontBytes}];
     string html = string `<html><head><style>body { font-family: 'TestFont'; }</style></head>
         <body><p>Custom font text</p></body></html>`;

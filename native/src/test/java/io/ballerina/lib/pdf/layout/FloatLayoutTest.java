@@ -105,7 +105,8 @@ class FloatLayoutTest {
         for (Box child : children) {
             container.addChild(child);
         }
-        bfc.layoutChildren(container, CONTAINER_WIDTH);
+        float height = bfc.layoutChildren(container, CONTAINER_WIDTH);
+        container.setHeight(height);
         return container;
     }
 
@@ -144,8 +145,8 @@ class FloatLayoutTest {
         // but its content should wrap around the float
         // In the current implementation, the block box itself gets full width,
         // but we can verify the container height encompasses the float
-        assertTrue(container.getHeight() >= 0,
-                "Container should have positive height");
+        assertTrue(container.getHeight() >= 100f,
+                "Container should be at least as tall as the left float (100pt)");
     }
 
     @Test

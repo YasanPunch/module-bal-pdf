@@ -31,6 +31,7 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Lays out inline content: measures text, breaks lines, applies text-align.
@@ -294,9 +295,9 @@ public class InlineLayoutEngine {
         // Apply text-transform
         String transform = style.getTextTransform();
         if ("uppercase".equals(transform)) {
-            textRun.setText(textRun.getText().toUpperCase());
+            textRun.setText(textRun.getText().toUpperCase(Locale.ROOT));
         } else if ("lowercase".equals(transform)) {
-            textRun.setText(textRun.getText().toLowerCase());
+            textRun.setText(textRun.getText().toLowerCase(Locale.ROOT));
         } else if ("capitalize".equals(transform)) {
             textRun.setText(capitalize(textRun.getText()));
         }
@@ -306,52 +307,7 @@ public class InlineLayoutEngine {
     }
 
     private List<Line> breakIntoLines(List<InlineItem> items, float maxWidth) {
-        List<Line> lines = new ArrayList<>();
-        List<InlineItem> currentLine = new ArrayList<>();
-        float currentWidth = 0;
-        float maxLineHeight = 0;
-
-        for (InlineItem item : items) {
-            // Forced break from <br>: finalize the current line immediately
-            if (item.forcedBreak) {
-                float lineHeight = maxLineHeight > 0 ? maxLineHeight : item.height;
-                lines.add(new Line(currentLine, currentWidth, lineHeight));
-                currentLine = new ArrayList<>();
-                currentWidth = 0;
-                maxLineHeight = 0;
-                continue;
-            }
-
-            if (currentWidth + item.width > maxWidth && !currentLine.isEmpty()) {
-                // Wrap to next line
-                lines.add(new Line(currentLine, currentWidth, maxLineHeight));
-                currentLine = new ArrayList<>();
-                currentWidth = 0;
-                maxLineHeight = 0;
-
-                // Strip leading whitespace from the first word on the new line
-                if (item.box instanceof TextRun tr && tr.getText().startsWith(" ")) {
-                    String trimmed = tr.getText().stripLeading();
-                    if (trimmed.isEmpty()) {
-                        continue;
-                    }
-                    tr.setText(trimmed);
-                    float newWidth = fontManager.measureText(trimmed, tr.getFont(), tr.getFontSize());
-                    tr.setTextWidth(newWidth);
-                    item = new InlineItem(tr, newWidth, item.height);
-                }
-            }
-
-            currentLine.add(item);
-            currentWidth += item.width;
-            maxLineHeight = Math.max(maxLineHeight, item.height);
-        }
-
-        if (!currentLine.isEmpty()) {
-            lines.add(new Line(currentLine, currentWidth, maxLineHeight));
-        }
-
-        return lines;
+        return breakIntoLinesWithProvider(items, maxWidth, (y) -> new float[]{maxWidth, 0f}, 0f);
     }
 
     /**
@@ -498,9 +454,9 @@ public class InlineLayoutEngine {
             // Apply text-transform before measuring (must match resolveTextMetrics)
             String transform = style.getTextTransform();
             if ("uppercase".equals(transform)) {
-                text = text.toUpperCase();
+                text = text.toUpperCase(Locale.ROOT);
             } else if ("lowercase".equals(transform)) {
-                text = text.toLowerCase();
+                text = text.toLowerCase(Locale.ROOT);
             } else if ("capitalize".equals(transform)) {
                 text = capitalize(text);
             }
@@ -542,9 +498,9 @@ public class InlineLayoutEngine {
             // Apply text-transform before measuring (must match resolveTextMetrics)
             String transform = style.getTextTransform();
             if ("uppercase".equals(transform)) {
-                text = text.toUpperCase();
+                text = text.toUpperCase(Locale.ROOT);
             } else if ("lowercase".equals(transform)) {
-                text = text.toLowerCase();
+                text = text.toLowerCase(Locale.ROOT);
             } else if ("capitalize".equals(transform)) {
                 text = capitalize(text);
             }

@@ -38,8 +38,7 @@ public class Main {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
     private static final String[] DEFAULT_INPUTS = {
-            "src/test/resources/smoke-test.html",
-            "src/test/resources/49511893_Cons_CIR_NAMRATA.html"
+            "src/test/resources/smoke-test.html"
     };
 
     public static void main(String[] args) throws Exception {
