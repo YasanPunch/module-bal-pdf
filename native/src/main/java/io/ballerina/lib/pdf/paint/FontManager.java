@@ -18,6 +18,7 @@
 
 package io.ballerina.lib.pdf.paint;
 
+import io.ballerina.lib.pdf.ConversionOptions;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
@@ -55,6 +56,38 @@ public class FontManager {
 
     private static final String SYMBOL_FONT_FILE = "fonts/NotoSansSymbols2-Regular.ttf";
 
+    // PDFont metrics are expressed in 1/1000 of a point
+    private static final float FONT_UNITS_PER_POINT = 1000f;
+    private static final float FALLBACK_CHAR_WIDTH_RATIO = 0.5f;
+    private static final float LEADING_FACTOR = 0.1f;
+    private static final float DEFAULT_LINE_HEIGHT_RATIO = 1.2f;
+    private static final float DEFAULT_ASCENT_RATIO = 0.8f;
+    private static final float DEFAULT_DESCENT_RATIO = 0.2f;
+
+    // Raw TTF bytes cached at class load to avoid repeated classpath I/O per conversion
+    private static final Map<String, byte[]> FONT_BYTE_CACHE;
+
+    static {
+        Map<String, byte[]> cache = new HashMap<>();
+        for (String fontFile : FONT_FILES) {
+            cacheFont(cache, fontFile);
+        }
+        cacheFont(cache, SYMBOL_FONT_FILE);
+        FONT_BYTE_CACHE = Map.copyOf(cache);
+    }
+
+    private static void cacheFont(Map<String, byte[]> cache, String fontFile) {
+        try (InputStream is = FontManager.class.getClassLoader().getResourceAsStream(fontFile)) {
+            if (is != null) {
+                cache.put(fontFile, is.readAllBytes());
+            } else {
+                LOG.warn("Font not found on classpath during cache init: {}", fontFile);
+            }
+        } catch (IOException e) {
+            LOG.warn("Failed to cache font bytes: {}", fontFile, e);
+        }
+    }
+
     // Key format: "family|bold|italic" e.g. "liberation sans|true|false"
     private final Map<String, PDFont> fontMap = new HashMap<>();
     private final Set<String> customFamilies = new HashSet<>();
@@ -65,15 +98,14 @@ public class FontManager {
     /** Loads bundled and custom fonts into the PDF document. */
     public void loadFonts(PDDocument document) throws IOException {
         for (String fontFile : FONT_FILES) {
-            try (InputStream is = getClass().getClassLoader().getResourceAsStream(fontFile)) {
-                if (is == null) {
-                    LOG.warn("Font not found on classpath: {}", fontFile);
-                    continue;
-                }
-                PDType0Font font = PDType0Font.load(document, is, true);
-                String key = buildKey(fontFile);
-                fontMap.put(key, font);
+            byte[] cached = FONT_BYTE_CACHE.get(fontFile);
+            if (cached == null) {
+                LOG.warn("Font not found in cache: {}", fontFile);
+                continue;
             }
+            PDType0Font font = PDType0Font.load(document, new ByteArrayInputStream(cached), true);
+            String key = buildKey(fontFile);
+            fontMap.put(key, font);
         }
         // Default font is Liberation Sans Regular
         defaultFont = fontMap.get("liberation sans|false|false");
@@ -85,50 +117,24 @@ public class FontManager {
         }
 
         // Load symbol font for glyph fallback (Dingbats, Math, Arrows, etc.)
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(SYMBOL_FONT_FILE)) {
-            if (is != null) {
-                PDType0Font symbolFont = PDType0Font.load(document, is, true);
-                fallbackFonts.add(symbolFont);
-            }
+        byte[] symbolBytes = FONT_BYTE_CACHE.get(SYMBOL_FONT_FILE);
+        if (symbolBytes != null) {
+            PDType0Font symbolFont = PDType0Font.load(document, new ByteArrayInputStream(symbolBytes), true);
+            fallbackFonts.add(symbolFont);
         }
     }
 
     /**
      * Loads custom TTF fonts supplied by the user.
-     * <p>
-     * Each map entry has a key like "MyFont", "MyFont Bold", "MyFont Italic", or "MyFont BoldItalic".
-     * Bold/italic is detected from font metadata first, then from the key name as fallback.
-     * The family name is derived by stripping weight/style suffixes from the key.
+     * Each entry specifies the font family, content bytes, and explicit bold/italic flags.
      */
-    public void loadCustomFonts(PDDocument document, Map<String, byte[]> customFonts) throws IOException {
-        for (Map.Entry<String, byte[]> entry : customFonts.entrySet()) {
-            String name = entry.getKey();
-            byte[] fontBytes = entry.getValue();
-
-            PDType0Font font = PDType0Font.load(document, new ByteArrayInputStream(fontBytes), true);
-
-            // Detect bold/italic from font metadata first, then fall back to key name
-            var descriptor = font.getFontDescriptor();
-            boolean bold;
-            boolean italic;
-            if (descriptor != null && (descriptor.getFontWeight() > 0 || descriptor.getItalicAngle() != 0)) {
-                bold = descriptor.getFontWeight() >= 700;
-                italic = descriptor.getItalicAngle() != 0;
-            } else {
-                String nameLower = name.toLowerCase();
-                bold = nameLower.contains("bold");
-                italic = nameLower.contains("italic");
-            }
-
-            // Derive family name by stripping suffixes
-            String family = name
-                    .replaceAll("(?i)\\s*BoldItalic$", "")
-                    .replaceAll("(?i)\\s*Bold$", "")
-                    .replaceAll("(?i)\\s*Italic$", "")
-                    .toLowerCase()
-                    .trim();
-
-            String key = family + "|" + bold + "|" + italic;
+    public void loadCustomFonts(PDDocument document,
+                                List<ConversionOptions.FontEntry> fonts) throws IOException {
+        for (ConversionOptions.FontEntry entry : fonts) {
+            PDType0Font font = PDType0Font.load(
+                    document, new ByteArrayInputStream(entry.content()), true);
+            String family = entry.family().toLowerCase().trim();
+            String key = family + "|" + entry.bold() + "|" + entry.italic();
             fontMap.put(key, font);
             customFamilies.add(family);
         }
@@ -136,7 +142,6 @@ public class FontManager {
         // Register custom font regular variants as glyph-level fallback candidates.
         // Inserted before existing fallback fonts (e.g., Noto Symbols) so user-provided
         // fonts are tried first for mixed-script content.
-        // Note: each loadCustomFonts() call only adds fonts from that call's map.
         int insertPos = 0;
         for (String family : customFamilies) {
             PDFont regular = fontMap.get(family + "|false|false");
@@ -250,9 +255,9 @@ public class FontManager {
             return 0;
         }
         try {
-            return font.getStringWidth(text) / 1000f * fontSize;
+            return font.getStringWidth(text) / FONT_UNITS_PER_POINT * fontSize;
         } catch (Exception e) {
-            return text.length() * fontSize * 0.5f; // rough fallback
+            return text.length() * fontSize * FALLBACK_CHAR_WIDTH_RATIO;
         }
     }
 
@@ -262,11 +267,11 @@ public class FontManager {
     public float getLineHeight(PDFont font, float fontSize) {
         var desc = font.getFontDescriptor();
         if (desc != null) {
-            float ascent = desc.getAscent() / 1000f * fontSize;
-            float descent = Math.abs(desc.getDescent() / 1000f * fontSize);
-            return ascent + descent + fontSize * 0.1f; // small leading
+            float ascent = desc.getAscent() / FONT_UNITS_PER_POINT * fontSize;
+            float descent = Math.abs(desc.getDescent() / FONT_UNITS_PER_POINT * fontSize);
+            return ascent + descent + fontSize * LEADING_FACTOR;
         }
-        return fontSize * 1.2f;
+        return fontSize * DEFAULT_LINE_HEIGHT_RATIO;
     }
 
     /**
@@ -277,9 +282,9 @@ public class FontManager {
     public float getAscent(PDFont font, float fontSize) {
         var desc = font.getFontDescriptor();
         if (desc != null) {
-            return desc.getAscent() / 1000f * fontSize;
+            return desc.getAscent() / FONT_UNITS_PER_POINT * fontSize;
         }
-        return fontSize * 0.8f;
+        return fontSize * DEFAULT_ASCENT_RATIO;
     }
 
     /**
@@ -289,9 +294,9 @@ public class FontManager {
     public float getDescent(PDFont font, float fontSize) {
         var desc = font.getFontDescriptor();
         if (desc != null) {
-            return Math.abs(desc.getDescent() / 1000f * fontSize);
+            return Math.abs(desc.getDescent() / FONT_UNITS_PER_POINT * fontSize);
         }
-        return fontSize * 0.2f;
+        return fontSize * DEFAULT_DESCENT_RATIO;
     }
 
     /**

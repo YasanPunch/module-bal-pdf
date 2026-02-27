@@ -32,6 +32,9 @@ public class CssValueParser {
     private static final float CM_TO_PT = 28.346457f;
     private static final float IN_TO_PT = 72f;
 
+    // CSS spec: medium keyword = 16px (used as default font size for em/rem resolution)
+    private static final float CSS_MEDIUM_FONT_SIZE_PX = 16f;
+
     private static final Pattern LENGTH_PATTERN =
             Pattern.compile("(-?[\\d.]+)\\s*(px|pt|mm|cm|in|em|rem|%)?", Pattern.CASE_INSENSITIVE);
 
@@ -82,14 +85,14 @@ public class CssValueParser {
      * Convenience: parse a length with only a container reference (no em context).
      */
     public static float toPoints(String value, float containerSize) {
-        return toPoints(value, containerSize, 16f * PX_TO_PT);
+        return toPoints(value, containerSize, CSS_MEDIUM_FONT_SIZE_PX * PX_TO_PT);
     }
 
     /**
      * Convenience: parse an absolute length with no container context.
      */
     public static float toPoints(String value) {
-        return toPoints(value, 0, 16f * PX_TO_PT);
+        return toPoints(value, 0, CSS_MEDIUM_FONT_SIZE_PX * PX_TO_PT);
     }
 
     /**

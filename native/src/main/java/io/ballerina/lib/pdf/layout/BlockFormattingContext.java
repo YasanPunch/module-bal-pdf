@@ -38,6 +38,9 @@ public class BlockFormattingContext {
     /** Tolerance for floating-point width comparisons during float placement. */
     private static final float FLOAT_TOLERANCE = 0.01f;
 
+    /** Fallback line height when a block child has zero height (e.g., empty block). */
+    private static final float DEFAULT_LINE_HEIGHT_MULTIPLIER = 1.333f;
+
     private final LayoutContext ctx;
     private final InlineLayoutEngine inlineEngine;
     private final TableLayoutEngine tableEngine;
@@ -384,7 +387,8 @@ public class BlockFormattingContext {
                 resolveBoxModelWithWidth(child, availableWidth);
                 child.setX(0);
                 child.setY(state[0]);
-                state[0] += child.getHeight() > 0 ? child.getHeight() : ctx.getFallbackFontSize() * 1.333f;
+                state[0] += child.getHeight() > 0 ? child.getHeight()
+                        : ctx.getFallbackFontSize() * DEFAULT_LINE_HEIGHT_MULTIPLIER;
             }
         }
         cursorY = state[0];

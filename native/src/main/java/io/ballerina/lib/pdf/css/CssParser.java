@@ -133,19 +133,20 @@ public class CssParser {
     private void extractRules(CSSRuleListImpl rules, CssStylesheet stylesheet, int[] sourceOrder) {
         for (AbstractCSSRuleImpl rule : rules.getRules()) {
 
-            //use a switch statement instead of if-else if-else
-            if (rule instanceof CSSStyleRuleImpl styleRule) {
-                addStyleRule(styleRule, stylesheet, sourceOrder); //regular style rules
-            } else if (rule instanceof CSSPageRuleImpl pageRule) {
-                addPageRule(pageRule, stylesheet); //@page rules
-            } else if (rule instanceof CSSMediaRuleImpl mediaRule) {
-                if (matchesPrintMedia(mediaRule)) { //@media print rules. discard other media types.
-                    CSSRuleListImpl innerRules = (CSSRuleListImpl) mediaRule.getCssRules();
-                    // Recurse into the inner rules to extract the rules.
-                    extractRules(innerRules, stylesheet, sourceOrder);
+            switch (rule) {
+                case CSSStyleRuleImpl styleRule ->
+                    addStyleRule(styleRule, stylesheet, sourceOrder);
+                case CSSPageRuleImpl pageRule ->
+                    addPageRule(pageRule, stylesheet);
+                case CSSMediaRuleImpl mediaRule -> {
+                    if (matchesPrintMedia(mediaRule)) {
+                        CSSRuleListImpl innerRules = (CSSRuleListImpl) mediaRule.getCssRules();
+                        extractRules(innerRules, stylesheet, sourceOrder);
+                    }
                 }
+                // @font-face, @keyframes, @supports, @import, unknown at-rules are not supported yet.
+                default -> { }
             }
-            // @font-face, @keyframes, @supports, @import, unknown at-rules are not supported yet.
         }
     }
 

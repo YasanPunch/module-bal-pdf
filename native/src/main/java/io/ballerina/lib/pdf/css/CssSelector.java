@@ -24,6 +24,7 @@ import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +40,9 @@ public class CssSelector {
     private static final Pattern NOT_PATTERN = Pattern.compile(":not\\(([^)]+)\\)");
     private static final Pattern PSEUDO_SPLIT = Pattern.compile("(:[a-z-]+(?:\\([^)]*\\))?)");
     private static final Pattern ATTR_PATTERN = Pattern.compile("\\[([^\\]]+)\\]");
+    private static final Set<String> SUPPORTED_PSEUDO_CLASSES = Set.of(
+            ":first-child", ":last-child", ":nth-child", ":nth-of-type", ":not"
+    );
 
     private final String raw;
     private final CssSpecificity specificity;
@@ -265,7 +269,18 @@ public class CssSelector {
             }
         }
 
-        // Remove all pseudo-classes
+        // Reject selectors with unsupported pseudo-classes
+        Matcher pseudoMatcher = PSEUDO_SPLIT.matcher(sel);
+        while (pseudoMatcher.find()) {
+            String pseudoClass = pseudoMatcher.group(1);
+            String name = pseudoClass.contains("(")
+                    ? pseudoClass.substring(0, pseudoClass.indexOf('('))
+                    : pseudoClass;
+            if (!SUPPORTED_PSEUDO_CLASSES.contains(name)) {
+                return false;
+            }
+        }
+        // Remove verified pseudo-classes for tag/class/id parsing
         sel = PSEUDO_SPLIT.matcher(sel).replaceAll("");
 
         // 2. Extract and check attribute selectors

@@ -41,6 +41,11 @@ public class ComputedStyle {
     private final Map<String, String> properties = new HashMap<>();
 
     // Properties that inherit from parent by default (CSS spec)
+    // CSS keyword border-width values in points
+    private static final float BORDER_THIN = 0.75f;
+    private static final float BORDER_MEDIUM = 1.5f;
+    private static final float BORDER_THICK = 2.25f;
+
     private static final Set<String> INHERITED_PROPERTIES = Set.of(
             "color", "font-family", "font-size", "font-weight", "font-style",
             "text-align", "text-transform", "text-decoration", "line-height",
@@ -603,13 +608,13 @@ public class ComputedStyle {
             return 0;
         }
         if (val.equals("thin")) {
-            return 0.75f;
+            return BORDER_THIN;
         }
         if (val.equals("medium")) {
-            return 1.5f;
+            return BORDER_MEDIUM;
         }
         if (val.equals("thick")) {
-            return 2.25f;
+            return BORDER_THICK;
         }
         return CssValueParser.toPoints(val, containerWidth, fontSize);
     }

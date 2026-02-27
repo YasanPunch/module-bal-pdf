@@ -28,8 +28,8 @@ import io.ballerina.runtime.api.values.BString;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.w3c.dom.Document;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Entry point for Ballerina Java interop.
@@ -56,7 +56,6 @@ public final class Native {
             // Read options from BMap
             float fontSize = getFloat(options, ConversionOptions.KEY_FALLBACK_FONT_SIZE,
                     ConversionOptions.DEFAULT_FALLBACK_FONT_SIZE);
-            String pageSize = getString(options, ConversionOptions.KEY_PAGE_SIZE, "A4"); // need to wrap enum in object
             String additionalCss = getString(options, ConversionOptions.KEY_ADDITIONAL_CSS, null);
 
             // maxPages: absent = no limit
@@ -67,18 +66,22 @@ public final class Native {
                 maxPages = ((Long) maxPagesObj).intValue();
             }
 
-            // Read custom fonts from nested map
-            Map<String, byte[]> customFonts = null;
+            // Read custom fonts from Font[] array
+            List<ConversionOptions.FontEntry> customFonts = null;
             Object customFontsObj = options.get(StringUtils.fromString(ConversionOptions.KEY_CUSTOM_FONTS));
             if (customFontsObj != null
-                    && TypeUtils.getType(customFontsObj).getTag() == TypeTags.MAP_TAG) {
-                BMap<BString, Object> fontsMap = (BMap<BString, Object>) customFontsObj;
-                customFonts = new HashMap<>();
-                for (BString key : fontsMap.getKeys()) {
-                    Object val = fontsMap.get(key);
-                    if (val != null && TypeUtils.getType(val).getTag() == TypeTags.ARRAY_TAG) {
-                        customFonts.put(key.getValue(), ((BArray) val).getBytes());
-                    }
+                    && TypeUtils.getType(customFontsObj).getTag() == TypeTags.ARRAY_TAG) {
+                BArray fontsArray = (BArray) customFontsObj;
+                customFonts = new ArrayList<>();
+                for (int i = 0; i < fontsArray.size(); i++) {
+                    @SuppressWarnings("unchecked")
+                    BMap<BString, Object> fontRecord = (BMap<BString, Object>) fontsArray.get(i);
+                    String family = getString(fontRecord, ConversionOptions.KEY_FONT_FAMILY, "");
+                    byte[] content = ((BArray) fontRecord.get(
+                            StringUtils.fromString(ConversionOptions.KEY_FONT_CONTENT))).getBytes();
+                    boolean bold = getBool(fontRecord, ConversionOptions.KEY_FONT_BOLD);
+                    boolean italic = getBool(fontRecord, ConversionOptions.KEY_FONT_ITALIC);
+                    customFonts.add(new ConversionOptions.FontEntry(family, content, bold, italic));
                 }
             }
 
@@ -102,12 +105,27 @@ public final class Native {
                         ConversionOptions.DEFAULT_MARGIN);
             }
 
-            // Resolve page dimensions from size name
-            float[] dims = ConversionOptions.pageDimensions(pageSize);
+            // Resolve page dimensions: string (preset) or record (custom {width, height})
+            float pageWidth;
+            float pageHeight;
+            Object pageSizeObj = options.get(StringUtils.fromString(ConversionOptions.KEY_PAGE_SIZE));
+            if (pageSizeObj != null
+                    && TypeUtils.getType(pageSizeObj).getTag() == TypeTags.RECORD_TYPE_TAG) {
+                @SuppressWarnings("unchecked")
+                BMap<BString, Object> customSize = (BMap<BString, Object>) pageSizeObj;
+                pageWidth = getFloat(customSize, "width", ConversionOptions.A4_WIDTH);
+                pageHeight = getFloat(customSize, "height", ConversionOptions.A4_HEIGHT);
+            } else {
+                String pageSizeName = (pageSizeObj != null)
+                        ? ((BString) pageSizeObj).getValue() : "A4";
+                float[] dims = ConversionOptions.pageDimensions(pageSizeName);
+                pageWidth = dims[0];
+                pageHeight = dims[1];
+            }
 
             // Build ConversionOptions
             ConversionOptions opts = new ConversionOptions(
-                    fontSize, dims[0], dims[1],
+                    fontSize, pageWidth, pageHeight,
                     marginTop, marginRight, marginBottom, marginLeft,
                     additionalCss, customFonts, maxPages);
 
@@ -224,5 +242,13 @@ public final class Native {
             return ((BString) value).getValue();
         }
         return defaultValue;
+    }
+
+    private static boolean getBool(BMap<BString, Object> map, String key) {
+        Object value = map.get(StringUtils.fromString(key));
+        if (value != null && TypeUtils.getType(value).getTag() == TypeTags.BOOLEAN_TAG) {
+            return (Boolean) value;
+        }
+        return false;
     }
 }

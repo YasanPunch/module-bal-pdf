@@ -129,7 +129,7 @@ function testErrorTypeIsError() {
 @test:Config {}
 function testConversionWithCustomFont() returns error? {
     byte[] fontBytes = check io:fileReadBytes("../native/src/main/resources/fonts/LiberationSans-Regular.ttf");
-    map<byte[]> fonts = {"TestFont": fontBytes};
+    Font[] fonts = [{family: "TestFont", content: fontBytes}];
     byte[] pdf = check parseHtml(
         string `<html><head><style>body { font-family: 'TestFont'; }</style></head>
                 <body><p>Custom font rendering</p></body></html>`,

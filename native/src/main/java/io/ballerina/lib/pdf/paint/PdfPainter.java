@@ -50,6 +50,16 @@ import java.util.Map;
  */
 public class PdfPainter {
 
+    private static final float RGB_MAX = 255f;
+    private static final float SUPERSCRIPT_OFFSET_RATIO = 0.4f;
+    private static final float SUBSCRIPT_OFFSET_RATIO = 0.2f;
+    private static final float UNDERLINE_THICKNESS_DIVISOR = 20f;
+    private static final float MIN_UNDERLINE_THICKNESS = 0.5f;
+    private static final float UNDERLINE_POSITION_RATIO = 0.3f;
+    private static final float STRIKETHROUGH_POSITION_RATIO = 0.35f;
+    // Kappa constant for approximating a quarter circle with a cubic Bezier curve
+    private static final float BEZIER_CIRCLE_KAPPA = 0.552284749831f;
+
     private record PendingInternalLink(int sourcePageIndex, PDRectangle rect, String targetId) { }
 
     private final PdfPageManager pageManager;
@@ -214,15 +224,15 @@ public class PdfPainter {
         String bgColor = style.getBackgroundColor();
         Color color = ColorParser.parse(bgColor);
         if (color != null && color.getAlpha() > 0) {
-            float alpha = (color.getAlpha() / 255f) * style.getOpacity();
+            float alpha = (color.getAlpha() / RGB_MAX) * style.getOpacity();
             float pdfY = toPdfY(layoutY, height);
             if (alpha < 1.0f) {
                 stream.saveGraphicsState();
                 applyAlpha(stream, alpha, false);
             }
             stream.setNonStrokingColor(
-                    color.getRed() / 255f, color.getGreen() / 255f,
-                    color.getBlue() / 255f);
+                    color.getRed() / RGB_MAX, color.getGreen() / RGB_MAX,
+                    color.getBlue() / RGB_MAX);
             if (hasRadius) {
                 addRoundedRectPath(stream, pdfX, pdfY, width, height, tlr, trr, brr, blr);
             } else {
@@ -279,7 +289,7 @@ public class PdfPainter {
                 shadowColor = new Color(0, 0, 0, 128);
             }
 
-            float baseAlpha = (shadowColor.getAlpha() / 255f) * style.getOpacity();
+            float baseAlpha = (shadowColor.getAlpha() / RGB_MAX) * style.getOpacity();
 
             if (shadow.blur() <= 0) {
                 // No blur — single crisp layer at full opacity
@@ -291,8 +301,8 @@ public class PdfPainter {
 
                 stream.saveGraphicsState();
                 applyAlpha(stream, baseAlpha, false);
-                stream.setNonStrokingColor(shadowColor.getRed() / 255f,
-                        shadowColor.getGreen() / 255f, shadowColor.getBlue() / 255f);
+                stream.setNonStrokingColor(shadowColor.getRed() / RGB_MAX,
+                        shadowColor.getGreen() / RGB_MAX, shadowColor.getBlue() / RGB_MAX);
 
                 if (hasRadius) {
                     addRoundedRectPath(stream, sx, sy, sw, sh,
@@ -318,8 +328,8 @@ public class PdfPainter {
 
                     stream.saveGraphicsState();
                     applyAlpha(stream, layerAlpha, false);
-                    stream.setNonStrokingColor(shadowColor.getRed() / 255f,
-                            shadowColor.getGreen() / 255f, shadowColor.getBlue() / 255f);
+                    stream.setNonStrokingColor(shadowColor.getRed() / RGB_MAX,
+                            shadowColor.getGreen() / RGB_MAX, shadowColor.getBlue() / RGB_MAX);
 
                     if (hasRadius) {
                         addRoundedRectPath(stream, sx, sy, sw, sh,
@@ -383,13 +393,13 @@ public class PdfPainter {
                 color = Color.BLACK;
             }
 
-            float alpha = (color.getAlpha() / 255f) * opacity;
+            float alpha = (color.getAlpha() / RGB_MAX) * opacity;
             if (alpha < 1.0f) {
                 stream.saveGraphicsState();
                 applyAlpha(stream, alpha, true);
             }
             stream.setStrokingColor(
-                    color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f);
+                    color.getRed() / RGB_MAX, color.getGreen() / RGB_MAX, color.getBlue() / RGB_MAX);
             stream.setLineWidth(avgBorderWidth);
             addRoundedRectPath(stream, pdfX, pdfY, width, height, tlr, trr, brr, blr);
             stream.stroke();
@@ -407,7 +417,7 @@ public class PdfPainter {
             if (color == null) {
                 color = Color.BLACK;
             }
-            float alpha = (color.getAlpha() / 255f) * opacity;
+            float alpha = (color.getAlpha() / RGB_MAX) * opacity;
             if (alpha < 1.0f) {
                 stream.saveGraphicsState();
                 applyAlpha(stream, alpha, true);
@@ -426,7 +436,7 @@ public class PdfPainter {
             if (color == null) {
                 color = Color.BLACK;
             }
-            float alpha = (color.getAlpha() / 255f) * opacity;
+            float alpha = (color.getAlpha() / RGB_MAX) * opacity;
             if (alpha < 1.0f) {
                 stream.saveGraphicsState();
                 applyAlpha(stream, alpha, true);
@@ -445,7 +455,7 @@ public class PdfPainter {
             if (color == null) {
                 color = Color.BLACK;
             }
-            float alpha = (color.getAlpha() / 255f) * opacity;
+            float alpha = (color.getAlpha() / RGB_MAX) * opacity;
             if (alpha < 1.0f) {
                 stream.saveGraphicsState();
                 applyAlpha(stream, alpha, true);
@@ -464,7 +474,7 @@ public class PdfPainter {
             if (color == null) {
                 color = Color.BLACK;
             }
-            float alpha = (color.getAlpha() / 255f) * opacity;
+            float alpha = (color.getAlpha() / RGB_MAX) * opacity;
             if (alpha < 1.0f) {
                 stream.saveGraphicsState();
                 applyAlpha(stream, alpha, true);
@@ -524,11 +534,11 @@ public class PdfPainter {
 
         // Superscript: shift baseline up
         if (textRun.isSuperscript()) {
-            baselineY -= fontSize * 0.4f;
+            baselineY -= fontSize * SUPERSCRIPT_OFFSET_RATIO;
         }
         // Subscript: shift baseline down
         if (textRun.isSubscript()) {
-            baselineY += fontSize * 0.2f;
+            baselineY += fontSize * SUBSCRIPT_OFFSET_RATIO;
         }
 
         float pdfY = toPdfYBaseline(baselineY);
@@ -542,7 +552,7 @@ public class PdfPainter {
         }
 
         // Apply opacity
-        float textAlpha = (textColor.getAlpha() / 255f) * (style != null ? style.getOpacity() : 1.0f);
+        float textAlpha = (textColor.getAlpha() / RGB_MAX) * (style != null ? style.getOpacity() : 1.0f);
         if (textAlpha < 1.0f) {
             stream.saveGraphicsState();
             applyAlpha(stream, textAlpha, false);
@@ -554,8 +564,8 @@ public class PdfPainter {
             stream.beginText();
             stream.setFont(segment.font(), fontSize);
             stream.setNonStrokingColor(
-                    textColor.getRed() / 255f, textColor.getGreen() / 255f,
-                    textColor.getBlue() / 255f);
+                    textColor.getRed() / RGB_MAX, textColor.getGreen() / RGB_MAX,
+                    textColor.getBlue() / RGB_MAX);
             if (letterSpacing != 0) {
                 stream.setCharacterSpacing(letterSpacing);
             }
@@ -594,15 +604,15 @@ public class PdfPainter {
             String decoration = style.get("text-decoration");
             if (decoration != null && !"none".equals(decoration)) {
                 float totalWidth = cursorX - pdfX;
-                float thickness = Math.max(fontSize / 20f, 0.5f);
+                float thickness = Math.max(fontSize / UNDERLINE_THICKNESS_DIVISOR, MIN_UNDERLINE_THICKNESS);
                 float descent = fontManager.getDescent(font, fontSize);
 
                 if (decoration.contains("underline")) {
-                    float lineY = toPdfYBaseline(baselineY + descent * 0.3f);
+                    float lineY = toPdfYBaseline(baselineY + descent * UNDERLINE_POSITION_RATIO);
                     drawLine(stream, pdfX, lineY, pdfX + totalWidth, lineY, thickness, textColor);
                 }
                 if (decoration.contains("line-through")) {
-                    float lineY = toPdfYBaseline(baselineY - ascent * 0.35f);
+                    float lineY = toPdfYBaseline(baselineY - ascent * STRIKETHROUGH_POSITION_RATIO);
                     drawLine(stream, pdfX, lineY, pdfX + totalWidth, lineY, thickness, textColor);
                 }
             }
@@ -733,8 +743,8 @@ public class PdfPainter {
     private void drawLine(PDPageContentStream stream, float x1, float y1, float x2, float y2,
                            float lineWidth, Color color) throws IOException {
         stream.setStrokingColor(
-                color.getRed() / 255f, color.getGreen() / 255f,
-                color.getBlue() / 255f);
+                color.getRed() / RGB_MAX, color.getGreen() / RGB_MAX,
+                color.getBlue() / RGB_MAX);
         stream.setLineWidth(lineWidth);
         stream.moveTo(x1, y1);
         stream.lineTo(x2, y2);
@@ -753,7 +763,7 @@ public class PdfPainter {
     private void addRoundedRectPath(PDPageContentStream stream, float x, float y,
                                      float w, float h, float tlr, float trr,
                                      float brr, float blr) throws IOException {
-        float k = 0.552284749831f; // kappa for circle approximation
+        float k = BEZIER_CIRCLE_KAPPA;
 
         // Clamp radii to half the box dimension
         float maxR = Math.min(w, h) / 2f;

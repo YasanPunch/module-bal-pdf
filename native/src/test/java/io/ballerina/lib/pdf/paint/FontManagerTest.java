@@ -18,6 +18,7 @@
 
 package io.ballerina.lib.pdf.paint;
 
+import io.ballerina.lib.pdf.ConversionOptions;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.junit.jupiter.api.AfterAll;
@@ -29,7 +30,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -204,7 +205,8 @@ class FontManagerTest {
                 assertNotNull(is, "LiberationSerif-Regular.ttf must be on classpath");
                 fontBytes = is.readAllBytes();
             }
-            customFm.loadCustomFonts(customDoc, Map.of("MyCustom", fontBytes));
+            customFm.loadCustomFonts(customDoc,
+                    List.of(new ConversionOptions.FontEntry("MyCustom", fontBytes, false, false)));
         }
 
         @AfterEach

@@ -18,12 +18,23 @@
 
 package io.ballerina.lib.pdf;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * Configuration options for HTML-to-PDF conversion.
  */
 public class ConversionOptions {
+
+    /**
+     * A custom font entry with explicit family, weight, and style.
+     *
+     * @param family  the CSS font-family name to register this font under
+     * @param content the raw TTF file bytes
+     * @param bold    whether this variant is bold
+     * @param italic  whether this variant is italic
+     */
+    public record FontEntry(String family, byte[] content, boolean bold, boolean italic) {
+    }
 
     /** CSS-spec default: medium = 16px = 12pt. */
     public static final float DEFAULT_FALLBACK_FONT_SIZE = 12f;
@@ -51,6 +62,12 @@ public class ConversionOptions {
     public static final String KEY_CUSTOM_FONTS = "customFonts";
     public static final String KEY_MARGINS = "margins";
 
+    // Font record field keys
+    public static final String KEY_FONT_FAMILY = "family";
+    public static final String KEY_FONT_CONTENT = "content";
+    public static final String KEY_FONT_BOLD = "bold";
+    public static final String KEY_FONT_ITALIC = "italic";
+
     // PageMargins record field keys
     public static final String KEY_MARGIN_TOP = "top";
     public static final String KEY_MARGIN_RIGHT = "right";
@@ -65,7 +82,7 @@ public class ConversionOptions {
     private final float marginBottom;
     private final float marginLeft;
     private final String additionalCss;
-    private final Map<String, byte[]> customFonts;
+    private final List<FontEntry> customFonts;
     private final Integer maxPages;
 
     /** Full constructor with all options. */
@@ -74,7 +91,7 @@ public class ConversionOptions {
                             float marginTop, float marginRight,
                             float marginBottom, float marginLeft,
                             String additionalCss,
-                            Map<String, byte[]> customFonts, Integer maxPages) {
+                            List<FontEntry> customFonts, Integer maxPages) {
         if (fallbackFontSize <= 0) {
             throw new IllegalArgumentException("fallbackFontSize must be positive, got: " + fallbackFontSize);
         }
@@ -160,8 +177,8 @@ public class ConversionOptions {
         return additionalCss;
     }
 
-    /** Returns the custom font map (name to TTF bytes). */
-    public Map<String, byte[]> getCustomFonts() {
+    /** Returns the custom font entries. */
+    public List<FontEntry> getCustomFonts() {
         return customFonts;
     }
 
