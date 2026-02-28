@@ -196,8 +196,8 @@ public class InlineLayoutEngine {
                     if (wordSpacing != 0) {
                         for (int ci = 0; ci < word.length(); ci++) {
                             if (word.charAt(ci) == ' ') {
-                        wordWidth += wordSpacing;
-                    }
+                                wordWidth += wordSpacing;
+                            }
                         }
                     }
                     wordRun.setTextWidth(wordWidth);

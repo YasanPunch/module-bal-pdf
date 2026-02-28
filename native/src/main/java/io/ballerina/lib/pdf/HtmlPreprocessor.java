@@ -53,11 +53,11 @@ public class HtmlPreprocessor {
     }
 
     /**
-     * Shared setup: lenient parse, XHTML output settings, table width stripping.
-     * Expand the reasoning. 
+     * Parses raw HTML leniently with Jsoup, configures XHTML output, and strips
+     * explicit table widths so tables reflow to fit the PDF page width.
      */
     private Document parseAndClean(String rawHtml) {
-        Document doc = Jsoup.parse(rawHtml); //check for java semantics
+        Document doc = Jsoup.parse(rawHtml);
         doc.outputSettings()
                 .syntax(OutputSettings.Syntax.xml)
                 .escapeMode(Entities.EscapeMode.xhtml)

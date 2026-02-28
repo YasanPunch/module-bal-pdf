@@ -30,9 +30,10 @@ public class ColorParser {
 
     private static final Pattern HEX3 = Pattern.compile("#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])");
     private static final Pattern HEX6 = Pattern.compile("#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})");
-    private static final Pattern RGB = Pattern.compile("rgb\\s*\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*\\)");
+    private static final Pattern RGB = Pattern.compile(
+            "rgb\\s*\\(\\s*([\\d.]+%?)\\s*,\\s*([\\d.]+%?)\\s*,\\s*([\\d.]+%?)\\s*\\)");
     private static final Pattern RGBA = Pattern.compile(
-            "rgba\\s*\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*([\\d.]+)\\s*\\)");
+            "rgba\\s*\\(\\s*([\\d.]+%?)\\s*,\\s*([\\d.]+%?)\\s*,\\s*([\\d.]+%?)\\s*,\\s*([\\d.]+%?)\\s*\\)");
 
     // All 148 CSS named colors (147 keywords + transparent) per CSS Color Module Level 4.
     private static final Map<String, Color> NAMED_COLORS = Map.ofEntries(
@@ -222,29 +223,52 @@ public class ColorParser {
             );
         }
 
-        // rgb(r, g, b)
+        // rgb(r, g, b) — accepts integers (0–255) or percentages (0%–100%)
         Matcher mRgb = RGB.matcher(value);
         if (mRgb.matches()) {
-            return new Color(
-                    clamp(Integer.parseInt(mRgb.group(1))),
-                    clamp(Integer.parseInt(mRgb.group(2))),
-                    clamp(Integer.parseInt(mRgb.group(3)))
-            );
+            try {
+                return new Color(
+                        parseChannel(mRgb.group(1)),
+                        parseChannel(mRgb.group(2)),
+                        parseChannel(mRgb.group(3))
+                );
+            } catch (NumberFormatException e) {
+                return null;
+            }
         }
 
-        // rgba(r, g, b, a)
+        // rgba(r, g, b, a) — alpha accepts 0.0–1.0 or 0%–100%
         Matcher mRgba = RGBA.matcher(value);
         if (mRgba.matches()) {
-            float alpha = Float.parseFloat(mRgba.group(4));
-            return new Color(
-                    clamp(Integer.parseInt(mRgba.group(1))),
-                    clamp(Integer.parseInt(mRgba.group(2))),
-                    clamp(Integer.parseInt(mRgba.group(3))),
-                    clamp((int) (alpha * 255))
-            );
+            try {
+                float alpha = parseAlpha(mRgba.group(4));
+                return new Color(
+                        parseChannel(mRgba.group(1)),
+                        parseChannel(mRgba.group(2)),
+                        parseChannel(mRgba.group(3)),
+                        clamp((int) (alpha * 255))
+                );
+            } catch (NumberFormatException e) {
+                return null;
+            }
         }
 
         return null;
+    }
+
+    private static int parseChannel(String token) {
+        if (token.endsWith("%")) {
+            float pct = Float.parseFloat(token.substring(0, token.length() - 1));
+            return clamp(Math.round(pct * 255 / 100));
+        }
+        return clamp(Integer.parseInt(token));
+    }
+
+    private static float parseAlpha(String token) {
+        if (token.endsWith("%")) {
+            return Float.parseFloat(token.substring(0, token.length() - 1)) / 100f;
+        }
+        return Float.parseFloat(token);
     }
 
     private static int clamp(int v) {

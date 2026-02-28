@@ -162,4 +162,36 @@ class ColorParserTest {
         assertEquals(0, c.getGreen());
         assertEquals(128, c.getBlue());
     }
+
+    @Test
+    void parsesRgbPercentages() {
+        Color c = ColorParser.parse("rgb(100%, 50%, 0%)");
+        assertNotNull(c);
+        assertEquals(255, c.getRed());
+        assertEquals(128, c.getGreen());
+        assertEquals(0, c.getBlue());
+    }
+
+    @Test
+    void parsesRgbaPercentages() {
+        Color c = ColorParser.parse("rgba(100%, 0%, 50%, 0.5)");
+        assertNotNull(c);
+        assertEquals(255, c.getRed());
+        assertEquals(0, c.getGreen());
+        assertEquals(128, c.getBlue());
+        assertEquals(127, c.getAlpha());
+    }
+
+    @Test
+    void parsesRgbaAlphaPercentage() {
+        Color c = ColorParser.parse("rgba(255, 0, 0, 50%)");
+        assertNotNull(c);
+        assertEquals(255, c.getRed());
+        assertEquals(127, c.getAlpha());
+    }
+
+    @Test
+    void returnsNullForMalformedRgbaAlpha() {
+        assertNull(ColorParser.parse("rgba(255, 0, 0, abc)"));
+    }
 }

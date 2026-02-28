@@ -76,7 +76,7 @@ public type Font record {|
 #              this page limit. Must be greater than 0 when provided.
 public type ConversionOptions record {|
     float fallbackFontSize = 12.0;
-    StandardPageSize|CustomPageSize pageSize = A4;
+    PageSize pageSize = A4;
     PageMargins margins = {};
     string additionalCss?;
     Font[] customFonts?;

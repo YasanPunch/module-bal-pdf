@@ -56,8 +56,10 @@ public function main() returns error? {
 You can also extract text directly from a file path or URL:
 
 ```ballerina
-string[] pages = check pdf:fileExtractText("document.pdf");
-string[] pages = check pdf:urlExtractText("https://example.com/document.pdf");
+// From a local file
+string[] pagesFromFile = check pdf:fileExtractText("document.pdf");
+// From a URL
+string[] pagesFromUrl = check pdf:urlExtractText("https://example.com/document.pdf");
 ```
 
 ### Convert PDF pages to images

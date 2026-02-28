@@ -444,7 +444,7 @@ public class CssSelector {
      * Handles: "even", "odd", plain integer, and full An+B expressions
      * like "2n+1", "3n", "-n+3", "n+1", "n", "-2n+6".
      * 
-     * The alogirhtm: an index matches An+B, if (index - B) / A is a non-negative integer.
+     * The algorithm: an index matches An+B if (index - B) / A is a non-negative integer.
      * Examples: 1 matches 1n+0 (every element), 2 matches 1n+1 (every other element).
      */
     static boolean matchesAnPlusB(String arg, int index) {

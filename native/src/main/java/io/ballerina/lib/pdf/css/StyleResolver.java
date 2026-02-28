@@ -587,7 +587,7 @@ public class StyleResolver {
         // cellpadding on tables (applied to cells during box tree building)
         // cellspacing on tables
         String cellspacing = DomUtils.attr(element, "cellspacing");
-        if (cellspacing != null && tagName.equals("table")) {
+        if (cellspacing != null && tagName.equals("table") && style.get("border-spacing") == null) {
             style.set("border-spacing", cellspacing + "px");
         }
 
@@ -630,7 +630,7 @@ public class StyleResolver {
 
         // valign attribute
         String valign = DomUtils.attr(element, "valign");
-        if (valign != null) {
+        if (valign != null && style.get("vertical-align") == null) {
             style.set("vertical-align", valign.toLowerCase());
         }
 
@@ -668,7 +668,7 @@ public class StyleResolver {
 
     private boolean isBorderWidth(String value) {
         return value.equals("thin") || value.equals("medium") || value.equals("thick")
-                || value.matches("[\\d.]+(px|pt|em|mm)?");
+                || value.matches("[\\d.]+(px|pt|em|rem|mm|cm|in|ex|ch|vw|vh|vmin|vmax|pc|%)?");
     }
 
     private boolean isBorderStyle(String value) {

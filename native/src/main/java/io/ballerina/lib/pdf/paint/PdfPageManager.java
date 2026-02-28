@@ -77,8 +77,11 @@ public class PdfPageManager {
      */
     public void closeCurrentStream() throws IOException {
         if (currentStream != null) {
-            currentStream.close();
-            currentStream = null;
+            try {
+                currentStream.close();
+            } finally {
+                currentStream = null;
+            }
         }
     }
 
@@ -98,6 +101,7 @@ public class PdfPageManager {
     public int getPageCount() {
         return pages.size();
     }
+
     /** Returns the current page, or null if none. */
     public PDPage getCurrentPage() {
         return (currentPageIndex >= 0) ? pages.get(currentPageIndex) : null;

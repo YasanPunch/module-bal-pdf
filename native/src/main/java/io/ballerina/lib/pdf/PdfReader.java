@@ -33,10 +33,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -108,6 +106,9 @@ final class PdfReader {
 
     /**
      * Loads a PDF from a URL after validating accessibility and content type.
+     * <p>
+     * This method does not validate the URL target. Callers processing untrusted
+     * URLs should validate them before passing to this method.
      */
     private static final int CONNECT_TIMEOUT_MS = 10_000;
     private static final int READ_TIMEOUT_MS = 30_000;
@@ -119,7 +120,6 @@ final class PdfReader {
             if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
                 throw new IOException("Unsupported URL scheme (expected http or https): " + url);
             }
-            validateNotInternalAddress(uri);
 
             HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
             connection.setRequestMethod("GET");
@@ -146,28 +146,6 @@ final class PdfReader {
             }
         } catch (URISyntaxException e) {
             throw new IOException("Invalid URL: " + url, e);
-        }
-    }
-
-    /**
-     * Blocks requests to private, loopback, and link-local IP addresses to prevent SSRF attacks.
-     */
-    static void validateNotInternalAddress(URI uri) throws IOException {
-        String host = uri.getHost();
-        if (host == null) {
-            throw new IOException("URL has no host: " + uri);
-        }
-        InetAddress[] addresses;
-        try {
-            addresses = InetAddress.getAllByName(host);
-        } catch (UnknownHostException e) {
-            throw new IOException("Cannot resolve host: " + host, e);
-        }
-        for (InetAddress addr : addresses) {
-            if (addr.isLoopbackAddress() || addr.isSiteLocalAddress()
-                    || addr.isLinkLocalAddress() || addr.isAnyLocalAddress()) {
-                throw new IOException("URL points to a private or internal address: " + host);
-            }
         }
     }
 

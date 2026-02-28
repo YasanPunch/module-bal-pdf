@@ -51,6 +51,10 @@ public class PageBreaker {
      * Computes page breaks for the given root box and page content height.
      */
     public List<PageSlice> computePages(Box root, float pageContentHeight) {
+        if (pageContentHeight <= 0) {
+            throw new IllegalArgumentException(
+                    "Page content height must be positive, got: " + pageContentHeight);
+        }
         List<PageSlice> pages = new ArrayList<>();
         float totalHeight = computeVisualHeight(root);
 
