@@ -86,7 +86,6 @@ clean {
 }
 
 build.dependsOn ":pdf-native:build"
-build.dependsOn "generatePomFileForMavenPublication"
 test.dependsOn ":pdf-native:build"
 publishToMavenLocal.dependsOn build
 publish.dependsOn build
