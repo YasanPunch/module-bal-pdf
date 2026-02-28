@@ -4,7 +4,6 @@ The `ballerina/pdf` module provides practical examples illustrating usage in var
 
 1. [HTML to PDF](./html-to-pdf/) - Read an HTML report and convert it to PDF.
 
-   Produces `resources/output.pdf`. Open the input HTML (`resources/report.html`) in a browser and compare side-by-side with the PDF to verify layout fidelity.
 
 ## Prerequisites
 
