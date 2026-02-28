@@ -1,6 +1,9 @@
 # Ballerina PDF Module
 
 [![Build](https://github.com/ballerina-platform/module-ballerina-pdf/actions/workflows/ci.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerina-pdf/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/ballerina-platform/module-ballerina-pdf/branch/main/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/module-ballerina-pdf)
+[![Trivy](https://github.com/ballerina-platform/module-ballerina-pdf/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerina-pdf/actions/workflows/trivy-scan.yml)
+[![GraalVM Check](https://github.com/ballerina-platform/module-ballerina-pdf/actions/workflows/build-with-bal-test-graalvm.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerina-pdf/actions/workflows/build-with-bal-test-graalvm.yml)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerina-pdf.svg)](https://github.com/ballerina-platform/module-ballerina-pdf/commits/main)
 [![GitHub Issues](https://img.shields.io/github/issues/ballerina-platform/ballerina-library/module/pdf.svg?label=Open%20Issues)](https://github.com/ballerina-platform/ballerina-library/labels/module%2Fpdf)
 
@@ -10,15 +13,37 @@ All processing is done locally with no external service dependencies.
 
 ## Quickstart
 
+To use the `pdf` connector in your Ballerina application, modify the `.bal` file as follows:
+
 ### Step 1: Import the module
 
-Import the `ballerina/pdf` module into your Ballerina project.
+Import the `pdf` module.
 
 ```ballerina
 import ballerina/pdf;
 ```
 
 ### Step 2: Invoke module functions
+
+#### Extract text from a PDF
+
+```ballerina
+byte[] pdfBytes = check io:fileReadBytes("document.pdf");
+string[] pages = check pdf:extractText(pdfBytes);
+foreach int i in 0 ..< pages.length() {
+   io:println("Page ", i + 1, ": ", pages[i]);
+}
+```
+
+#### Convert PDF pages to images
+
+```ballerina
+byte[] pdfBytes = check io:fileReadBytes("document.pdf");
+string[] base64Images = check pdf:toImages(pdfBytes);
+// Each element is a Base64-encoded PNG string (one per page)
+```
+
+#### Convert html to pdf
 
 Convert an HTML string to a PDF document.
 
@@ -27,72 +52,24 @@ byte[] pdfBytes = check pdf:parseHtml("<h1>Hello World</h1><p>Generated with Bal
 check io:fileWriteBytes("output.pdf", pdfBytes);
 ```
 
+#### Convert with custom options
+
+```ballerina
+string html = check io:fileReadString("report.html");
+byte[] pdfBytes = check pdf:parseHtml(html,
+   fallbackFontSize = 10.0,
+   pageSize = pdf:LETTER,
+   margins = {top: 72, right: 54, bottom: 72, left: 54},
+   additionalCss = "body { font-family: sans-serif; } .container { width: 100% !important; }"
+);
+check io:fileWriteBytes("report.pdf", pdfBytes);
+```
+
 ### Step 3: Run the Ballerina application
 
 ```bash
 bal run
 ```
-
-### More examples
-
-#### Convert with custom options
-
-```ballerina
-import ballerina/io;
-import ballerina/pdf;
-
-public function main() returns error? {
-    string html = check io:fileReadString("report.html");
-
-    byte[] pdfBytes = check pdf:parseHtml(html,
-        fallbackFontSize = 10.0,
-        pageSize = pdf:LETTER,
-        margins = {top: 72, right: 54, bottom: 72, left: 54},
-        additionalCss = "body { font-family: sans-serif; } .container { width: 100% !important; }"
-    );
-
-    check io:fileWriteBytes("report.pdf", pdfBytes);
-}
-```
-
-#### Extract text from a PDF
-
-```ballerina
-import ballerina/io;
-import ballerina/pdf;
-
-public function main() returns error? {
-    byte[] pdfBytes = check io:fileReadBytes("document.pdf");
-    string[] pages = check pdf:extractText(pdfBytes);
-    foreach int i in 0 ..< pages.length() {
-        io:println("Page ", i + 1, ": ", pages[i]);
-    }
-}
-```
-
-You can also extract text directly from a file path or URL:
-
-```ballerina
-// From a local file
-string[] pagesFromFile = check pdf:fileExtractText("document.pdf");
-// From a URL
-string[] pagesFromUrl = check pdf:urlExtractText("https://example.com/document.pdf");
-```
-
-#### Convert PDF pages to images
-
-```ballerina
-import ballerina/io;
-import ballerina/pdf;
-
-public function main() returns error? {
-    byte[] pdfBytes = check io:fileReadBytes("document.pdf");
-    string[] base64Images = check pdf:toImages(pdfBytes);
-    // Each element is a Base64-encoded PNG string (one per page)
-}
-```
-
-File and URL variants are also available: `fileToImages()` and `urlToImages()`.
 
 ## Examples
 
