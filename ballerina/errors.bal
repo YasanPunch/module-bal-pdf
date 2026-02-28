@@ -27,3 +27,4 @@ public type RenderError distinct Error;
 # Error during PDF reading operations (text extraction, image conversion).
 # Returned when the input PDF is corrupted, inaccessible, or invalid.
 public type ReadError distinct Error;
+// TODO: Evaluate if distinct error types are needed for specific read operations (e.g., image conversion vs text extraction).

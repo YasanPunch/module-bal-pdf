@@ -1,24 +1,35 @@
-## Overview
+The `ballerina/pdf` module provides functionality to convert HTML content to PDF documents and read data from existing PDFs. It processes HTML strings — including full documents, fragments, and messy real-world markup — and produces PDF byte arrays suitable for writing to files or sending over the network.
 
-The `ballerina/pdf` module provides functionality to convert HTML content to PDF documents. It processes HTML strings — including full documents, fragments, and messy real-world markup — and produces PDF byte arrays suitable for writing to files or sending over the network.
-
-All processing is done locally with no external service dependencies. The module handles HTML cleanup, CSS injection, and PDF rendering in a single pipeline.
+All processing is done locally with no external service dependencies.
 
 ## Quickstart
 
-### Convert HTML to PDF
+### Step 1: Import the module
+
+Import the `ballerina/pdf` module into your Ballerina project.
 
 ```ballerina
-import ballerina/io;
 import ballerina/pdf;
-
-public function main() returns error? {
-    byte[] pdfBytes = check pdf:parseHtml("<h1>Hello World</h1><p>Generated with Ballerina.</p>");
-    check io:fileWriteBytes("output.pdf", pdfBytes);
-}
 ```
 
-### Convert with custom options
+### Step 2: Invoke module functions
+
+Convert an HTML string to a PDF document.
+
+```ballerina
+byte[] pdfBytes = check pdf:parseHtml("<h1>Hello World</h1><p>Generated with Ballerina.</p>");
+check io:fileWriteBytes("output.pdf", pdfBytes);
+```
+
+### Step 3: Run the Ballerina application
+
+```bash
+bal run
+```
+
+### More examples
+
+#### Convert with custom options
 
 ```ballerina
 import ballerina/io;
@@ -38,7 +49,7 @@ public function main() returns error? {
 }
 ```
 
-### Extract text from a PDF
+#### Extract text from a PDF
 
 ```ballerina
 import ballerina/io;
@@ -62,7 +73,7 @@ string[] pagesFromFile = check pdf:fileExtractText("document.pdf");
 string[] pagesFromUrl = check pdf:urlExtractText("https://example.com/document.pdf");
 ```
 
-### Convert PDF pages to images
+#### Convert PDF pages to images
 
 ```ballerina
 import ballerina/io;

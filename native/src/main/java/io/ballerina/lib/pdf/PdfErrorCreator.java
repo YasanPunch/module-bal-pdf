@@ -29,9 +29,9 @@ import io.ballerina.runtime.api.values.BString;
  * Creates typed Ballerina errors that map to the error hierarchy defined in {@code errors.bal}.
  * Error type names must match the Ballerina type names exactly.
  */
-public final class DiagnosticLog {
+public final class PdfErrorCreator {
 
-    private DiagnosticLog() {
+    private PdfErrorCreator() {
     }
 
     private static final String ERROR = "Error";

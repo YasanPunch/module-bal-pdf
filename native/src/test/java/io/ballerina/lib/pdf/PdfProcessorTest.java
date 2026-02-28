@@ -25,28 +25,28 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class PdfReaderTest {
+class PdfProcessorTest {
 
     // --- loadFromUrl: scheme validation ---
 
     @Test
     void loadFromUrlRejectsFtpScheme() {
         IOException ex = assertThrows(IOException.class,
-                () -> PdfReader.loadFromUrl("ftp://example.com/file.pdf"));
+                () -> PdfProcessor.loadFromUrl("ftp://example.com/file.pdf"));
         assertTrue(ex.getMessage().contains("Unsupported URL scheme"));
     }
 
     @Test
     void loadFromUrlRejectsFileScheme() {
         IOException ex = assertThrows(IOException.class,
-                () -> PdfReader.loadFromUrl("file:///etc/passwd"));
+                () -> PdfProcessor.loadFromUrl("file:///etc/passwd"));
         assertTrue(ex.getMessage().contains("Unsupported URL scheme"));
     }
 
     @Test
     void loadFromUrlRejectsInvalidUri() {
         IOException ex = assertThrows(IOException.class,
-                () -> PdfReader.loadFromUrl("not a valid uri at all"));
+                () -> PdfProcessor.loadFromUrl("not a valid uri at all"));
         assertTrue(ex.getMessage().contains("Invalid URL"));
     }
 }

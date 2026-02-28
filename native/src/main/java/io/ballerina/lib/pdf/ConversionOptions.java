@@ -18,6 +18,9 @@
 
 package io.ballerina.lib.pdf;
 
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BString;
+
 import java.util.List;
 
 /**
@@ -55,24 +58,28 @@ public class ConversionOptions {
     public static final float DEFAULT_MARGIN = 0f;
 
     // BMap field keys — must match Ballerina record field names in types.bal
-    public static final String KEY_FALLBACK_FONT_SIZE = "fallbackFontSize";
-    public static final String KEY_PAGE_SIZE = "pageSize";
-    public static final String KEY_ADDITIONAL_CSS = "additionalCss";
-    public static final String KEY_MAX_PAGES = "maxPages";
-    public static final String KEY_CUSTOM_FONTS = "customFonts";
-    public static final String KEY_MARGINS = "margins";
+    public static final BString KEY_FALLBACK_FONT_SIZE = StringUtils.fromString("fallbackFontSize");
+    public static final BString KEY_PAGE_SIZE = StringUtils.fromString("pageSize");
+    public static final BString KEY_ADDITIONAL_CSS = StringUtils.fromString("additionalCss");
+    public static final BString KEY_MAX_PAGES = StringUtils.fromString("maxPages");
+    public static final BString KEY_CUSTOM_FONTS = StringUtils.fromString("customFonts");
+    public static final BString KEY_MARGINS = StringUtils.fromString("margins");
 
     // Font record field keys
-    public static final String KEY_FONT_FAMILY = "family";
-    public static final String KEY_FONT_CONTENT = "content";
-    public static final String KEY_FONT_BOLD = "bold";
-    public static final String KEY_FONT_ITALIC = "italic";
+    public static final BString KEY_FONT_FAMILY = StringUtils.fromString("family");
+    public static final BString KEY_FONT_CONTENT = StringUtils.fromString("content");
+    public static final BString KEY_FONT_BOLD = StringUtils.fromString("bold");
+    public static final BString KEY_FONT_ITALIC = StringUtils.fromString("italic");
 
     // PageMargins record field keys
-    public static final String KEY_MARGIN_TOP = "top";
-    public static final String KEY_MARGIN_RIGHT = "right";
-    public static final String KEY_MARGIN_BOTTOM = "bottom";
-    public static final String KEY_MARGIN_LEFT = "left";
+    public static final BString KEY_MARGIN_TOP = StringUtils.fromString("top");
+    public static final BString KEY_MARGIN_RIGHT = StringUtils.fromString("right");
+    public static final BString KEY_MARGIN_BOTTOM = StringUtils.fromString("bottom");
+    public static final BString KEY_MARGIN_LEFT = StringUtils.fromString("left");
+
+    // CustomPageSize record field keys
+    public static final BString KEY_PAGE_WIDTH = StringUtils.fromString("width");
+    public static final BString KEY_PAGE_HEIGHT = StringUtils.fromString("height");
 
     private final float fallbackFontSize;
     private final float pageWidth;

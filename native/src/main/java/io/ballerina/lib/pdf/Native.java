@@ -20,7 +20,6 @@ package io.ballerina.lib.pdf;
 
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.TypeTags;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
@@ -58,71 +57,50 @@ public final class Native {
                     ConversionOptions.DEFAULT_FALLBACK_FONT_SIZE);
             String additionalCss = getString(options, ConversionOptions.KEY_ADDITIONAL_CSS, null);
 
-            // maxPages: absent = no limit
-            Integer maxPages = null;
-            Object maxPagesObj = options.get(StringUtils.fromString(ConversionOptions.KEY_MAX_PAGES));
-            if (maxPagesObj != null
-                    && TypeUtils.getType(maxPagesObj).getTag() == TypeTags.INT_TAG) {
-                long maxPagesLong = (Long) maxPagesObj;
-                if (maxPagesLong > Integer.MAX_VALUE) {
-                    maxPages = Integer.MAX_VALUE;
-                } else {
-                    maxPages = (int) maxPagesLong;
-                }
-            }
+            Integer maxPages = getInt(options, ConversionOptions.KEY_MAX_PAGES);
 
             // Read custom fonts from Font[] array
             List<ConversionOptions.FontEntry> customFonts = null;
-            Object customFontsObj = options.get(StringUtils.fromString(ConversionOptions.KEY_CUSTOM_FONTS));
-            if (customFontsObj != null
-                    && TypeUtils.getType(customFontsObj).getTag() == TypeTags.ARRAY_TAG) {
+            Object customFontsObj = options.get(ConversionOptions.KEY_CUSTOM_FONTS);
+            if (customFontsObj != null) {
                 BArray fontsArray = (BArray) customFontsObj;
                 customFonts = new ArrayList<>();
                 for (int i = 0; i < fontsArray.size(); i++) {
-                    @SuppressWarnings("unchecked")
                     BMap<BString, Object> fontRecord = (BMap<BString, Object>) fontsArray.get(i);
                     String family = getString(fontRecord, ConversionOptions.KEY_FONT_FAMILY, "");
                     byte[] content = ((BArray) fontRecord.get(
-                            StringUtils.fromString(ConversionOptions.KEY_FONT_CONTENT))).getBytes();
+                            ConversionOptions.KEY_FONT_CONTENT)).getBytes();
                     boolean bold = getBool(fontRecord, ConversionOptions.KEY_FONT_BOLD);
                     boolean italic = getBool(fontRecord, ConversionOptions.KEY_FONT_ITALIC);
                     customFonts.add(new ConversionOptions.FontEntry(family, content, bold, italic));
                 }
             }
 
-            // Read margins from nested PageMargins record
-            float marginTop = ConversionOptions.DEFAULT_MARGIN;
-            float marginRight = ConversionOptions.DEFAULT_MARGIN;
-            float marginBottom = ConversionOptions.DEFAULT_MARGIN;
-            float marginLeft = ConversionOptions.DEFAULT_MARGIN;
-
-            Object marginsObj = options.get(StringUtils.fromString(ConversionOptions.KEY_MARGINS));
-            if (marginsObj != null
-                    && TypeUtils.getType(marginsObj).getTag() == TypeTags.RECORD_TYPE_TAG) {
-                BMap<BString, Object> margins = (BMap<BString, Object>) marginsObj;
-                marginTop = getFloat(margins, ConversionOptions.KEY_MARGIN_TOP,
-                        ConversionOptions.DEFAULT_MARGIN);
-                marginRight = getFloat(margins, ConversionOptions.KEY_MARGIN_RIGHT,
-                        ConversionOptions.DEFAULT_MARGIN);
-                marginBottom = getFloat(margins, ConversionOptions.KEY_MARGIN_BOTTOM,
-                        ConversionOptions.DEFAULT_MARGIN);
-                marginLeft = getFloat(margins, ConversionOptions.KEY_MARGIN_LEFT,
-                        ConversionOptions.DEFAULT_MARGIN);
-            }
+            // Read margins from nested PageMargins record (always present — has default)
+            BMap<BString, Object> margins = (BMap<BString, Object>) options.get(
+                    ConversionOptions.KEY_MARGINS);
+            float marginTop = getFloat(margins, ConversionOptions.KEY_MARGIN_TOP,
+                    ConversionOptions.DEFAULT_MARGIN);
+            float marginRight = getFloat(margins, ConversionOptions.KEY_MARGIN_RIGHT,
+                    ConversionOptions.DEFAULT_MARGIN);
+            float marginBottom = getFloat(margins, ConversionOptions.KEY_MARGIN_BOTTOM,
+                    ConversionOptions.DEFAULT_MARGIN);
+            float marginLeft = getFloat(margins, ConversionOptions.KEY_MARGIN_LEFT,
+                    ConversionOptions.DEFAULT_MARGIN);
 
             // Resolve page dimensions: string (preset) or record (custom {width, height})
             float pageWidth;
             float pageHeight;
-            Object pageSizeObj = options.get(StringUtils.fromString(ConversionOptions.KEY_PAGE_SIZE));
-            if (pageSizeObj != null
-                    && TypeUtils.getType(pageSizeObj).getTag() == TypeTags.RECORD_TYPE_TAG) {
-                @SuppressWarnings("unchecked")
+            // Resolve page dimensions (always present — has default)
+            Object pageSizeObj = options.get(ConversionOptions.KEY_PAGE_SIZE);
+            if (TypeUtils.getType(pageSizeObj).getTag() == TypeTags.RECORD_TYPE_TAG) {
                 BMap<BString, Object> customSize = (BMap<BString, Object>) pageSizeObj;
-                pageWidth = getFloat(customSize, "width", ConversionOptions.A4_WIDTH);
-                pageHeight = getFloat(customSize, "height", ConversionOptions.A4_HEIGHT);
+                pageWidth = getFloat(customSize, ConversionOptions.KEY_PAGE_WIDTH,
+                        ConversionOptions.A4_WIDTH);
+                pageHeight = getFloat(customSize, ConversionOptions.KEY_PAGE_HEIGHT,
+                        ConversionOptions.A4_HEIGHT);
             } else {
-                String pageSizeName = (pageSizeObj != null)
-                        ? ((BString) pageSizeObj).getValue() : "A4";
+                String pageSizeName = ((BString) pageSizeObj).getValue();
                 float[] dims = ConversionOptions.pageDimensions(pageSizeName);
                 pageWidth = dims[0];
                 pageHeight = dims[1];
@@ -140,7 +118,7 @@ public final class Native {
             try {
                 doc = preprocessor.preprocess(html.getValue());
             } catch (Exception e) {
-                return DiagnosticLog.htmlParseError(
+                return PdfErrorCreator.htmlParseError(
                         "HTML parsing failed: " + e.getMessage(), e);
             }
 
@@ -150,7 +128,7 @@ public final class Native {
 
             return ValueCreator.createArrayValue(pdf);
         } catch (Exception e) {
-            return DiagnosticLog.renderError(
+            return PdfErrorCreator.renderError(
                     "PDF rendering failed: " + e.getMessage(), e);
         }
     }
@@ -161,10 +139,10 @@ public final class Native {
      * Converts each page of a PDF (as byte[]) to Base64-encoded PNG images.
      */
     public static Object toImages(BArray pdf) {
-        try (PDDocument doc = PdfReader.loadFromBytes(pdf.getBytes())) {
-            return ValueCreator.createArrayValue(PdfReader.toImages(doc));
+        try (PDDocument doc = PdfProcessor.loadFromBytes(pdf.getBytes())) {
+            return ValueCreator.createArrayValue(PdfProcessor.toImages(doc));
         } catch (Exception e) {
-            return DiagnosticLog.readError("PDF image conversion failed: " + e.getMessage(), e);
+            return PdfErrorCreator.readError("PDF image conversion failed: " + e.getMessage(), e);
         }
     }
 
@@ -172,10 +150,10 @@ public final class Native {
      * Converts each page of a PDF file to Base64-encoded PNG images.
      */
     public static Object fileToImages(BString filePath) {
-        try (PDDocument doc = PdfReader.loadFromFile(filePath.getValue())) {
-            return ValueCreator.createArrayValue(PdfReader.toImages(doc));
+        try (PDDocument doc = PdfProcessor.loadFromFile(filePath.getValue())) {
+            return ValueCreator.createArrayValue(PdfProcessor.toImages(doc));
         } catch (Exception e) {
-            return DiagnosticLog.readError("PDF image conversion failed: " + e.getMessage(), e);
+            return PdfErrorCreator.readError("PDF image conversion failed: " + e.getMessage(), e);
         }
     }
 
@@ -183,10 +161,10 @@ public final class Native {
      * Converts each page of a PDF at the given URL to Base64-encoded PNG images.
      */
     public static Object urlToImages(BString url) {
-        try (PDDocument doc = PdfReader.loadFromUrl(url.getValue())) {
-            return ValueCreator.createArrayValue(PdfReader.toImages(doc));
+        try (PDDocument doc = PdfProcessor.loadFromUrl(url.getValue())) {
+            return ValueCreator.createArrayValue(PdfProcessor.toImages(doc));
         } catch (Exception e) {
-            return DiagnosticLog.readError("PDF image conversion failed: " + e.getMessage(), e);
+            return PdfErrorCreator.readError("PDF image conversion failed: " + e.getMessage(), e);
         }
     }
 
@@ -194,10 +172,10 @@ public final class Native {
      * Extracts text content from each page of a PDF (as byte[]).
      */
     public static Object extractText(BArray pdf) {
-        try (PDDocument doc = PdfReader.loadFromBytes(pdf.getBytes())) {
-            return ValueCreator.createArrayValue(PdfReader.extractText(doc));
+        try (PDDocument doc = PdfProcessor.loadFromBytes(pdf.getBytes())) {
+            return ValueCreator.createArrayValue(PdfProcessor.extractText(doc));
         } catch (Exception e) {
-            return DiagnosticLog.readError("PDF text extraction failed: " + e.getMessage(), e);
+            return PdfErrorCreator.readError("PDF text extraction failed: " + e.getMessage(), e);
         }
     }
 
@@ -205,10 +183,10 @@ public final class Native {
      * Extracts text content from each page of a PDF file.
      */
     public static Object fileExtractText(BString filePath) {
-        try (PDDocument doc = PdfReader.loadFromFile(filePath.getValue())) {
-            return ValueCreator.createArrayValue(PdfReader.extractText(doc));
+        try (PDDocument doc = PdfProcessor.loadFromFile(filePath.getValue())) {
+            return ValueCreator.createArrayValue(PdfProcessor.extractText(doc));
         } catch (Exception e) {
-            return DiagnosticLog.readError("PDF text extraction failed: " + e.getMessage(), e);
+            return PdfErrorCreator.readError("PDF text extraction failed: " + e.getMessage(), e);
         }
     }
 
@@ -216,44 +194,48 @@ public final class Native {
      * Extracts text content from each page of a PDF at the given URL.
      */
     public static Object urlExtractText(BString url) {
-        try (PDDocument doc = PdfReader.loadFromUrl(url.getValue())) {
-            return ValueCreator.createArrayValue(PdfReader.extractText(doc));
+        try (PDDocument doc = PdfProcessor.loadFromUrl(url.getValue())) {
+            return ValueCreator.createArrayValue(PdfProcessor.extractText(doc));
         } catch (Exception e) {
-            return DiagnosticLog.readError("PDF text extraction failed: " + e.getMessage(), e);
+            return PdfErrorCreator.readError("PDF text extraction failed: " + e.getMessage(), e);
         }
     }
 
     // --- BMap helper methods ---
 
-    private static float getFloat(BMap<BString, Object> map, String key, float defaultValue) {
-        Object value = map.get(StringUtils.fromString(key));
+    private static float getFloat(BMap<BString, Object> map, BString key, float defaultValue) {
+        Object value = map.get(key);
         if (value == null) {
             return defaultValue;
         }
-        int tag = TypeUtils.getType(value).getTag();
-        if (tag == TypeTags.INT_TAG) {
-            return ((Long) value).floatValue();
-        }
-        if (tag == TypeTags.FLOAT_TAG) {
-            return ((Double) value).floatValue();
-        } //no need for default, no type check
-
-        return defaultValue;
+        return ((Double) value).floatValue();
     }
 
-    private static String getString(BMap<BString, Object> map, String key, String defaultValue) {
-        Object value = map.get(StringUtils.fromString(key));
-        if (value != null && TypeUtils.getType(value).getTag() == TypeTags.STRING_TAG) {
+    private static String getString(BMap<BString, Object> map, BString key, String defaultValue) {
+        Object value = map.get(key);
+        if (value != null) {
             return ((BString) value).getValue();
         }
         return defaultValue;
     }
 
-    private static boolean getBool(BMap<BString, Object> map, String key) {
-        Object value = map.get(StringUtils.fromString(key));
-        if (value != null && TypeUtils.getType(value).getTag() == TypeTags.BOOLEAN_TAG) {
+    private static boolean getBool(BMap<BString, Object> map, BString key) {
+        Object value = map.get(key);
+        if (value != null) {
             return (Boolean) value;
         }
         return false;
+    }
+
+    private static Integer getInt(BMap<BString, Object> map, BString key) {
+        Object value = map.get(key);
+        if (value == null) {
+            return null;
+        }
+        long longVal = (Long) value;
+        if (longVal > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+        return (int) longVal;
     }
 }

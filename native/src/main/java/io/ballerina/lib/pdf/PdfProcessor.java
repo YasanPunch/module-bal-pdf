@@ -46,11 +46,11 @@ import javax.imageio.ImageIO;
  * Provides core logic for loading, validating, and processing PDF documents.
  * Bridge methods in {@link Native} delegate to these methods.
  */
-final class PdfReader {
+final class PdfProcessor {
 
     private static final int RENDER_DPI = 400;
 
-    private PdfReader() {
+    private PdfProcessor() {
     }
 
     // --- Conversion operations ---
