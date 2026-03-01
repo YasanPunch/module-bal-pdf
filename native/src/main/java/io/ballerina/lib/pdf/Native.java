@@ -53,8 +53,7 @@ public final class Native {
     public static Object parseHtml(BString html, BMap<BString, Object> options) {
         try {
             // Read options from BMap
-            float fontSize = getFloat(options, ConversionOptions.KEY_FALLBACK_FONT_SIZE,
-                    ConversionOptions.DEFAULT_FALLBACK_FONT_SIZE);
+            float fontSize = getFloat(options, ConversionOptions.KEY_FALLBACK_FONT_SIZE);
             String additionalCss = getString(options, ConversionOptions.KEY_ADDITIONAL_CSS, null);
 
             Integer maxPages = getInt(options, ConversionOptions.KEY_MAX_PAGES);
@@ -67,7 +66,7 @@ public final class Native {
                 customFonts = new ArrayList<>();
                 for (int i = 0; i < fontsArray.size(); i++) {
                     BMap<BString, Object> fontRecord = (BMap<BString, Object>) fontsArray.get(i);
-                    String family = getString(fontRecord, ConversionOptions.KEY_FONT_FAMILY, "");
+                    String family = fontRecord.get(ConversionOptions.KEY_FONT_FAMILY).toString();
                     byte[] content = ((BArray) fontRecord.get(
                             ConversionOptions.KEY_FONT_CONTENT)).getBytes();
                     boolean bold = getBool(fontRecord, ConversionOptions.KEY_FONT_BOLD);
@@ -79,14 +78,10 @@ public final class Native {
             // Read margins from nested PageMargins record (always present — has default)
             BMap<BString, Object> margins = (BMap<BString, Object>) options.get(
                     ConversionOptions.KEY_MARGINS);
-            float marginTop = getFloat(margins, ConversionOptions.KEY_MARGIN_TOP,
-                    ConversionOptions.DEFAULT_MARGIN);
-            float marginRight = getFloat(margins, ConversionOptions.KEY_MARGIN_RIGHT,
-                    ConversionOptions.DEFAULT_MARGIN);
-            float marginBottom = getFloat(margins, ConversionOptions.KEY_MARGIN_BOTTOM,
-                    ConversionOptions.DEFAULT_MARGIN);
-            float marginLeft = getFloat(margins, ConversionOptions.KEY_MARGIN_LEFT,
-                    ConversionOptions.DEFAULT_MARGIN);
+            float marginTop = getFloat(margins, ConversionOptions.KEY_MARGIN_TOP);
+            float marginRight = getFloat(margins, ConversionOptions.KEY_MARGIN_RIGHT);
+            float marginBottom = getFloat(margins, ConversionOptions.KEY_MARGIN_BOTTOM);
+            float marginLeft = getFloat(margins, ConversionOptions.KEY_MARGIN_LEFT);
 
             // Resolve page dimensions: string (preset) or record (custom {width, height})
             float pageWidth;
@@ -95,10 +90,8 @@ public final class Native {
             Object pageSizeObj = options.get(ConversionOptions.KEY_PAGE_SIZE);
             if (TypeUtils.getType(pageSizeObj).getTag() == TypeTags.RECORD_TYPE_TAG) {
                 BMap<BString, Object> customSize = (BMap<BString, Object>) pageSizeObj;
-                pageWidth = getFloat(customSize, ConversionOptions.KEY_PAGE_WIDTH,
-                        ConversionOptions.A4_WIDTH);
-                pageHeight = getFloat(customSize, ConversionOptions.KEY_PAGE_HEIGHT,
-                        ConversionOptions.A4_HEIGHT);
+                pageWidth = getFloat(customSize, ConversionOptions.KEY_PAGE_WIDTH);
+                pageHeight = getFloat(customSize, ConversionOptions.KEY_PAGE_HEIGHT);
             } else {
                 String pageSizeName = ((BString) pageSizeObj).getValue();
                 float[] dims = ConversionOptions.pageDimensions(pageSizeName);
@@ -203,12 +196,8 @@ public final class Native {
 
     // --- BMap helper methods ---
 
-    private static float getFloat(BMap<BString, Object> map, BString key, float defaultValue) {
-        Object value = map.get(key);
-        if (value == null) {
-            return defaultValue;
-        }
-        return ((Double) value).floatValue();
+    private static float getFloat(BMap<BString, Object> map, BString key) {
+        return ((Double) map.get(key)).floatValue();
     }
 
     private static String getString(BMap<BString, Object> map, BString key, String defaultValue) {
@@ -220,11 +209,7 @@ public final class Native {
     }
 
     private static boolean getBool(BMap<BString, Object> map, BString key) {
-        Object value = map.get(key);
-        if (value != null) {
-            return (Boolean) value;
-        }
-        return false;
+        return (Boolean) map.get(key);
     }
 
     private static Integer getInt(BMap<BString, Object> map, BString key) {

@@ -68,9 +68,9 @@ The `pdf` module provides practical examples illustrating usage in various scena
 
 1. [HTML to PDF conversion](https://github.com/ballerina-platform/module-ballerina-pdf/tree/main/examples/html-to-pdf/) — Reads an HTML report file and converts it to PDF.
 
-## Known limitations
+## Known limitations (HTML-to-PDF conversion)
 
-The HTML/CSS renderer supports CSS 2.1 core layout (block, inline, float, table, absolute/relative positioning) but has gaps compared to browser rendering. Key limitations:
+The `parseHtml` function uses a custom HTML/CSS renderer that supports CSS 2.1 core layout (block, inline, float, table, absolute/relative positioning) but has gaps compared to browser rendering. Key limitations:
 
 - **Layout:** No flexbox, CSS Grid, or multi-column layout. No `position: fixed` or `position: sticky`.
 - **Tables:** No `rowspan`, no `<caption>`, no `table-layout: fixed` algorithm.
