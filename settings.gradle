@@ -9,6 +9,7 @@ pluginManagement {
     plugins {
         id "net.researchgate.release" version "${releasePluginVersion}"
         id "io.ballerina.plugin" version "${ballerinaGradlePluginVersion}"
+        id "de.undercouch.download" version "${downloadPluginVersion}"
     }
 
     repositories {
@@ -30,8 +31,13 @@ plugins {
 rootProject.name = 'module-ballerina-pdf'
 
 include ':pdf-ballerina'
-
 project(':pdf-ballerina').projectDir = file("ballerina")
+
+include ':pdf-native'
+project(':pdf-native').projectDir = file("native")
+
+include ':checkstyle'
+project(':checkstyle').projectDir = file("build-config${File.separator}checkstyle")
 
 gradleEnterprise {
     buildScan {

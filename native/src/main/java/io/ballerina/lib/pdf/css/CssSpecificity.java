@@ -1,0 +1,56 @@
+/*
+ * Copyright (c) 2026, WSO2 LLC. (http://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package io.ballerina.lib.pdf.css;
+
+/**
+ * CSS specificity tuple for every selector: (inline, ids, classes, tags).
+ * When two CSS rules apply to the same selector, higher specificity wins in the cascade.
+ *
+ * <p>It is a measure how specific you are, about which element you mean the rule to apply to.
+ * Higher specificity means more specific and thus, wins in the cascade.
+ *
+ * @param inline  inline style weight (1 if from style attribute, 0 otherwise)
+ * @param ids     number of ID selectors
+ * @param classes number of class, attribute, and pseudo-class selectors
+ * @param tags    number of type and pseudo-element selectors
+ */
+public record CssSpecificity(int inline, int ids, int classes, int tags) implements Comparable<CssSpecificity> {
+
+    // the following are just constants for convenience.
+    public static final CssSpecificity ZERO = new CssSpecificity(0, 0, 0, 0);
+    public static final CssSpecificity INLINE = new CssSpecificity(1, 0, 0, 0);
+    public static final CssSpecificity ID = new CssSpecificity(0, 1, 0, 0);
+    // other selectors have different specificity tuples.
+
+    // Specifity comparison works left-to-right: inline > ids > classes > tags.
+    @Override
+    public int compareTo(CssSpecificity other) {
+        // Compare inline first, then ids, then classes, then tags.
+        if (this.inline != other.inline) {
+            return Integer.compare(this.inline, other.inline);
+        }
+        if (this.ids != other.ids) {
+            return Integer.compare(this.ids, other.ids);
+        }
+        if (this.classes != other.classes) {
+            return Integer.compare(this.classes, other.classes);
+        }
+        return Integer.compare(this.tags, other.tags);
+    }
+}

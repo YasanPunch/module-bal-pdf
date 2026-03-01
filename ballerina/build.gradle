@@ -24,8 +24,36 @@ plugins {
 
 description = 'Pdf - Ballerina'
 
+configurations {
+    externalJars
+}
+
+dependencies {
+    externalJars(group: 'org.apache.pdfbox', name: 'pdfbox', version: "${pdfboxVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'org.apache.pdfbox', name: 'pdfbox-io', version: "${pdfboxVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'org.apache.pdfbox', name: 'fontbox', version: "${pdfboxVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'commons-logging', name: 'commons-logging', version: "${commonsLoggingVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'org.jsoup', name: 'jsoup', version: "${jsoupVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'org.slf4j', name: 'slf4j-jdk14', version: "${slf4jVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'org.htmlunit', name: 'htmlunit-cssparser', version: "${htmlunitCssparserVersion}") {
+        transitive = false
+    }
+}
+
 def packageName = "pdf"
-def packageOrg = "ballerinax"
+def packageOrg = "ballerina"
 def tomlVersion = stripBallerinaExtensionVersion("${project.version}")
 def ballerinaTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/Ballerina.toml")
 def ballerinaTomlFile = new File("$project.projectDir/Ballerina.toml")
@@ -47,18 +75,26 @@ def stripBallerinaExtensionVersion(String extVersion) {
 ballerina {
     packageOrganization = packageOrg
     module = packageName
+    langVersion = project.ballerinaLangVersion
     testCoverageParam = "--code-coverage --coverage-format=xml"
-    isConnector = true
-    platform = "any"
+    isConnector = false
+    platform = "java21"
 }
 
 task updateTomlFiles {
     doLast {
         def newBallerinaToml = ballerinaTomlFilePlaceHolder.text.replace("@project.version@", project.version)
         newBallerinaToml = newBallerinaToml.replace("@toml.version@", tomlVersion)
+        newBallerinaToml = newBallerinaToml.replace("@pdfbox.version@", project.pdfboxVersion)
+        newBallerinaToml = newBallerinaToml.replace("@commons.logging.version@", project.commonsLoggingVersion)
+        newBallerinaToml = newBallerinaToml.replace("@jsoup.version@", project.jsoupVersion)
+        newBallerinaToml = newBallerinaToml.replace("@slf4j.version@", project.slf4jVersion)
+        newBallerinaToml = newBallerinaToml.replace("@htmlunit.cssparser.version@", project.htmlunitCssparserVersion)
         ballerinaTomlFile.text = newBallerinaToml
     }
 }
+
+updateTomlFiles.dependsOn copyStdlibs
 
 task commitTomlFiles {
     doLast {
@@ -73,28 +109,12 @@ task commitTomlFiles {
     }
 }
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            artifact source: createArtifactZip, extension: 'zip'
-        }
-    }
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/ballerina-platform/module-${packageOrg}-${packageName}")
-            credentials {
-                username = System.getenv("publishUser")
-                password = System.getenv("publishPAT")
-            }
-        }
-    }
-}
-
 clean {
     delete 'build'
+    delete 'lib'
 }
 
-build.dependsOn "generatePomFileForMavenPublication"
+build.dependsOn ":pdf-native:build"
+test.dependsOn ":pdf-native:build"
 publishToMavenLocal.dependsOn build
 publish.dependsOn build

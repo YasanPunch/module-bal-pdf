@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Pinnacle Analytics — Consumer Credit Report</title>
+<style>
+  body {
+    font-family: 'Liberation Sans', Arial, sans-serif;
+    font-size: 11px;
+    color: #2c3e50;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.45;
+  }
+
+  /* Header */
+  .report-header {
+    background-color: #1a365d;
+    color: #ffffff;
+    padding: 18px 24px;
+    margin-bottom: 20px;
+  }
+  .report-header .company-name {
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .report-header .tagline {
+    font-size: 10px;
+    color: #a0c4ff;
+    margin-top: 4px;
+  }
+  .report-header .report-title {
+    font-size: 16px;
+    margin-top: 12px;
+    font-weight: normal;
+  }
+  .report-header .report-meta {
+    font-size: 10px;
+    color: #cbd5e0;
+    margin-top: 4px;
+  }
+
+  h2 {
+    font-size: 15px;
+    color: #1a365d;
+    border-bottom: 2px solid #2c5282;
+    padding-bottom: 4px;
+    margin-top: 24px;
+    margin-bottom: 10px;
+  }
+
+  /* Consumer info table */
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+  }
+  .info-table td {
+    padding: 5px 10px;
+    font-size: 11px;
+    border: 1px solid #e2e8f0;
+  }
+  .info-table .label {
+    background-color: #edf2f7;
+    font-weight: bold;
+    width: 30%;
+    color: #2d3748;
+  }
+
+  /* Score section */
+  .score-section {
+    text-align: center;
+    margin: 20px 0;
+  }
+  .score-box {
+    display: inline-block;
+    width: 120px;
+    padding: 20px 10px;
+    background-color: #276749;
+    color: #ffffff;
+    font-size: 40px;
+    font-weight: bold;
+    border-radius: 0;
+  }
+  .score-label {
+    font-size: 12px;
+    color: #4a5568;
+    margin-top: 6px;
+  }
+  .score-range {
+    margin-top: 10px;
+    font-size: 10px;
+    color: #718096;
+  }
+  .range-bar {
+    height: 10px;
+    width: 300px;
+    margin: 6px auto;
+    background-color: #e2e8f0;
+    position: relative;
+  }
+  .range-fill {
+    height: 10px;
+    width: 75%;
+    background-color: #276749;
+  }
+
+  /* Data tables */
+  table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    font-size: 11px;
+  }
+  table.data-table th {
+    background-color: #2c5282;
+    color: #ffffff;
+    padding: 6px 10px;
+    text-align: left;
+    font-weight: bold;
+    font-size: 10px;
+    text-transform: uppercase;
+  }
+  table.data-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  table.data-table tr:nth-child(even) td {
+    background-color: #f7fafc;
+  }
+  table.data-table tr:nth-child(odd) td {
+    background-color: #ffffff;
+  }
+
+  /* Status badges */
+  .status-active {
+    color: #276749;
+    font-weight: bold;
+  }
+  .status-closed {
+    color: #718096;
+  }
+  .status-overdue {
+    color: #c53030;
+    font-weight: bold;
+  }
+
+  /* Summary boxes */
+  .summary-row {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  .summary-box {
+    display: inline-block;
+    width: 22%;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #e2e8f0;
+    vertical-align: top;
+    margin-right: 2%;
+  }
+  .summary-box:last-child {
+    margin-right: 0;
+  }
+  .summary-box .value {
+    font-size: 22px;
+    font-weight: bold;
+    color: #1a365d;
+  }
+  .summary-box .desc {
+    font-size: 10px;
+    color: #718096;
+    margin-top: 4px;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 30px;
+    padding-top: 12px;
+    border-top: 1px solid #cbd5e0;
+    font-size: 9px;
+    color: #a0aec0;
+  }
+  .footer .disclaimer {
+    margin-bottom: 6px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Report Header -->
+<div class="report-header">
+  <div class="company-name">Pinnacle Analytics</div>
+  <div class="tagline">Consumer Credit Information Bureau</div>
+  <div class="report-title">Consumer Credit Report</div>
+  <div class="report-meta">Report ID: RPT-2025-048371 | Generated: 15-Jan-2025 | Version: 3.2</div>
+</div>
+
+<!-- Consumer Information -->
+<h2>Consumer Information</h2>
+<table class="info-table">
+  <tr><td class="label">Full Name</td><td>Jordan A. Mitchell</td></tr>
+  <tr><td class="label">Consumer ID</td><td>CID-88204756</td></tr>
+  <tr><td class="label">Date of Birth</td><td>12-Mar-1987</td></tr>
+  <tr><td class="label">Address</td><td>742 Birchwood Lane, Riverdale, IL 60827</td></tr>
+  <tr><td class="label">Phone</td><td>(555) 814-2390</td></tr>
+  <tr><td class="label">Report Date</td><td>15-Jan-2025</td></tr>
+</table>
+
+<!-- Credit Score -->
+<h2>Credit Score</h2>
+<div class="score-section">
+  <div class="score-box">754</div>
+  <div class="score-label">Pinnacle Credit Score</div>
+  <div class="range-bar"><div class="range-fill"></div></div>
+  <div class="score-range">Score Range: 300 &ndash; 900 | Rating: Good</div>
+</div>
+
+<!-- Account Summary -->
+<h2>Account Summary</h2>
+<div class="summary-row">
+  <div class="summary-box">
+    <div class="value">5</div>
+    <div class="desc">Total Accounts</div>
+  </div>
+  <div class="summary-box">
+    <div class="value">3</div>
+    <div class="desc">Active</div>
+  </div>
+  <div class="summary-box">
+    <div class="value">2</div>
+    <div class="desc">Closed</div>
+  </div>
+  <div class="summary-box">
+    <div class="value">0</div>
+    <div class="desc">Delinquent</div>
+  </div>
+</div>
+
+<!-- Account Details -->
+<h2>Account Details</h2>
+<table class="data-table">
+  <tr>
+    <th>Account</th>
+    <th>Institution</th>
+    <th>Type</th>
+    <th>Opened</th>
+    <th>Balance</th>
+    <th>Limit</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>XXXX-4821</td>
+    <td>Crestview National Bank</td>
+    <td>Credit Card</td>
+    <td>08-Jun-2019</td>
+    <td>$2,340</td>
+    <td>$15,000</td>
+    <td class="status-active">Active</td>
+  </tr>
+  <tr>
+    <td>XXXX-7193</td>
+    <td>Summit Federal Credit Union</td>
+    <td>Auto Loan</td>
+    <td>14-Feb-2021</td>
+    <td>$8,712</td>
+    <td>$24,000</td>
+    <td class="status-active">Active</td>
+  </tr>
+  <tr>
+    <td>XXXX-3056</td>
+    <td>Meridian Home Lending</td>
+    <td>Mortgage</td>
+    <td>01-Nov-2018</td>
+    <td>$187,430</td>
+    <td>$250,000</td>
+    <td class="status-active">Active</td>
+  </tr>
+  <tr>
+    <td>XXXX-6284</td>
+    <td>Atlas Financial Services</td>
+    <td>Personal Loan</td>
+    <td>20-Sep-2020</td>
+    <td>$0</td>
+    <td>$10,000</td>
+    <td class="status-closed">Closed</td>
+  </tr>
+  <tr>
+    <td>XXXX-1547</td>
+    <td>Crestview National Bank</td>
+    <td>Credit Card</td>
+    <td>03-Apr-2017</td>
+    <td>$0</td>
+    <td>$8,000</td>
+    <td class="status-closed">Closed</td>
+  </tr>
+</table>
+
+<!-- Payment History -->
+<h2>Payment History (Last 12 Months)</h2>
+<table class="data-table">
+  <tr>
+    <th>Account</th>
+    <th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>May</th><th>Jun</th>
+    <th>Jul</th><th>Aug</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th>
+  </tr>
+  <tr>
+    <td>XXXX-4821</td>
+    <td>OK</td><td>OK</td><td>OK</td><td>OK</td><td>OK</td><td>OK</td>
+    <td>OK</td><td>OK</td><td>OK</td><td>OK</td><td>OK</td><td>OK</td>
+  </tr>
+  <tr>
+    <td>XXXX-7193</td>
+    <td>OK</td><td>OK</td><td>OK</td><td>OK</td><td>OK</td><td>OK</td>
+    <td>OK</td><td>OK</td><td>OK</td><td>OK</td><td>OK</td><td>OK</td>
+  </tr>
+  <tr>
+    <td>XXXX-3056</td>
+    <td>OK</td><td>OK</td><td>OK</td><td>OK</td><td>OK</td><td>OK</td>
+    <td>OK</td><td>OK</td><td>OK</td><td>OK</td><td>OK</td><td>OK</td>
+  </tr>
+</table>
+
+<!-- Enquiry History -->
+<h2>Enquiry History</h2>
+<table class="data-table">
+  <tr>
+    <th>Date</th>
+    <th>Institution</th>
+    <th>Purpose</th>
+    <th>Amount</th>
+  </tr>
+  <tr>
+    <td>10-Dec-2024</td>
+    <td>Horizon Credit Corp</td>
+    <td>Credit Card Application</td>
+    <td>$20,000</td>
+  </tr>
+  <tr>
+    <td>22-Aug-2024</td>
+    <td>Crestview National Bank</td>
+    <td>Credit Limit Increase</td>
+    <td>$5,000</td>
+  </tr>
+  <tr>
+    <td>05-Mar-2024</td>
+    <td>Summit Federal Credit Union</td>
+    <td>Auto Loan Refinance</td>
+    <td>$18,000</td>
+  </tr>
+  <tr>
+    <td>18-Jan-2024</td>
+    <td>Atlas Financial Services</td>
+    <td>Personal Loan</td>
+    <td>$12,000</td>
+  </tr>
+</table>
+
+<!-- Footer -->
+<div class="footer">
+  <div class="disclaimer">
+    DISCLAIMER: This report is provided for informational purposes only. Pinnacle Analytics does not
+    guarantee the accuracy or completeness of the information contained herein. The credit score and
+    account information are based on data reported by participating financial institutions as of the
+    report date. Consumers have the right to dispute any inaccurate information by contacting
+    Pinnacle Analytics at disputes@pinnacle-analytics.example.com.
+  </div>
+  <div>
+    Pinnacle Analytics Consumer Credit Information Bureau | 1200 Commerce Drive, Suite 400, Chicago, IL 60601 |
+    Tel: (555) 900-1234 | www.pinnacle-analytics.example.com
+  </div>
+  <div style="margin-top: 6px;">
+    Confidential &mdash; Authorized recipients only. Unauthorized distribution is prohibited.
+    &copy; 2025 Pinnacle Analytics. All rights reserved.
+  </div>
+</div>
+
+</body>
+</html>

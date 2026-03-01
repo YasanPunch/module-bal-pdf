@@ -1,11 +1,11 @@
 [package]
-distribution = "2201.13.0"
-org = "ballerinax"
+distribution = "2201.13.1"
+org = "ballerina"
 name = "pdf"
 version = "@toml.version@"
 license = ["Apache-2.0"]
 authors = ["Ballerina"]
-keywords = [] # TODO: Add keywords
+keywords = ["pdf", "html", "html-to-pdf", "converter", "document"]
 # icon = "icon.png" # TODO: Add icon
 repository = "https://github.com/ballerina-platform/module-ballerina-pdf"
 
@@ -13,4 +13,52 @@ repository = "https://github.com/ballerina-platform/module-ballerina-pdf"
 observabilityIncluded = true
 
 [platform.java21]
-graalvmCompatible = true
+graalvmCompatible = false
+
+[[platform.java21.dependency]]
+groupId = "io.ballerina.lib"
+artifactId = "pdf-native"
+version = "@toml.version@"
+path = "../native/build/libs/pdf-native-@project.version@.jar"
+
+[[platform.java21.dependency]]
+groupId = "org.apache.pdfbox"
+artifactId = "pdfbox"
+version = "@pdfbox.version@"
+path = "./lib/pdfbox-@pdfbox.version@.jar"
+
+[[platform.java21.dependency]]
+groupId = "org.apache.pdfbox"
+artifactId = "pdfbox-io"
+version = "@pdfbox.version@"
+path = "./lib/pdfbox-io-@pdfbox.version@.jar"
+
+[[platform.java21.dependency]]
+groupId = "org.apache.pdfbox"
+artifactId = "fontbox"
+version = "@pdfbox.version@"
+path = "./lib/fontbox-@pdfbox.version@.jar"
+
+[[platform.java21.dependency]]
+groupId = "commons-logging"
+artifactId = "commons-logging"
+version = "@commons.logging.version@"
+path = "./lib/commons-logging-@commons.logging.version@.jar"
+
+[[platform.java21.dependency]]
+groupId = "org.jsoup"
+artifactId = "jsoup"
+version = "@jsoup.version@"
+path = "./lib/jsoup-@jsoup.version@.jar"
+
+[[platform.java21.dependency]]
+groupId = "org.slf4j"
+artifactId = "slf4j-jdk14"
+version = "@slf4j.version@"
+path = "./lib/slf4j-jdk14-@slf4j.version@.jar"
+
+[[platform.java21.dependency]]
+groupId = "org.htmlunit"
+artifactId = "htmlunit-cssparser"
+version = "@htmlunit.cssparser.version@"
+path = "./lib/htmlunit-cssparser-@htmlunit.cssparser.version@.jar"
