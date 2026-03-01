@@ -6,7 +6,7 @@ version = "0.9.0"
 license = ["Apache-2.0"]
 authors = ["Ballerina"]
 keywords = ["pdf", "html", "html-to-pdf", "converter", "document"]
-# icon = "icon.png" 
+# icon = "icon.png" # TODO: Add icon
 repository = "https://github.com/ballerina-platform/module-ballerina-pdf"
 
 [build-options]
