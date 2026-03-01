@@ -96,4 +96,12 @@ test {
     testLogging {
         events "passed", "skipped", "failed"
     }
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+    }
 }
