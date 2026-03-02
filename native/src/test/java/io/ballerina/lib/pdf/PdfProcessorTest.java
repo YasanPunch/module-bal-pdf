@@ -18,10 +18,18 @@
 
 package io.ballerina.lib.pdf;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
+import static io.ballerina.lib.pdf.ConversionOptions.A4_HEIGHT;
+import static io.ballerina.lib.pdf.ConversionOptions.A4_WIDTH;
+import static io.ballerina.lib.pdf.ConversionOptions.DEFAULT_FALLBACK_FONT_SIZE;
+import static io.ballerina.lib.pdf.ConversionOptions.DEFAULT_MARGIN;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -48,5 +56,61 @@ class PdfProcessorTest {
         IOException ex = assertThrows(IOException.class,
                 () -> PdfProcessor.loadFromUrl("not a valid uri at all"));
         assertTrue(ex.getMessage().contains("Invalid URL"));
+    }
+
+    // --- loadFromBytes ---
+
+    @Test
+    void loadFromBytesValidPdf() throws Exception {
+        // Generate a real PDF via the converter, then load it back
+        ConversionOptions opts = new ConversionOptions(
+                DEFAULT_FALLBACK_FONT_SIZE, A4_WIDTH, A4_HEIGHT,
+                DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN,
+                null, null, null);
+        Document doc = new HtmlPreprocessor().preprocess("<html><body><p>Test</p></body></html>");
+        byte[] pdfBytes = new HtmlToPdfConverter().convert(doc, opts);
+
+        try (PDDocument loaded = PdfProcessor.loadFromBytes(pdfBytes)) {
+            assertNotNull(loaded);
+            assertTrue(loaded.getNumberOfPages() > 0);
+        }
+    }
+
+    @Test
+    void loadFromBytesRejectsTooShort() {
+        IOException ex = assertThrows(IOException.class,
+                () -> PdfProcessor.loadFromBytes(new byte[]{0x01, 0x02}));
+        assertTrue(ex.getMessage().contains("empty or too short"));
+    }
+
+    @Test
+    void loadFromBytesRejectsNull() {
+        IOException ex = assertThrows(IOException.class,
+                () -> PdfProcessor.loadFromBytes(null));
+        assertTrue(ex.getMessage().contains("empty or too short"));
+    }
+
+    @Test
+    void loadFromBytesRejectsNonPdf() {
+        byte[] notPdf = "NOT A PDF FILE".getBytes(StandardCharsets.UTF_8);
+        IOException ex = assertThrows(IOException.class,
+                () -> PdfProcessor.loadFromBytes(notPdf));
+        assertTrue(ex.getMessage().contains("missing %PDF header"));
+    }
+
+    // --- loadFromFile ---
+
+    @Test
+    void loadFromFileRejectsNonPdfExtension() {
+        IOException ex = assertThrows(IOException.class,
+                () -> PdfProcessor.loadFromFile("/tmp/test.txt"));
+        assertTrue(ex.getMessage().contains("Unsupported file type"));
+    }
+
+    @Test
+    void loadFromFileRejectsMissingFile() {
+        IOException ex = assertThrows(IOException.class,
+                () -> PdfProcessor.loadFromFile("/tmp/nonexistent_file_12345.pdf"));
+        assertTrue(ex.getMessage().contains("File not found"));
     }
 }
