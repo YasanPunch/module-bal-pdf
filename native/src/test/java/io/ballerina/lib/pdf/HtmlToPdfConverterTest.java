@@ -469,6 +469,91 @@ class HtmlToPdfConverterTest {
         assertValidPdf(pdf);
     }
 
+    // ===== InlineLayoutEngine: additional coverage =====
+
+    @Test
+    void htmlWithImageInlineRendersValidPdf() throws Exception {
+        String base64Png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4"
+                + "nGP4z8BQDwAEgAF/pooBPQAAAABJRU5ErkJggg==";
+        byte[] pdf = convert("""
+                <html><body>
+                <p>Text before <img src="data:image/png;base64,%s" width="20" height="20" /> text after</p>
+                </body></html>""".formatted(base64Png));
+        assertValidPdf(pdf);
+        String text = extractText(pdf);
+        assertTrue(text.contains("Text before") && text.contains("text after"));
+    }
+
+    @Test
+    void htmlWithLongTextWrapsAcrossLines() throws Exception {
+        // Single paragraph long enough to force word-wrap on A4
+        String longWord = "word ".repeat(200);
+        byte[] pdf = convert("<html><body><p>" + longWord + "</p></body></html>");
+        assertValidPdf(pdf);
+    }
+
+    @Test
+    void htmlWithInlineBlockWidthAuto() throws Exception {
+        byte[] pdf = convert("""
+                <html><body>
+                <div style="display: inline-block; border: 1px solid black;">
+                  <p>Auto-width inline block with variable content length</p>
+                </div>
+                <div style="display: inline-block; border: 1px solid black;">
+                  <p>Short</p>
+                </div>
+                </body></html>""");
+        assertValidPdf(pdf);
+    }
+
+    @Test
+    void htmlWithBrInMiddleOfText() throws Exception {
+        byte[] pdf = convert("""
+                <html><body>
+                <span>Before break<br/>After break in same span</span>
+                </body></html>""");
+        assertValidPdf(pdf);
+        String text = extractText(pdf);
+        assertTrue(text.contains("Before break") && text.contains("After break"));
+    }
+
+    // ===== BlockFormattingContext: additional coverage =====
+
+    @Test
+    void htmlWithFloatMinWidth() throws Exception {
+        byte[] pdf = convert("""
+                <html><body>
+                <div style="float: left; min-width: 200px; background: #eee;">
+                Float with min-width</div>
+                <p>Text flowing beside the float.</p>
+                </body></html>""");
+        assertValidPdf(pdf);
+    }
+
+    @Test
+    void htmlWithAbsolutePositionRightBottom() throws Exception {
+        byte[] pdf = convert("""
+                <html><body>
+                <div style="position: relative; width: 400px; height: 300px; border: 1px solid black;">
+                  <div style="position: absolute; right: 10px; bottom: 10px;">
+                  Bottom-right positioned</div>
+                </div>
+                </body></html>""");
+        assertValidPdf(pdf);
+    }
+
+    @Test
+    void htmlWithRelativePositionTopWinsBottom() throws Exception {
+        // When both top and bottom are set, top takes precedence (CSS spec)
+        byte[] pdf = convert("""
+                <html><body>
+                <div style="position: relative; top: 20px; bottom: 50px;">
+                Top wins over bottom</div>
+                </body></html>""");
+        assertValidPdf(pdf);
+        assertTrue(extractText(pdf).contains("Top wins over bottom"));
+    }
+
     @Test
     void htmlWithLetterAndWordSpacingCombined() throws Exception {
         byte[] pdf = convert("""

@@ -18,6 +18,7 @@
 
 package io.ballerina.lib.pdf;
 
+import io.ballerina.runtime.api.values.BString;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
@@ -96,6 +97,96 @@ class PdfProcessorTest {
         IOException ex = assertThrows(IOException.class,
                 () -> PdfProcessor.loadFromBytes(notPdf));
         assertTrue(ex.getMessage().contains("missing %PDF header"));
+    }
+
+    // --- toImages ---
+
+    @Test
+    void toImagesReturnsBase64PngPerPage() throws Exception {
+        ConversionOptions opts = new ConversionOptions(
+                DEFAULT_FALLBACK_FONT_SIZE, A4_WIDTH, A4_HEIGHT,
+                DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN,
+                null, null, null);
+        Document doc = new HtmlPreprocessor().preprocess("<html><body><p>Image test</p></body></html>");
+        byte[] pdfBytes = new HtmlToPdfConverter().convert(doc, opts);
+
+        try (PDDocument loaded = PdfProcessor.loadFromBytes(pdfBytes)) {
+            BString[] images = PdfProcessor.toImages(loaded);
+            assertNotNull(images);
+            assertTrue(images.length > 0, "Should produce at least one image");
+            // Verify each entry is valid Base64
+            for (BString img : images) {
+                assertNotNull(img);
+                byte[] decoded = java.util.Base64.getDecoder().decode(img.getValue());
+                assertTrue(decoded.length > 0, "Decoded image bytes should not be empty");
+            }
+        }
+    }
+
+    @Test
+    void toImagesMultiplePages() throws Exception {
+        StringBuilder sb = new StringBuilder("<html><body>");
+        for (int i = 0; i < 200; i++) {
+            sb.append("<p>Line ").append(i).append(" to fill pages.</p>");
+        }
+        sb.append("</body></html>");
+
+        ConversionOptions opts = new ConversionOptions(
+                DEFAULT_FALLBACK_FONT_SIZE, A4_WIDTH, A4_HEIGHT,
+                DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN,
+                null, null, null);
+        Document doc = new HtmlPreprocessor().preprocess(sb.toString());
+        byte[] pdfBytes = new HtmlToPdfConverter().convert(doc, opts);
+
+        try (PDDocument loaded = PdfProcessor.loadFromBytes(pdfBytes)) {
+            int pageCount = loaded.getNumberOfPages();
+            assertTrue(pageCount > 1, "Should be multi-page");
+            BString[] images = PdfProcessor.toImages(loaded);
+            assertTrue(images.length == pageCount, "Image count should match page count");
+        }
+    }
+
+    // --- extractText ---
+
+    @Test
+    void extractTextReturnsTextPerPage() throws Exception {
+        ConversionOptions opts = new ConversionOptions(
+                DEFAULT_FALLBACK_FONT_SIZE, A4_WIDTH, A4_HEIGHT,
+                DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN,
+                null, null, null);
+        Document doc = new HtmlPreprocessor().preprocess(
+                "<html><body><p>Extract this text</p></body></html>");
+        byte[] pdfBytes = new HtmlToPdfConverter().convert(doc, opts);
+
+        try (PDDocument loaded = PdfProcessor.loadFromBytes(pdfBytes)) {
+            BString[] pages = PdfProcessor.extractText(loaded);
+            assertNotNull(pages);
+            assertTrue(pages.length > 0, "Should have at least one page");
+            assertTrue(pages[0].getValue().contains("Extract this text"));
+        }
+    }
+
+    @Test
+    void extractTextMultiplePages() throws Exception {
+        StringBuilder sb = new StringBuilder("<html><body>");
+        for (int i = 0; i < 200; i++) {
+            sb.append("<p>Line ").append(i).append(" to fill pages.</p>");
+        }
+        sb.append("</body></html>");
+
+        ConversionOptions opts = new ConversionOptions(
+                DEFAULT_FALLBACK_FONT_SIZE, A4_WIDTH, A4_HEIGHT,
+                DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN, DEFAULT_MARGIN,
+                null, null, null);
+        Document doc = new HtmlPreprocessor().preprocess(sb.toString());
+        byte[] pdfBytes = new HtmlToPdfConverter().convert(doc, opts);
+
+        try (PDDocument loaded = PdfProcessor.loadFromBytes(pdfBytes)) {
+            int pageCount = loaded.getNumberOfPages();
+            assertTrue(pageCount > 1, "Should be multi-page");
+            BString[] pages = PdfProcessor.extractText(loaded);
+            assertTrue(pages.length == pageCount, "Text array length should match page count");
+        }
     }
 
     // --- loadFromFile ---
