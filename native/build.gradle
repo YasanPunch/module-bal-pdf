@@ -104,14 +104,4 @@ jacocoTestReport {
     reports {
         xml.required = true
     }
-    // Exclude Ballerina-interop classes that require the Ballerina runtime for testing.
-    // These are covered by Ballerina integration tests (bal test) rather than JUnit.
-    classDirectories.setFrom(files(classDirectories.files.collect {
-        fileTree(dir: it, exclude: [
-            '**/Native.class',
-            '**/Native$*.class',
-            '**/ModuleUtils.class',
-            '**/PdfErrorCreator.class'
-        ])
-    }))
 }

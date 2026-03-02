@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -158,9 +159,7 @@ class FontManagerTest {
     void canEncodeHandlesExceptionGracefully() {
         PDFont font = fontManager.getDefaultFont();
         // Private Use Area character — font likely can't encode it, but should not throw
-        boolean result = FontManager.canEncode(font, '\uF8FF');
-        // Result can be true or false depending on font; the test verifies no exception is thrown
-        assertNotNull(Boolean.valueOf(result));
+        assertDoesNotThrow(() -> FontManager.canEncode(font, '\uF8FF'));
     }
 
     // --- measureText edge cases ---
