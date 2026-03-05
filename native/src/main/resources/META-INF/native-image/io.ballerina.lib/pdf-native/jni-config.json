@@ -313,27 +313,19 @@
   },
   {
     "name": "java.lang.Boolean",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allDeclaredConstructors": true
+    "allPublicMethods": true
   },
   {
     "name": "java.lang.ClassLoader",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allDeclaredConstructors": true
+    "allPublicMethods": true
   },
   {
     "name": "java.lang.System",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allDeclaredConstructors": true
+    "allPublicMethods": true
   },
   {
     "name": "java.lang.Thread",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allDeclaredConstructors": true
+    "allPublicMethods": true
   },
   {
     "name": "javax.imageio.IIOException",
@@ -355,9 +347,7 @@
   },
   {
     "name": "jdk.internal.loader.ClassLoaders$PlatformClassLoader",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allDeclaredConstructors": true
+    "allPublicMethods": true
   },
   {
     "name": "sun.awt.AWTAutoShutdown",
