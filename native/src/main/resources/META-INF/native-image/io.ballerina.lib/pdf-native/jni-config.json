@@ -28,8 +28,8 @@
   {
     "name": "java.awt.GraphicsEnvironment$LocalGE",
     "allDeclaredFields": true,
-    "allPublicMethods": true,
-    "allPublicConstructors": true
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
   },
   {
     "name": "java.awt.Insets",
@@ -114,14 +114,14 @@
   {
     "name": "sun.awt.image.BufImgSurfaceData",
     "allDeclaredFields": true,
-    "allPublicMethods": true,
-    "allPublicConstructors": true
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
   },
   {
     "name": "sun.awt.image.BufImgSurfaceData$ICMColorData",
     "allDeclaredFields": true,
-    "allPublicMethods": true,
-    "allPublicConstructors": true
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
   },
   {
     "name": "sun.awt.image.ByteComponentRaster",
@@ -134,8 +134,8 @@
   {
     "name": "sun.awt.windows.WToolkit",
     "allDeclaredFields": true,
-    "allPublicMethods": true,
-    "allPublicConstructors": true
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
   },
   {
     "name": "sun.java2d.Disposer",
