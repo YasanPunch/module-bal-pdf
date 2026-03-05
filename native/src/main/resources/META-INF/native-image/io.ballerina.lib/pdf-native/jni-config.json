@@ -26,6 +26,12 @@
     "allPublicMethods": true
   },
   {
+    "name": "java.awt.GraphicsEnvironment$LocalGE",
+    "allDeclaredFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true
+  },
+  {
     "name": "java.awt.Insets",
     "allDeclaredFields": true,
     "allPublicMethods": true,
@@ -106,12 +112,30 @@
     "allPublicMethods": true
   },
   {
+    "name": "sun.awt.image.BufImgSurfaceData",
+    "allDeclaredFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true
+  },
+  {
+    "name": "sun.awt.image.BufImgSurfaceData$ICMColorData",
+    "allDeclaredFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true
+  },
+  {
     "name": "sun.awt.image.ByteComponentRaster",
     "allDeclaredFields": true
   },
   {
     "name": "sun.awt.image.IntegerComponentRaster",
     "allDeclaredFields": true
+  },
+  {
+    "name": "sun.awt.windows.WToolkit",
+    "allDeclaredFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true
   },
   {
     "name": "sun.java2d.Disposer",
