@@ -28,5 +28,50 @@
     "name": "org.apache.pdfbox.pdmodel.encryption.StandardSecurityHandler",
     "allDeclaredConstructors": true,
     "allPublicMethods": true
+  },
+  {
+    "name": "sun.java2d.loops.OpaqueCopyAnyToArgb",
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "sun.java2d.loops.OpaqueCopyArgbToAny",
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "sun.java2d.loops.SetDrawLineANY",
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "sun.java2d.loops.SetDrawPathANY",
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "sun.java2d.loops.SetDrawPolygonsANY",
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "sun.java2d.loops.SetDrawRectANY",
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "sun.java2d.loops.SetFillPathANY",
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "sun.java2d.loops.SetFillRectANY",
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "sun.java2d.loops.SetFillSpansANY",
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
   }
 ]
