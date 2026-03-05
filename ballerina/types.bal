@@ -50,12 +50,12 @@ public type PageMargins record {|
 # A custom font to register for PDF conversion.
 #
 # + family - CSS font-family name used to reference this font in HTML/CSS
-# + content - TTF font file content as bytes
+# + fontSource - Font source: a file path to a TTF file (string) or raw TTF bytes (byte[])
 # + bold - Whether this is a bold variant (default: false)
 # + italic - Whether this is an italic variant (default: false)
 public type Font record {|
     string family;
-    byte[] content;
+    string|byte[] fontSource;
     boolean bold = false;
     boolean italic = false;
 |};
@@ -71,7 +71,7 @@ public type Font record {|
 # + additionalCss - Additional CSS to inject into the document before conversion.
 #                   Use this for consumer-specific style overrides without modifying the HTML.
 # + customFonts - Custom fonts to register for the conversion. Each entry specifies the font family,
-#                 TTF content, and weight/style flags. CSS references the font via `font-family`.
+#                 font source (file path or TTF bytes), and weight/style flags. CSS references the font via `font-family`.
 # + maxPages - Maximum number of pages in the output PDF. Content is scaled to fit within
 #              this page limit. Must be greater than 0 when provided.
 public type ConversionOptions record {|

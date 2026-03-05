@@ -148,11 +148,29 @@ function testNegativeMarginReturnsRenderError() {
 @test:Config {}
 function testConversionWithCustomFont() returns error? {
     byte[] fontBytes = check io:fileReadBytes("tests/resources/LiberationSans-Regular.ttf");
-    Font[] fonts = [{family: "TestFont", content: fontBytes}];
+    Font[] fonts = [{family: "TestFont", fontSource: fontBytes}];
     byte[] pdf = check parseHtml(
         string `<html><head><style>body { font-family: 'TestFont'; }</style></head>
                 <body><p>Custom font rendering</p></body></html>`,
         customFonts = fonts
     );
     assertValidPdf(pdf, "Custom font conversion");
+}
+
+@test:Config {}
+function testConversionWithCustomFontPath() returns error? {
+    Font[] fonts = [{family: "TestFont", fontSource: "tests/resources/LiberationSans-Regular.ttf"}];
+    byte[] pdf = check parseHtml(
+        string `<html><head><style>body { font-family: 'TestFont'; }</style></head>
+                <body><p>Custom font from path</p></body></html>`,
+        customFonts = fonts
+    );
+    assertValidPdf(pdf, "Custom font from file path");
+}
+
+@test:Config {}
+function testConversionWithInvalidFontPathReturnsRenderError() {
+    Font[] fonts = [{family: "TestFont", fontSource: "nonexistent/font.ttf"}];
+    byte[]|Error result = parseHtml("<p>test</p>", customFonts = fonts);
+    test:assertTrue(result is RenderError, "Expected RenderError for invalid font path");
 }

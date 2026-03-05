@@ -1,0 +1,16 @@
+{
+  "resources": {
+    "includes": [
+      { "pattern": "org/apache/pdfbox/resources/.*" },
+      { "pattern": "org/apache/pdfbox/resources/afm/.*" },
+      { "pattern": "org/apache/pdfbox/resources/glyphlist/.*" },
+      { "pattern": "org/apache/pdfbox/resources/icc/.*" },
+      { "pattern": "org/apache/pdfbox/resources/text/.*" },
+      { "pattern": "org/apache/pdfbox/resources/ttf/.*" },
+      { "pattern": "org/apache/fontbox/cmap/.*" },
+      { "pattern": "org/apache/fontbox/unicode/.*" },
+      { "pattern": "META-INF/services/.*" },
+      { "pattern": "fonts/.*" }
+    ]
+  }
+}
