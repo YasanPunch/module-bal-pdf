@@ -979,6 +979,12 @@
     "allDeclaredConstructors": true
   },
   {
+    "name": "sun.java2d.windows.WindowsFlags",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
     "name": "sun.java2d.xr.XRSurfaceData",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
