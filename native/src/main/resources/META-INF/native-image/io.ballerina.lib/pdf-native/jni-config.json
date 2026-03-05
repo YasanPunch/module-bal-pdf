@@ -4,5 +4,11 @@
     "fields": [
       {"name": "nBits"}
     ]
+  },
+  {
+    "name": "java.awt.GraphicsEnvironment",
+    "methods": [
+      {"name": "isHeadless", "parameterTypes": []}
+    ]
   }
 ]
