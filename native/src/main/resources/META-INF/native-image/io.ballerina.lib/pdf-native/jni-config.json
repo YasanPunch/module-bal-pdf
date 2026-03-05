@@ -1,101 +1,62 @@
 [
   {
+    "name": "java.awt.Toolkit",
+    "allPublicMethods": true
+  },
+  {
     "name": "java.awt.image.ColorModel",
-    "fields": [
-      {"name": "colorSpace"},
-      {"name": "colorSpaceType"},
-      {"name": "isAlphaPremultiplied"},
-      {"name": "is_sRGB"},
-      {"name": "nBits"},
-      {"name": "numComponents"},
-      {"name": "pData"},
-      {"name": "supportsAlpha"},
-      {"name": "transparency"}
-    ],
-    "methods": [
-      {"name": "getRGBdefault", "parameterTypes": []}
-    ]
+    "allDeclaredFields": true,
+    "allPublicMethods": true
   },
   {
     "name": "java.awt.image.IndexColorModel",
-    "fields": [
-      {"name": "allgrayopaque"},
-      {"name": "map_size"},
-      {"name": "rgb"},
-      {"name": "transparent_index"}
-    ]
+    "allDeclaredFields": true,
+    "allPublicMethods": true
   },
   {
     "name": "java.awt.image.Raster",
-    "fields": [
-      {"name": "dataBuffer"},
-      {"name": "height"},
-      {"name": "minX"},
-      {"name": "minY"},
-      {"name": "numBands"},
-      {"name": "numDataElements"},
-      {"name": "sampleModel"},
-      {"name": "sampleModelTranslateX"},
-      {"name": "sampleModelTranslateY"},
-      {"name": "width"}
-    ]
+    "allDeclaredFields": true,
+    "allPublicMethods": true
   },
   {
     "name": "java.awt.image.SampleModel",
-    "fields": [
-      {"name": "height"},
-      {"name": "width"}
-    ],
-    "methods": [
-      {"name": "getPixels", "parameterTypes": ["int","int","int","int","int[]","java.awt.image.DataBuffer"]},
-      {"name": "setPixels", "parameterTypes": ["int","int","int","int","int[]","java.awt.image.DataBuffer"]}
-    ]
+    "allDeclaredFields": true,
+    "allPublicMethods": true
   },
   {
     "name": "java.awt.image.SinglePixelPackedSampleModel",
-    "fields": [
-      {"name": "bitMasks"},
-      {"name": "bitOffsets"},
-      {"name": "bitSizes"},
-      {"name": "maxBitSize"}
-    ]
+    "allDeclaredFields": true,
+    "allPublicMethods": true
   },
   {
     "name": "java.awt.image.BufferedImage",
-    "fields": [
-      {"name": "colorModel"},
-      {"name": "imageType"},
-      {"name": "raster"}
-    ],
-    "methods": [
-      {"name": "getRGB", "parameterTypes": ["int","int","int","int","int[]","int","int"]},
-      {"name": "setRGB", "parameterTypes": ["int","int","int","int","int[]","int","int"]}
-    ]
+    "allDeclaredFields": true,
+    "allPublicMethods": true
   },
   {
     "name": "sun.awt.image.ByteComponentRaster",
-    "fields": [
-      {"name": "data"},
-      {"name": "dataOffsets"},
-      {"name": "pixelStride"},
-      {"name": "scanlineStride"},
-      {"name": "type"}
-    ]
+    "allDeclaredFields": true
   },
   {
     "name": "sun.awt.image.IntegerComponentRaster",
-    "fields": [
-      {"name": "data"},
-      {"name": "dataOffsets"},
-      {"name": "pixelStride"},
-      {"name": "scanlineStride"},
-      {"name": "type"}
-    ]
+    "allDeclaredFields": true
   },
   {
     "name": "java.awt.GraphicsEnvironment",
-    "methods": [
-      {"name": "isHeadless", "parameterTypes": []}
-    ]
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.awt.Color",
+    "allDeclaredFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true
+  },
+  {
+    "name": "java.awt.color.ColorSpace",
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.awt.color.ICC_Profile",
+    "allPublicMethods": true
   }
 ]
