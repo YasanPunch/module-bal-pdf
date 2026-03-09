@@ -67,7 +67,7 @@ public class ConversionOptions {
 
     // Font record field keys
     public static final BString KEY_FONT_FAMILY = StringUtils.fromString("family");
-    public static final BString KEY_FONT_SOURCE = StringUtils.fromString("fontSource");
+    public static final BString KEY_FONT_CONTENT = StringUtils.fromString("content");
     public static final BString KEY_FONT_BOLD = StringUtils.fromString("bold");
     public static final BString KEY_FONT_ITALIC = StringUtils.fromString("italic");
 

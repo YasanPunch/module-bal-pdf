@@ -234,7 +234,8 @@ function testRendersCssSpecificity() returns error? {
 
 @test:Config {}
 function testRendersWithCustomFont() returns error? {
-    Font[] fonts = [{family: "TestFont", fontSource: "tests/resources/LiberationSans-Regular.ttf"}];
+    byte[] fontBytes = check io:fileReadBytes("tests/resources/LiberationSans-Regular.ttf");
+    Font[] fonts = [{family: "TestFont", content: fontBytes}];
     string html = string `<html><head><style>body { font-family: 'TestFont'; }</style></head>
         <body><p>Custom font text</p></body></html>`;
     byte[] pdf = check parseHtml(html, customFonts = fonts);

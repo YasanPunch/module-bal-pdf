@@ -27,9 +27,6 @@ import io.ballerina.runtime.api.values.BString;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.w3c.dom.Document;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,24 +67,11 @@ public final class Native {
                 for (int i = 0; i < fontsArray.size(); i++) {
                     BMap<BString, Object> fontRecord = (BMap<BString, Object>) fontsArray.get(i);
                     String family = fontRecord.get(ConversionOptions.KEY_FONT_FAMILY).toString();
-                    // source is string|byte[] — resolve file path or extract raw bytes
-                    Object sourceObj = fontRecord.get(ConversionOptions.KEY_FONT_SOURCE);
-                    byte[] fontBytes;
-                    if (TypeUtils.getType(sourceObj).getTag() == TypeTags.STRING_TAG) {
-                        String fontPath = ((BString) sourceObj).getValue();
-                        try {
-                            fontBytes = Files.readAllBytes(Path.of(fontPath));
-                        } catch (IOException e) {
-                            return PdfErrorCreator.renderError(
-                                    "Failed to read custom font file: " + fontPath
-                                            + ": " + e.getMessage(), e);
-                        }
-                    } else {
-                        fontBytes = ((BArray) sourceObj).getBytes();
-                    }
+                    byte[] content = ((BArray) fontRecord.get(
+                            ConversionOptions.KEY_FONT_CONTENT)).getBytes();
                     boolean bold = getBool(fontRecord, ConversionOptions.KEY_FONT_BOLD);
                     boolean italic = getBool(fontRecord, ConversionOptions.KEY_FONT_ITALIC);
-                    customFonts.add(new ConversionOptions.FontEntry(family, fontBytes, bold, italic));
+                    customFonts.add(new ConversionOptions.FontEntry(family, content, bold, italic));
                 }
             }
 
