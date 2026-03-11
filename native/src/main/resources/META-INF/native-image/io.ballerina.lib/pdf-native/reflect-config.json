@@ -1,13 +1,17 @@
 [
   {
     "name": "org.apache.pdfbox.pdmodel.documentinterchange.logicalstructure.PDParentTreeValue",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true
+    "methods": [
+      { "name": "<init>", "parameterTypes": ["org.apache.pdfbox.cos.COSArray"] },
+      { "name": "<init>", "parameterTypes": ["org.apache.pdfbox.cos.COSDictionary"] }
+    ]
   },
   {
     "name": "org.apache.pdfbox.pdmodel.encryption.StandardSecurityHandler",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true
+    "methods": [
+      { "name": "<init>", "parameterTypes": [] },
+      { "name": "<init>", "parameterTypes": ["org.apache.pdfbox.pdmodel.encryption.StandardProtectionPolicy"] }
+    ]
   },
   {
     "name": "sun.java2d.loops.OpaqueCopyAnyToArgb",
