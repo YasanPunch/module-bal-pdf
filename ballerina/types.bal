@@ -50,12 +50,12 @@ public type PageMargins record {|
 # A custom font to register for PDF conversion.
 #
 # + family - CSS font-family name used to reference this font in HTML/CSS
-# + content - TTF font file content as bytes
+# + fontSource - TTF font as a file path (string) or raw bytes (byte[])
 # + bold - Whether this is a bold variant (default: false)
 # + italic - Whether this is an italic variant (default: false)
 public type Font record {|
     string family;
-    byte[] content;
+    string|byte[] fontSource;
     boolean bold = false;
     boolean italic = false;
 |};

@@ -27,6 +27,8 @@ import io.ballerina.runtime.api.values.BString;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.w3c.dom.Document;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,11 +69,20 @@ public final class Native {
                 for (int i = 0; i < fontsArray.size(); i++) {
                     BMap<BString, Object> fontRecord = (BMap<BString, Object>) fontsArray.get(i);
                     String family = fontRecord.get(ConversionOptions.KEY_FONT_FAMILY).toString();
-                    byte[] content = ((BArray) fontRecord.get(
-                            ConversionOptions.KEY_FONT_CONTENT)).getBytes();
+
+                    // Resolve fontSource: string (file path) or byte[] (raw TTF bytes)
+                    Object fontSourceObj = fontRecord.get(ConversionOptions.KEY_FONT_SOURCE);
+                    byte[] fontBytes;
+                    if (TypeUtils.getType(fontSourceObj).getTag() == TypeTags.STRING_TAG) {
+                        String fontPath = ((BString) fontSourceObj).getValue();
+                        fontBytes = Files.readAllBytes(Path.of(fontPath));
+                    } else {
+                        fontBytes = ((BArray) fontSourceObj).getBytes();
+                    }
+
                     boolean bold = getBool(fontRecord, ConversionOptions.KEY_FONT_BOLD);
                     boolean italic = getBool(fontRecord, ConversionOptions.KEY_FONT_ITALIC);
-                    customFonts.add(new ConversionOptions.FontEntry(family, content, bold, italic));
+                    customFonts.add(new ConversionOptions.FontEntry(family, fontBytes, bold, italic));
                 }
             }
 
