@@ -488,18 +488,6 @@
     "allDeclaredConstructors": true
   },
   {
-    "name": "sun.awt.windows.WDesktopProperties",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allDeclaredConstructors": true
-  },
-  {
-    "name": "sun.awt.windows.WDialogPeer",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allDeclaredConstructors": true
-  },
-  {
     "name": "sun.awt.windows.WToolkit",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
