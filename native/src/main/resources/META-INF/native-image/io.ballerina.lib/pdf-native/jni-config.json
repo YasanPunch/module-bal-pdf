@@ -272,10 +272,6 @@
     "allPublicMethods": true
   },
   {
-    "name": "java.lang.System",
-    "allPublicMethods": true
-  },
-  {
     "name": "javax.imageio.IIOException",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
