@@ -252,6 +252,12 @@
     "allDeclaredConstructors": true
   },
   {
+    "name": "java.awt.image.ConvolveOp",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
     "name": "java.awt.image.DirectColorModel",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
@@ -259,6 +265,12 @@
   },
   {
     "name": "java.awt.image.IndexColorModel",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "java.awt.image.Kernel",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
     "allDeclaredConstructors": true
@@ -317,6 +329,18 @@
   },
   {
     "name": "javax.imageio.IIOException",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "javax.imageio.plugins.jpeg.JPEGHuffmanTable",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "javax.imageio.plugins.jpeg.JPEGQTable",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
     "allDeclaredConstructors": true
@@ -428,6 +452,18 @@
     "allDeclaredConstructors": true
   },
   {
+    "name": "sun.awt.image.DataBufferNative",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "sun.awt.image.GifImageDecoder",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
     "name": "sun.awt.image.ImageRepresentation",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
@@ -483,6 +519,30 @@
   },
   {
     "name": "sun.awt.image.VolatileSurfaceManager",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "sun.awt.image.WritableRasterNative",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "sun.awt.windows.WComponentPeer",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "sun.awt.windows.WDataTransferer",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "sun.awt.windows.WDefaultFontCharset",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
     "allDeclaredConstructors": true
