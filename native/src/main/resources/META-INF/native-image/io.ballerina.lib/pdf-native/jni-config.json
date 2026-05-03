@@ -24,6 +24,12 @@
     "allDeclaredConstructors": true
   },
   {
+    "name": "java.awt.AWTEvent",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
     "name": "java.awt.AlphaComposite",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
@@ -43,6 +49,12 @@
   },
   {
     "name": "java.awt.Composite",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "java.awt.Cursor",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
     "allDeclaredConstructors": true
@@ -73,6 +85,12 @@
   },
   {
     "name": "java.awt.Insets",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "java.awt.MenuComponent",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
     "allDeclaredConstructors": true
@@ -878,6 +896,12 @@
   },
   {
     "name": "sun.java2d.windows.WindowsFlags",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "sun.java2d.xr.XRSurfaceData",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
     "allDeclaredConstructors": true
