@@ -452,18 +452,6 @@
     "allDeclaredConstructors": true
   },
   {
-    "name": "sun.awt.windows.WComponentPeer",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allDeclaredConstructors": true
-  },
-  {
-    "name": "sun.awt.windows.WDefaultFontCharset",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allDeclaredConstructors": true
-  },
-  {
     "name": "sun.awt.windows.WDesktopPeer",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
