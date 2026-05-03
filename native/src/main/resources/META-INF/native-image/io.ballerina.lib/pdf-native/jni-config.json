@@ -144,6 +144,24 @@
     "allDeclaredConstructors": true
   },
   {
+    "name": "java.awt.event.InputEvent",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "java.awt.event.KeyEvent",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "java.awt.event.MouseEvent",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
     "name": "java.awt.geom.AffineTransform",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
