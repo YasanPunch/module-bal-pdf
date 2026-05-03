@@ -476,12 +476,6 @@
     "allDeclaredConstructors": true
   },
   {
-    "name": "sun.awt.windows.WDataTransferer",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allDeclaredConstructors": true
-  },
-  {
     "name": "sun.awt.windows.WDefaultFontCharset",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
@@ -501,18 +495,6 @@
   },
   {
     "name": "sun.awt.windows.WDialogPeer",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allDeclaredConstructors": true
-  },
-  {
-    "name": "sun.awt.windows.WDragSourceContextPeer",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allDeclaredConstructors": true
-  },
-  {
-    "name": "sun.awt.windows.WDropTargetContextPeer",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
     "allDeclaredConstructors": true
