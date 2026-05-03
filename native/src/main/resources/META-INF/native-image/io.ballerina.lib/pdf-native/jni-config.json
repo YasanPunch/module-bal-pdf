@@ -268,18 +268,6 @@
     "allPublicMethods": true
   },
   {
-    "name": "java.lang.ClassLoader",
-    "allPublicMethods": true
-  },
-  {
-    "name": "java.lang.System",
-    "allPublicMethods": true
-  },
-  {
-    "name": "java.lang.Thread",
-    "allPublicMethods": true
-  },
-  {
     "name": "javax.imageio.IIOException",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
@@ -447,18 +435,6 @@
   },
   {
     "name": "sun.awt.image.VolatileSurfaceManager",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allDeclaredConstructors": true
-  },
-  {
-    "name": "sun.awt.windows.WComponentPeer",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allDeclaredConstructors": true
-  },
-  {
-    "name": "sun.awt.windows.WDefaultFontCharset",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
     "allDeclaredConstructors": true
