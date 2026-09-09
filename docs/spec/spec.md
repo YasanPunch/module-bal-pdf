@@ -76,7 +76,7 @@ The `fallbackFontSize` option sets the font size (in points) used for elements w
 
 #### 2.2.2. Page Size
 
-The `pageSize` option sets the page dimensions of the output PDF. It accepts either a standard preset — `A4`, `LETTER`, or `LEGAL`, defined by the `pdf:StandardPageSize` enum — or arbitrary dimensions given as a `pdf:CustomPageSize` value in points (1 point = 1/72 inch).
+The `pageSize` option sets the page dimensions of the output PDF. It accepts either a standard preset — `A4`, `LETTER`, or `LEGAL`, defined by the `pdf:StandardPageSize` enum — or arbitrary dimensions given as a `pdf:CustomPageSize` value in points (1 point = 1/72 inch). The presets correspond to `A4` (595 × 842 pt), `LETTER` (612 × 792 pt), and `LEGAL` (612 × 1008 pt).
 
 The page size is resolved with the following precedence:
 
