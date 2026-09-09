@@ -2,7 +2,7 @@
 
 The `pdf` module provides functionality to convert HTML content to PDF documents and extract data from existing PDFs, with all processing done locally and no external service dependencies.
 
-## Key Features
+### Key Features
 
 - Convert HTML strings to PDF documents, including custom fonts, page size, and margins
 - Extract text content from existing PDFs
