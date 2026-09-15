@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- [[#9132] Add `Type/Library` and `Area/Storage & File Management` Keywords, Reformat README for Connector Store Discoverability](https://github.com/ballerina-platform/ballerina-library/issues/9132)
+
+## [0.9.1] - 2026-04-23
+
+### Added
+- [pdf module layout configuration is not working](https://github.com/ballerina-platform/ballerina-library/issues/8757)
+
+## [0.9.0] - 2026-03-02
+
 ### Added
 - HTML-to-PDF conversion via `parseHtml()` with configurable page size, margins, fonts, and CSS injection
 - PDF text extraction via `extractText()`, `fileExtractText()`, and `urlExtractText()`
